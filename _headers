@@ -1,0 +1,16 @@
+# Cloudflare Pages security response headers. adapter-cloudflare requires this
+# file to live in the project root (NOT static/) — it copies this file into
+# the build output, then appends its own auto-generated immutable-asset
+# caching rules to the same file.
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=()
+
+# Content-Security-Policy — NOT enabled yet: it needs testing against the live
+# FontPlus and TypeSquare loaders (both inject font CSS/files from their own
+# subdomains) and SvelteKit's inline hydration before it can be enforced
+# without breaking the site. A CSP is best added via kit.csp (nonce/hash) in
+# svelte.config.js rather than here. Starting allowlist to verify against:
+#   Content-Security-Policy: default-src 'self'; img-src 'self' data: https://images.microcms-assets.io; media-src 'self' https://cdn.takumiisobe.com; script-src 'self' 'unsafe-inline' https://webfont.fontplus.jp https://typesquare.com; style-src 'self' 'unsafe-inline' https://webfont.fontplus.jp https://typesquare.com; font-src 'self' https://webfont.fontplus.jp https://*.fontplus.jp https://typesquare.com https://*.typesquare.com; connect-src 'self' https://api.resend.com; frame-ancestors 'none'

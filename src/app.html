@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<!-- viewport-fit=cover: the page's own white extends behind the iOS
+		     Safari toolbars; anything fixed near a physical edge pads itself
+		     with env(safe-area-inset-*). -->
+		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+		<meta name="theme-color" content="#ffffff" />
+		<link rel="icon" href="%sveltekit.assets%/favicon.svg" type="image/svg+xml" />
+		<link rel="icon" href="%sveltekit.assets%/favicon.png" type="image/png" />
+		<link rel="apple-touch-icon" href="%sveltekit.assets%/apple-touch-icon.png" />
+		<!-- Decided before first paint so nothing flashes:
+		     - .js      → CSS may hide things that JS will animate in.
+		     - data-op  → whether the opening (logo + photograph) plays.
+		       It plays once per tab session, only when the visit STARTS on
+		       the archive index, and never under reduced motion. Landing
+		       anywhere else counts as having entered the site already.
+		     Mirrored in lib/state/ui.svelte.ts — keep the key in sync. -->
+		<script>
+			(function () {
+				var root = document.documentElement;
+				root.classList.add('js');
+				var play = false;
+				try {
+					var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+					var seen = sessionStorage.getItem('ii-op') === '1';
+					play = !reduce && !seen && location.pathname === '/';
+					sessionStorage.setItem('ii-op', '1');
+				} catch (e) {}
+				root.dataset.op = play ? 'play' : 'skip';
+			})();
+		</script>
+		<!-- Japanese webfonts — same accounts as the Office site. Both
+		     services only serve registered domains: add II's domain (and the
+		     *.pages.dev preview host) in each dashboard before launch. -->
+		<!-- FONTPLUS — Tazugane Gothic (defer: non render-blocking) -->
+		<script defer src="https://webfont.fontplus.jp/accessor/script/fontplus.js?kqbwQX--jVA%3D&box=-1MT0mUgg4A%3D&aa=1&ab=2"></script>
+		<!-- TypeSquare — 石井ゴシック R (sync: defer/async isn't documented as supported) -->
+		<script
+			type="text/javascript"
+			src="//typesquare.com/3/tsst/script/ja/typesquare.js?616abf4f07244993b0057f1eac1e02e5"
+			charset="utf-8"
+		></script>
+		<link rel="preload" href="%sveltekit.assets%/fonts/Elio-VF16.woff2?v=16" as="font" type="font/woff2" crossorigin />
+		<!-- base.css cache-bust: bump ?v= on every base.css edit -->
+		<link rel="stylesheet" href="%sveltekit.assets%/css/base.css?v=20260929a" />
+		%sveltekit.head%
+	</head>
+	<body data-sveltekit-preload-data="hover">
+		<div style="display: contents">%sveltekit.body%</div>
+	</body>
+</html>
