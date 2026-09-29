@@ -124,6 +124,17 @@ const splitTag = (description: string): { ja: string; en: string } => {
 	return { ja: breakify(description.slice(0, i)), en: breakify(description.slice(i + 1)) };
 };
 
+/** The label is rendered as text, so the editor's HTML entities have to be
+    decoded first ("Art &amp; Direction" → "Art & Direction"). */
+const decodeEntities = (s: string): string =>
+	s
+		.replace(/&nbsp;/g, ' ')
+		.replace(/&lt;/g, '<')
+		.replace(/&gt;/g, '>')
+		.replace(/&quot;/g, '"')
+		.replace(/&#39;/g, "'")
+		.replace(/&amp;/g, '&');
+
 /** colophon_text (richEditor HTML) → rows. One "Label!Value" per line;
     inline <a> survives into the value (rendered with {@html}). Same parser
     as Office's work page. */
@@ -137,7 +148,11 @@ const parseColophon = (html: string | undefined): ColophonRow[] =>
 		.filter((line) => line.includes('!'))
 		.map((line): ColophonRow => {
 			const [label, ...rest] = line.split('!');
-			return { label: label.replace(/<[^>]+>/g, '').trim(), value: rest.join('!').trim(), html: true };
+			return {
+				label: decodeEntities(label.replace(/<[^>]+>/g, '')).trim(),
+				value: rest.join('!').trim(),
+				html: true
+			};
 		})
 		.filter((row) => row.label && row.value);
 

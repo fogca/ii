@@ -8,10 +8,6 @@
 	});
 </script>
 
-<svelte:head>
-	<title>{page.status} — II</title>
-</svelte:head>
-
 <section class="Error">
 	<p class="t-eyebrow">{page.status}</p>
 	<h1 class="t-title">{page.status === 404 ? 'Not Found' : 'Error'}</h1>

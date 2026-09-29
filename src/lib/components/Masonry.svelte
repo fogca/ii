@@ -65,6 +65,10 @@
 	};
 
 	const columns = $derived(distribute(tiles, isPC ? PC_COLUMNS : SP_COLUMNS));
+	/** One entry per work, in first-appearance order — the keyboard / screen
+	    reader route through the archive on PC, where the moving, duplicated
+	    marquee itself is hidden from both (see markup). */
+	const works = $derived([...new Map(tiles.map((t) => [t.slug, t.title])).entries()].map(([slug, title]) => ({ slug, title })));
 	/** +1 = content flows down (columns 1, 3), -1 = up (column 2). */
 	const dirOf = (c: number) => (c % 2 === 0 ? 1 : -1);
 
@@ -159,8 +163,11 @@
 		};
 
 		const onKey = (e: KeyboardEvent) => {
+			if (e.defaultPrevented || ui.menuOpen || e.metaKey || e.ctrlKey || e.altKey) return;
 			const t = e.target as HTMLElement | null;
 			if (t?.closest('input, textarea, select, [contenteditable]')) return;
+			// Space activates buttons (the menu toggle) — leave it to them.
+			if (e.key === ' ' && t?.closest('button, [role="button"], summary')) return;
 			const vh = viewport!.clientHeight;
 			const map: Record<string, number> = {
 				ArrowDown: KEY_STEP,
@@ -229,40 +236,43 @@
 			return;
 		}
 
-		import('gsap').then(async ({ gsap }) => {
-			await tick();
-			const cols = colEls.filter(Boolean);
-			const vh = window.innerHeight;
-			// fromTo renders its start state immediately, so the columns are
-			// already off-screen by the time .is-in makes them visible.
-			cols.forEach((col, c) => {
-				const from = pc ? -dirOf(c) * vh * 1.05 : -dirOf(c) * SP_ENTRANCE_OFFSET;
-				gsap.fromTo(
-					col,
-					{ y: from, opacity: pc ? 1 : 0 },
-					{
-						y: 0,
-						opacity: 1,
-						duration: pc ? ENTRANCE_DURATION : 1.4,
-						delay: c * 0.08,
-						ease: pc ? 'power4.out' : 'power3.out',
-						clearProps: 'transform,opacity'
-					}
-				);
-			});
-			entered = true;
-			if (pc) {
-				const surge = { v: ENTRANCE_BOOST };
-				gsap.to(surge, {
-					v: 0,
-					duration: ENTRANCE_DURATION,
-					ease: 'power2.out',
-					onUpdate: () => {
-						boost = surge.v;
-					}
+		import('gsap')
+			.then(async ({ gsap }) => {
+				await tick();
+				const cols = colEls.filter(Boolean);
+				const vh = window.innerHeight;
+				// fromTo renders its start state immediately, so the columns are
+				// already off-screen by the time .is-in makes them visible.
+				cols.forEach((col, c) => {
+					const from = pc ? -dirOf(c) * vh * 1.05 : -dirOf(c) * SP_ENTRANCE_OFFSET;
+					gsap.fromTo(
+						col,
+						{ y: from, opacity: pc ? 1 : 0 },
+						{
+							y: 0,
+							opacity: 1,
+							duration: pc ? ENTRANCE_DURATION : 1.4,
+							delay: c * 0.08,
+							ease: pc ? 'power4.out' : 'power3.out',
+							clearProps: 'transform,opacity'
+						}
+					);
 				});
-			}
-		});
+				entered = true;
+				if (pc) {
+					const surge = { v: ENTRANCE_BOOST };
+					gsap.to(surge, {
+						v: 0,
+						duration: ENTRANCE_DURATION,
+						ease: 'power2.out',
+						onUpdate: () => {
+							boost = surge.v;
+						}
+					});
+				}
+			})
+			// No animation code → just show the columns.
+			.catch(() => (entered = true));
 	});
 
 	/** Fades each image in over its low-res placeholder once decoded —
@@ -274,7 +284,25 @@
 	}
 </script>
 
-<div class="Masonry" class:is-pc={isPC} class:is-in={entered} bind:this={viewport}>
+{#if isPC && mounted}
+	<!-- PC keyboard / screen-reader route: one link per work, visually hidden
+	     until focused (the marquee's tiles are duplicated and constantly
+	     moving, so they're taken out of the tab order and the a11y tree). -->
+	<ul class="works-index" aria-label="Works">
+		{#each works as w (w.slug)}
+			<li><a class="t-eyebrow" href="/works/{w.slug}">{w.title}</a></li>
+		{/each}
+	</ul>
+{/if}
+
+<div
+	class="Masonry"
+	class:is-pc={isPC}
+	class:is-in={entered}
+	class:is-mounted={mounted}
+	aria-hidden={isPC ? 'true' : undefined}
+	bind:this={viewport}
+>
 	{#each columns as column, c (c)}
 		<div class="col" bind:this={colEls[c]}>
 			<div class="track" bind:this={trackEls[c]}>
@@ -285,7 +313,7 @@
 								class="tile"
 								href="/works/{tile.slug}"
 								aria-label={tile.title}
-								tabindex={rep > 0 ? -1 : undefined}
+								tabindex={isPC || rep > 0 ? -1 : undefined}
 								style="--ratio: {ratioOf(tile)}; background-image: url('{imgOpt(tile.src, 32, 30)}')"
 							>
 								<img
@@ -333,7 +361,13 @@
 	}
 
 	/* Hidden until the entrance takes them (JS only — without JS the grid
-	   simply shows). */
+	   simply shows). Before mount the layout isn't even known (SSR can't
+	   tell PC from SP), so it isn't laid out at all — which also keeps the
+	   browser from fetching images for the wrong column count. */
+	:global(html.js) .Masonry:not(.is-mounted) {
+		display: none;
+	}
+
 	:global(html.js) .Masonry:not(.is-in) .col {
 		visibility: hidden;
 	}
@@ -368,17 +402,44 @@
 		}
 	}
 
-	/* PC: a fixed window to the right of the left panel. */
+	/* PC: a fixed window to the right of the left panel. clip, not hidden:
+	   hidden would make it a scroll container that focus/scrollIntoView
+	   could shift, breaking the loop's coverage maths. */
 	.Masonry.is-pc {
 		position: fixed;
 		top: 0;
 		bottom: 0;
 		left: var(--aside-w);
 		right: 0;
+		overflow: clip;
+	}
+
+	/* Each column clips to the window too, so during the entrance columns 1
+	   and 3 show a real edge descending from the top (and 2 one rising from
+	   the bottom) instead of sliding an already-full strip. */
+	.is-pc .col {
+		position: relative;
+		overflow: clip;
+	}
+
+	.works-index a {
+		position: fixed;
+		top: 20px;
+		left: calc(var(--aside-w) + 20px);
+		z-index: var(--z-header);
+		padding: 8px 12px;
+		background: var(--color-bg);
+		white-space: nowrap;
+		clip-path: inset(50%);
+		width: 1px;
+		height: 1px;
 		overflow: hidden;
 	}
 
-	.is-pc .col {
-		position: relative;
+	.works-index a:focus-visible {
+		clip-path: none;
+		width: auto;
+		height: auto;
+		overflow: visible;
 	}
 </style>

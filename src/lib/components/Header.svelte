@@ -70,16 +70,20 @@
 </header>
 
 <style>
-	/* SP geometry (Figma 113:516): lines 40 × 1.5px, 8px apart, at (20, 25);
-	   mark 39.76px wide at top 18.22, centered. */
+	/* SP geometry (Figma 113:516): lines 40 × 1.5px, 8px apart, the top
+	   stroke's ink at y=23.5 (Figma's group box y=25 is the stroke's lower
+	   edge); mark 39.76px wide at top 18.22, centered. */
 	.Header {
 		--btn-w: 40px;
 		--btn-gap: 8px; /* distance between the two line centers */
 		--btn-x: 20px;
-		--btn-y: 25px;
+		--btn-y: 23.5px;
 		--mark-w: 39.76px;
 		--mark-y: 18.22px;
 		--angle: 15deg; /* Figma II_Menu close icon: 57.96 × 15.53 from a 60px line */
+		/* Where the X crosses, as an offset of the top line (SP: midway —
+		   no SP menu frame exists; PC: Figma 109:406 crosses at y≈20.25). */
+		--x-shift: calc(var(--btn-gap) / 2);
 
 		display: contents;
 	}
@@ -88,17 +92,18 @@
 	.menu-btn,
 	.mark {
 		position: fixed;
-		opacity: 0;
 		transition:
 			opacity 0.8s var(--ease-out),
 			transform 0.6s var(--ease-out),
 			background-color 0.3s ease;
 	}
 
-	.is-entered .bar,
-	.is-entered .menu-btn,
-	.is-entered .mark {
-		opacity: 1;
+	/* Until the page enters (the opening plays over it) the controls are
+	   invisible AND unreachable — no invisible click/Tab targets under the
+	   overlay. JS only: without it they simply show. */
+	:global(html.js) .Header:not(.is-entered) :is(.bar, .menu-btn, .mark) {
+		opacity: 0;
+		visibility: hidden;
 	}
 
 	/* SP bar: white only once the page has scrolled (the Figma frames show
@@ -164,13 +169,13 @@
 		bottom: 0;
 	}
 
-	/* Open: both lines meet at the center and cross at ±15° (Figma II_Menu). */
+	/* Open: the lines cross at ±15° (Figma II_Menu). */
 	.is-menu-open .line--top {
-		transform: translateY(calc(var(--btn-gap) / 2)) rotate(calc(-1 * var(--angle)));
+		transform: translateY(var(--x-shift)) rotate(calc(-1 * var(--angle)));
 	}
 
 	.is-menu-open .line--bottom {
-		transform: translateY(calc(var(--btn-gap) / -2)) rotate(var(--angle));
+		transform: translateY(calc(var(--x-shift) - var(--btn-gap))) rotate(var(--angle));
 	}
 
 	.mark {
@@ -185,16 +190,25 @@
 		color: var(--color-text);
 	}
 
-	/* PC geometry (Figma 79:154): lines 60 × 1.5px, 11px apart, at (20, 20);
-	   mark 31.76px wide at top 21.22. On PC the menu sheet covers the small
-	   mark (its own large mark takes over) — only the button stays on top. */
+	/* PC geometry (Figma 79:154): lines 60 × 1.5px, 11px apart, top stroke's
+	   ink at y=18.5; mark 31.76px wide at top 21.22. On PC the menu sheet
+	   covers the small mark (its own large mark takes over) — only the
+	   button stays on top. */
 	@media (min-width: 1024px) {
 		.Header {
 			--btn-w: 60px;
 			--btn-gap: 11px;
-			--btn-y: 20px;
+			--btn-y: 18.5px;
 			--mark-w: 31.76px;
 			--mark-y: 21.22px;
+			--x-shift: 1px;
+		}
+
+		/* Under the sheet: out of the tab order too (flipped once the
+		   sliding sheet has covered it). */
+		.is-menu-open .mark {
+			visibility: hidden;
+			transition: visibility 0s linear 0.5s;
 		}
 
 		.bar {

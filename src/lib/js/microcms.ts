@@ -54,8 +54,12 @@ export type WorkResponse = {
 	contents: Work[];
 };
 
+// A hung (not failed) CMS would otherwise stall every server render.
+const TIMEOUT_MS = 4000;
+const requestInit = () => ({ signal: AbortSignal.timeout(TIMEOUT_MS) });
+
 export const getList = async (queries?: MicroCMSQueries) => {
-	return await client.get<WorkResponse>({ endpoint: 'works', queries });
+	return await client.get<WorkResponse>({ endpoint: 'works', queries, customRequestInit: requestInit() });
 };
 
 /** getList minus works flagged `hidden`. The exclusion runs server-side
@@ -70,5 +74,10 @@ export const getVisibleWorks = async (queries?: MicroCMSQueries) => {
 };
 
 export const getDetail = async (contentId: string, queries?: MicroCMSQueries) => {
-	return await client.getListDetail<Work>({ endpoint: 'works', contentId, queries });
+	return await client.getListDetail<Work>({
+		endpoint: 'works',
+		contentId,
+		queries,
+		customRequestInit: requestInit()
+	});
 };

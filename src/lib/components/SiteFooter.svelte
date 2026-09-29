@@ -1,11 +1,13 @@
 <script lang="ts">
 	import Logo from './Logo.svelte';
 	import { COPYRIGHT, INSTAGRAM, LEGAL_LINKS, SITE_FULL_NAME } from '$lib/js/site';
+
+	let { inert = false }: { inert?: boolean } = $props();
 </script>
 
 <!-- SP only — the shared footer from the bottom of Figma's SP About frame
      (123:115). On PC the legal line lives in the left panel instead. -->
-<footer class="SiteFooter sp">
+<footer class="SiteFooter sp" {inert}>
 	<a class="mark" href="/" aria-label="II — Creation Archive">
 		<Logo />
 	</a>
@@ -23,10 +25,11 @@
 </footer>
 
 <style>
-	/* Figma: mark 133.7px at y=1756, "ISOBE INSTITUTE" 18px at y=1929,
-	   @ii_institute at y=2091, legal + © at y=2110, frame ends y=2139. */
+	/* Figma: 74px under the last text line, mark 133.7px at y=1756,
+	   "ISOBE INSTITUTE" 18px at y=1929, @ii_institute at y=2091, legal + ©
+	   at y=2110, frame ends y=2139. */
 	.SiteFooter {
-		padding: 100px var(--gutter) calc(18px + env(safe-area-inset-bottom, 0px));
+		padding: 74px var(--gutter) calc(18px + env(safe-area-inset-bottom, 0px));
 		text-align: center;
 	}
 
@@ -66,5 +69,6 @@
 
 	.copy {
 		grid-area: copy;
+		white-space: pre; /* keeps the double space before the year */
 	}
 </style>

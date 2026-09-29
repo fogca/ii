@@ -65,6 +65,7 @@
 	   Single source of truth: components never hardcode a wght. */
 	--fw-regular: 450;
 	--fw-medium: 550;
+	--fw-eyebrow: var(--fw-regular); /* Figma SP: Elio Regular 10px */
 
 	/* Tracking */
 	--tracking-title: 0.05em; /* all uppercase display text */
@@ -109,6 +110,7 @@
 	:root {
 		--fs-title: 42px;
 		--fs-eyebrow: 9px;
+		--fw-eyebrow: var(--fw-medium); /* Figma PC: Elio Medium 9px */
 		--fs-subtitle: 32px;
 		--fs-menu: 32px;
 		--fs-body: 16px;
@@ -165,6 +167,13 @@ html.is-scroll-locked,
 html.is-scroll-locked body {
 	overflow: hidden;
 	height: 100%;
+}
+
+/* Menu open: nothing behind the sheet scrolls (touch swipes and wheel over
+   the scrim used to chain through to the page). Toggled by Menu.svelte. */
+html.is-menu-open,
+html.is-menu-open body {
+	overflow: hidden;
 }
 
 img,
@@ -243,7 +252,7 @@ h6 {
 
 .t-eyebrow {
 	font-size: var(--fs-eyebrow);
-	font-weight: var(--fw-regular);
+	font-weight: var(--fw-eyebrow);
 }
 
 .t-subtitle {

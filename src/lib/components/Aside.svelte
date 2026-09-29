@@ -2,12 +2,18 @@
 	import { ui } from '$lib/state/ui.svelte';
 	import { COPYRIGHT, LEGAL_LINKS } from '$lib/js/site';
 
-	let { eyebrow = '', title = '' }: { eyebrow?: string; title?: string } = $props();
+	let {
+		eyebrow = '',
+		title = '',
+		inert = false
+	}: { eyebrow?: string; title?: string; inert?: boolean } = $props();
 </script>
 
 <!-- PC: the fixed left panel ("header" column) carrying the page title and
-     the legal line. SP: the same title block, in flow at the top of the page. -->
-<aside class="Aside" class:is-entered={ui.entered} aria-label="Page">
+     the legal line. SP: the same title block, in flow at the top of the page.
+     A plain div, not <aside>: it holds the page's h1, which must not sit in a
+     complementary landmark. -->
+<div class="Aside" class:is-entered={ui.entered} {inert}>
 	{#key title}
 		<div class="head">
 			{#if eyebrow}<p class="eyebrow t-eyebrow">{eyebrow}</p>{/if}
@@ -23,7 +29,7 @@
 		</p>
 		<p class="copy">{COPYRIGHT}</p>
 	</div>
-</aside>
+</div>
 
 <style>
 	/* SP (Figma 113:516 / 128:376 / 123:115): eyebrow at y=147, title at
@@ -40,16 +46,15 @@
 		flex-direction: column;
 		align-items: center;
 		gap: 9px;
-		opacity: 0;
-		transform: translateY(8px);
 		transition:
 			opacity 0.9s var(--ease-out) 0.15s,
 			transform 1.1s var(--ease-out) 0.15s;
 	}
 
-	.is-entered .head {
-		opacity: 1;
-		transform: none;
+	/* Fades in when the page enters (JS only — without it, just shown). */
+	:global(html.js) .Aside:not(.is-entered) .head {
+		opacity: 0;
+		transform: translateY(8px);
 	}
 
 	.title {
@@ -76,17 +81,19 @@
 			z-index: var(--z-content);
 		}
 
+		/* Figma centers the title block on x=220.5 of the 455px panel, not
+		   its middle (227.5) — 14/1440 more room on the right. */
 		.head {
 			position: absolute;
 			top: 50%;
 			left: var(--gutter);
-			right: var(--gutter);
+			right: calc(var(--gutter) + 14 / 1440 * 100vw);
 			display: block;
-			transform: translateY(calc(-50% + 8px));
+			transform: translateY(-50%);
 		}
 
-		.is-entered .head {
-			transform: translateY(-50%);
+		:global(html.js) .Aside:not(.is-entered) .head {
+			transform: translateY(calc(-50% + 8px));
 		}
 
 		.eyebrow {
@@ -100,22 +107,26 @@
 			margin-inline: auto;
 		}
 
+		/* Figma: legal line from x=20, © ending at x≈429, baseline row y=873. */
 		.foot {
 			position: absolute;
 			left: var(--gutter);
-			right: var(--gutter);
+			right: calc(26 / 1440 * 100vw);
 			bottom: calc(16px + env(safe-area-inset-bottom, 0px));
 			display: flex;
 			justify-content: space-between;
 			align-items: flex-end;
 			color: var(--color-text-mute);
 			text-align: left;
-			opacity: 0;
 			transition: opacity 0.9s var(--ease-out) 0.3s;
 		}
 
-		.is-entered .foot {
-			opacity: 1;
+		:global(html.js) .Aside:not(.is-entered) .foot {
+			opacity: 0;
+		}
+
+		.copy {
+			white-space: pre; /* keeps the double space before the year */
 		}
 
 		.legal {

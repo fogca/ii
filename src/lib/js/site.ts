@@ -22,7 +22,8 @@ export const LEGAL_LINKS: { label: string; href?: string }[] = [
 	{ label: 'Cookies' }
 ];
 
-export const COPYRIGHT = `©II All Rights Reserved, ${new Date().getFullYear()}`;
+// Double space before the year, as set in Figma (render with white-space: pre).
+export const COPYRIGHT = `©II All Rights Reserved,  ${new Date().getFullYear()}`;
 
 /** <title> suffix. */
 export const titleOf = (page?: string) => (page ? `${page} — ${SITE_NAME}` : `${SITE_NAME} — ${SITE_FULL_NAME}`);

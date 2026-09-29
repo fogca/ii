@@ -50,7 +50,10 @@
 <div class="Menu" class:is-open={ui.menuOpen} id="site-menu" inert={!ui.menuOpen} aria-hidden={!ui.menuOpen}>
 	<button class="scrim" type="button" tabindex="-1" aria-label="Close menu" onclick={close}></button>
 
-	<div class="sheet" role="dialog" aria-modal="true" aria-label="Menu" bind:this={sheet}>
+	<!-- Modality comes from +layout.svelte making everything else inert while
+	     open (so the toggle, outside this element, stays reachable) — hence no
+	     aria-modal here. -->
+	<div class="sheet" role="dialog" aria-label="Menu" bind:this={sheet}>
 		<nav class="nav" aria-label="Site">
 			<ul>
 				{#each LINKS as link, i (link.label)}
@@ -147,6 +150,7 @@
 		transform: translateY(-100%);
 		transition: transform 0.8s var(--ease-silk);
 		overflow-y: auto;
+		overscroll-behavior: contain;
 	}
 
 	.is-open .sheet {
@@ -217,6 +221,7 @@
 
 	.copy {
 		grid-area: copy;
+		white-space: pre; /* keeps the double space before the year */
 	}
 
 	/* PC (Figma II_Menu 109:390): a white sheet 657/900 of the viewport tall
@@ -230,7 +235,8 @@
 			grid-template-columns: 1fr auto;
 			grid-template-rows: auto 1fr;
 			align-content: start;
-			padding: 82px 20px 71px 21px;
+			/* 40px on the right: Figma's panels are 680 wide at x=20 / 720 */
+			padding: 82px 40px 71px 21px;
 			overflow: visible;
 		}
 

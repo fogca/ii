@@ -126,7 +126,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: 20px;
-		padding: 108px var(--gutter) 0;
+		padding: 50px var(--gutter) 0;
 	}
 
 	.rest-item {
@@ -150,24 +150,34 @@
 		line-height: var(--lh-colophon);
 	}
 
+	/* Both ends may shrink/wrap, so a long credit can never push the row
+	   past the screen edge. */
 	dt {
-		flex: none;
+		flex: 0 1 auto;
+		min-width: 0;
 		font-size: var(--fs-colophon-label);
 	}
 
+	/* A true hairline in every engine (Chromium rounds a 0.5px border up to
+	   1 CSS px), lifted ~1.5px off the baseline as in Figma. */
 	.leader {
 		flex: 1 1 auto;
 		min-width: 24px;
-		margin: 0 7px;
-		border-bottom: 0.5px solid var(--color-text);
+		height: 1px;
+		margin: 0 7px 1.5px;
+		background: var(--color-text);
+		transform: scaleY(0.5);
+		transform-origin: bottom;
 	}
 
 	dd {
-		flex: none;
+		flex: 0 1 auto;
+		min-width: 0;
 		max-width: 60%;
 		font-size: var(--fs-colophon-value);
 		text-align: right;
 		line-height: 1.4;
+		overflow-wrap: anywhere;
 	}
 
 	dd :global(a) {

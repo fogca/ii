@@ -18,10 +18,12 @@
 </article>
 
 <style>
-	/* ── SP (Figma 123:115): photo full-bleed (395 × 527), statement in a
-	   353px column 40px below it, 11px / 1.5. */
+	/* ── SP (Figma 123:115): photo full-bleed at y=333 (11px above the
+	   shared 344 content line), 527 tall; statement in a 353px column 40px
+	   below it, 11px / 1.5. */
 	.photo {
-		aspect-ratio: 395 / 527;
+		margin-top: -11px;
+		aspect-ratio: 393 / 527;
 		background: var(--color-tile);
 	}
 
