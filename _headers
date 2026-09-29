@@ -1,7 +1,7 @@
-# Cloudflare Pages security response headers. adapter-cloudflare requires this
-# file to live in the project root (NOT static/) — it copies this file into
-# the build output, then appends its own auto-generated immutable-asset
-# caching rules to the same file.
+# Cloudflare Pages security response headers for STATIC assets only.
+# adapter-cloudflare requires this file in the project root (NOT static/) and
+# appends its own immutable-asset caching rules. Server-rendered pages don't
+# get these from here — src/hooks.server.ts sets the same set on them.
 /*
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
