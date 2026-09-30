@@ -12,7 +12,8 @@
 	const HERO_WIDTHS = [640, 900, 1400, 2000, 2800];
 	const REST_WIDTHS = [640, 900, 1400, 2000, 2800];
 
-	/** w/h for the width cap on tall images (videos: 16:9 until known). */
+	/** w/h — sizes the two pair images to one shared row height (videos:
+	    16:9 until known). */
 	const arOf = (m: { width?: number; height?: number }) =>
 		m.width && m.height ? m.width / m.height : 16 / 9;
 </script>
@@ -37,11 +38,24 @@
 
 		{#if work.lead || work.body}
 			<section class="text">
+				<!-- Both languages are in the page; html[data-lang] picks one.
+				     A work missing one language shows the other in both
+				     (.is-only). -->
 				{#if work.lead}
-					<h2 class="lead t-subtitle" lang={work.lead.lang}>{work.lead.text}</h2>
+					{#if work.lead.en}
+						<h2 class="lead t-subtitle x-en" class:is-only={!work.lead.ja} lang="en">{work.lead.en}</h2>
+					{/if}
+					{#if work.lead.ja}
+						<h2 class="lead t-subtitle x-ja" class:is-only={!work.lead.en} lang="ja">{work.lead.ja}</h2>
+					{/if}
 				{/if}
 				{#if work.body}
-					<p class="body t-body" lang={work.body.lang}>{work.body.text}</p>
+					{#if work.body.en}
+						<p class="body t-body x-en" class:is-only={!work.body.ja} lang="en">{work.body.en}</p>
+					{/if}
+					{#if work.body.ja}
+						<p class="body t-body x-ja" class:is-only={!work.body.en} lang="ja">{work.body.ja}</p>
+					{/if}
 				{/if}
 			</section>
 		{/if}
@@ -49,7 +63,7 @@
 		{#if work.rest.length}
 			<div class="rest">
 				{#each work.rest as media, i (i)}
-					<div class="rest-item" style="--ar: {arOf(media)}">
+					<div class="rest-item">
 						<Media {media} sizes={REST_SIZES} widths={REST_WIDTHS} />
 					</div>
 				{/each}
@@ -98,7 +112,7 @@
 
 	.pair.is-single .cell {
 		flex: none;
-		width: min(100%, calc(100vh * var(--ar)));
+		width: 100%;
 	}
 
 	.text {
@@ -107,6 +121,11 @@
 
 	.lead {
 		white-space: pre-line;
+	}
+
+	:global(html[data-lang='ja']) .x-en:not(.is-only),
+	:global(html:not([data-lang='ja'])) .x-ja:not(.is-only) {
+		display: none;
 	}
 
 	.body {
@@ -120,10 +139,6 @@
 		flex-direction: column;
 		gap: 20px;
 		padding: 50px var(--gutter) 0;
-	}
-
-	.rest-item {
-		width: min(100%, calc((100vh - 2 * var(--header-h)) * var(--ar)));
 	}
 
 	.Colophon {
@@ -197,10 +212,6 @@
 		.rest {
 			gap: var(--tile-gap);
 			padding: 120px 0 0;
-		}
-
-		.rest-item {
-			width: min(100%, calc(100vh * var(--ar)));
 		}
 
 		.Colophon {
