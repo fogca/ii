@@ -51,6 +51,17 @@
 		padding: 40px var(--gutter) 0;
 	}
 
+	/* The whole page takes the accent color while About is shown (both
+	   breakpoints); the statement body is --fs-about (SP 16px / PC 28px),
+	   section heads keep the body size. */
+	:global(html.is-about body) {
+		background: var(--color-accent);
+	}
+
+	.text p {
+		font-size: var(--fs-about);
+	}
+
 	:global(html[data-lang='ja']) .x-en,
 	:global(html:not([data-lang='ja'])) .x-ja {
 		display: none;
@@ -66,10 +77,6 @@
 	   pinned at the top right (446 × 595, 24px from the edge, y=22) while
 	   the text scrolls. Section heads keep the 16px body size. ── */
 	@media (min-width: 1024px) {
-		:global(html.is-about body) {
-			background: var(--color-accent);
-		}
-
 		.About {
 			display: grid;
 			grid-template-columns: minmax(0, 1fr);
@@ -96,10 +103,6 @@
 			z-index: 1;
 			max-width: none;
 			padding: 84px 0 0;
-		}
-
-		.text p {
-			font-size: var(--fs-about);
 		}
 	}
 </style>

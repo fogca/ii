@@ -84,6 +84,7 @@
 	--fs-colophon-label: 12px;
 	--fs-colophon-value: 14px;
 	--fs-brand: 18px; /* "ISOBE INSTITUTE" under the footer mark */
+	--fs-about: 16px; /* About statement */
 
 	--lh-title: 1.2;
 	--lh-body: 1.5;
