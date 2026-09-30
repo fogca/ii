@@ -7,9 +7,19 @@
 	import Aside from '$lib/components/Aside.svelte';
 	import SiteFooter from '$lib/components/SiteFooter.svelte';
 	import { ui } from '$lib/state/ui.svelte';
+	import { lang } from '$lib/state/lang.svelte';
+	import { browser } from '$app/environment';
 	import { SITE_DESCRIPTION, titleOf } from '$lib/js/site';
 
 	let { children, data } = $props();
+
+	// Adopt the language app.html already applied pre-paint (during init, so
+	// the toggle renders right on first paint), then keep <html data-lang>
+	// following the store.
+	if (browser) lang.restore();
+	$effect(() => {
+		document.documentElement.dataset.lang = lang.current;
+	});
 
 	// Only the archive index has an opening (Opening.svelte flips
 	// ui.entered itself there); every other page enters at once.

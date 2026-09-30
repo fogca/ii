@@ -48,7 +48,7 @@ export const load: PageServerLoad = async ({ params }) => {
 		},
 		seo: {
 			title: titleOf(work.title),
-			description: detail.lead?.lang === 'en' ? detail.lead.text : undefined,
+			description: detail.lead?.en || undefined,
 			image: ogImage
 		}
 	};

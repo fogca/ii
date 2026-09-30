@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { ui } from '$lib/state/ui.svelte';
+	import { lang, type Lang } from '$lib/state/lang.svelte';
 	import { COPYRIGHT, LEGAL_LINKS } from '$lib/js/site';
 
 	let {
@@ -7,6 +8,11 @@
 		title = '',
 		inert = false
 	}: { eyebrow?: string; title?: string; inert?: boolean } = $props();
+
+	const LANGS: { code: Lang; label: string; name: string }[] = [
+		{ code: 'ja', label: 'JA', name: '日本語' },
+		{ code: 'en', label: 'EN', name: 'English' }
+	];
 </script>
 
 <!-- PC: the fixed left panel ("header" column) carrying the page title and
@@ -26,6 +32,20 @@
 			{#each LEGAL_LINKS as l (l.label)}
 				{#if l.href}<a href={l.href}>{l.label}</a>{:else}<span>{l.label}</span>{/if}
 			{/each}
+			<!-- Display language (Office's model — lib/state/lang.svelte.ts):
+			     the current one reads in full black, the other stays muted. -->
+			<span class="lang" role="group" aria-label="Language">
+				{#each LANGS as l, i (l.code)}
+					{#if i > 0}<span aria-hidden="true">/</span>{/if}
+					<button
+						type="button"
+						class:is-current={lang.current === l.code}
+						aria-pressed={lang.current === l.code}
+						aria-label={l.name}
+						onclick={() => lang.set(l.code)}>{l.label}</button
+					>
+				{/each}
+			</span>
 		</p>
 		<p class="copy">{COPYRIGHT}</p>
 	</div>
@@ -132,6 +152,22 @@
 		.legal {
 			display: flex;
 			gap: 0.9em;
+		}
+
+		.lang {
+			display: inline-flex;
+			gap: 0.35em;
+		}
+
+		.lang button {
+			padding: 0;
+			line-height: inherit;
+			transition: color 0.3s ease;
+		}
+
+		.lang button:hover,
+		.lang button.is-current {
+			color: var(--color-text);
 		}
 	}
 </style>

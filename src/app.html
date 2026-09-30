@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-lang="en">
 	<head>
 		<meta charset="utf-8" />
 		<!-- viewport-fit=cover: the page's own white extends behind the iOS
@@ -12,6 +12,9 @@
 		<link rel="apple-touch-icon" href="%sveltekit.assets%/apple-touch-icon.png" />
 		<!-- Decided before first paint so nothing flashes:
 		     - .js      → CSS may hide things that JS will animate in.
+		     - data-lang → EN/JA display language: this tab session's choice,
+		       else the browser's language. Mirrored in
+		       lib/state/lang.svelte.ts's restore() — keep the two in sync.
 		     - data-op  → whether the opening (logo + photograph) plays.
 		       It plays once per tab session, only when the visit STARTS on
 		       the archive index, and never under reduced motion. Landing
@@ -21,6 +24,16 @@
 			(function () {
 				var root = document.documentElement;
 				root.classList.add('js');
+				try {
+					var savedLang = sessionStorage.getItem('ii-lang');
+					var displayLang =
+						savedLang === 'en' || savedLang === 'ja'
+							? savedLang
+							: (navigator.language || '').toLowerCase().indexOf('ja') === 0
+								? 'ja'
+								: 'en';
+					root.dataset.lang = displayLang;
+				} catch (e) {}
 				var play = false;
 				try {
 					var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;

@@ -23,6 +23,8 @@ export type Tile = {
 
 export type ColophonRow = { label: string; value: string; html?: boolean };
 
+export type Bilingual = { en: string; ja: string };
+
 export type WorkDetail = {
 	slug: string;
 	title: string;
@@ -32,8 +34,10 @@ export type WorkDetail = {
 	pair: Media[];
 	/** Everything after the text block. */
 	rest: Media[];
-	lead: { text: string; lang: 'en' | 'ja' } | null;
-	body: { text: string; lang: 'en' | 'ja' } | null;
+	/** EN/JA copy; either may be '' (the page then shows the other one in
+	    both languages). null when neither exists. */
+	lead: Bilingual | null;
+	body: Bilingual | null;
 	colophon: ColophonRow[];
 };
 
@@ -160,20 +164,10 @@ export const toWorkDetail = (w: Work, index: number): WorkDetail => {
 	const [hero = null, ...gallery] = workMedia(w);
 
 	const tag = w.description ? splitTag(w.description) : { ja: '', en: '' };
-	const leadEn = w.headline?.trim() || tag.en;
-	const lead = leadEn
-		? { text: leadEn, lang: 'en' as const }
-		: tag.ja
-			? { text: tag.ja, lang: 'ja' as const }
-			: null;
-
-	const bodyEn = w.body_en?.trim();
-	const bodyJa = w.body_jp?.trim();
-	const body = bodyEn
-		? { text: bodyEn, lang: 'en' as const }
-		: bodyJa
-			? { text: bodyJa, lang: 'ja' as const }
-			: null;
+	const bilingual = (en: string, ja: string): Bilingual | null =>
+		en || ja ? { en, ja } : null;
+	const lead = bilingual(w.headline?.trim() || tag.en, tag.ja);
+	const body = bilingual(w.body_en?.trim() ?? '', w.body_jp?.trim() ?? '');
 
 	// colophon_text only — a work without one shows no Colophon section.
 	const colophon = parseColophon(w.colophon_text);
