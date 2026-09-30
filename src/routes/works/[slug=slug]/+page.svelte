@@ -20,7 +20,7 @@
 {#key work.slug}
 	<article class="Work">
 		{#if work.hero}
-			<div class="hero" style="--ar: {arOf(work.hero)}">
+			<div class="hero">
 				<Media media={work.hero} eager sizes={HERO_SIZES} widths={HERO_WIDTHS} alt={work.title} />
 			</div>
 		{/if}
@@ -82,12 +82,6 @@
 	   Colophon. Every image keeps its own aspect ratio — nothing is
 	   cropped (Figma's fixed 393 × 376 / 197 × 264 + 194 × 159 boxes were
 	   placeholders). */
-
-	/* Very tall images are capped at the viewport height (narrower instead
-	   of cropped). */
-	.hero {
-		width: min(100%, calc(100vh * var(--ar)));
-	}
 
 	/* The pair shares one row height: each image's width is proportional to
 	   its aspect ratio, so both show whole at the same height. */
