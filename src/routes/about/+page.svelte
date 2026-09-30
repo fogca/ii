@@ -1,5 +1,12 @@
 <script lang="ts">
 	import { ABOUT } from '$lib/content/about';
+
+	// The accent background covers the whole page (body), not just this
+	// article — flag <html> while About is shown.
+	$effect(() => {
+		document.documentElement.classList.add('is-about');
+		return () => document.documentElement.classList.remove('is-about');
+	});
 </script>
 
 <article class="About">
@@ -43,25 +50,30 @@
 		margin-top: calc(2 * var(--lh-body) * 1em);
 	}
 
-	/* ── PC (Figma 79:204): statement column from the panel's left edge
-	   (y=84, 16px / 1.4, ≤537px); photo 446 × 595 at the top right
-	   (24px from the edge, y=22), held in place while the text scrolls.
-	   Figma lets the 537px column run 23px under the photo — the column
-	   stops 24px short of it instead. */
+	/* ── PC: the page goes to the accent color; the statement runs the full
+	   width of the panel at 28px and passes OVER the photo, which stays
+	   pinned at the top right (446 × 595, 24px from the edge, y=22) while
+	   the text scrolls. Section heads keep the 16px body size. ── */
 	@media (min-width: 1024px) {
+		:global(html.is-about body) {
+			background: var(--color-accent);
+		}
+
 		.About {
 			display: grid;
-			grid-template-columns: minmax(0, 1fr) calc(446 / 1440 * 100vw);
-			column-gap: calc(24 / 1440 * 100vw);
+			grid-template-columns: minmax(0, 1fr);
 			padding-right: calc(24 / 1440 * 100vw);
 			padding-bottom: 160px;
 		}
 
 		.photo {
-			grid-column: 2;
+			grid-column: 1;
 			grid-row: 1;
+			justify-self: end;
+			align-self: start;
 			position: sticky;
 			top: 22px;
+			width: calc(446 / 1440 * 100vw);
 			margin-top: 22px;
 			aspect-ratio: 446 / 595;
 		}
@@ -69,8 +81,14 @@
 		.text {
 			grid-column: 1;
 			grid-row: 1;
-			max-width: var(--measure);
+			position: relative;
+			z-index: 1;
+			max-width: none;
 			padding: 84px 0 0;
+		}
+
+		.text p {
+			font-size: var(--fs-about);
 		}
 	}
 </style>

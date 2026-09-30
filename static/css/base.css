@@ -56,6 +56,7 @@
 	--color-tile: #cfcfcf; /* image placeholder behind masonry / gallery media */
 	--color-logo-on-image: #f1f0ef; /* II mark over the OP photograph */
 	--color-scrim: rgba(0, 0, 0, 0.65); /* menu backdrop */
+	--color-accent: #43439d; /* About page background (PC) */
 
 	/* Type stacks */
 	--font-en: 'Elio', 'Norma by AUGUST.tf VF09', 'Helvetica Neue', Arial, sans-serif;
@@ -118,6 +119,7 @@
 		--fs-body: 16px;
 		--fs-colophon-label: 14px;
 		--fs-colophon-value: 16px;
+		--fs-about: 28px; /* About statement */
 
 		--lh-body: 1.4;
 		--lh-colophon: 36px;
