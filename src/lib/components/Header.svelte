@@ -6,10 +6,10 @@
 
 	// Tucks away while scrolling down, returns on the first scroll up — so
 	// the fixed mark never sits on top of text scrolling beneath it. SP: the
-	// whole bar; PC: only the center mark (the menu button sits over the
+	// menu button + mark; PC: only the center mark (the button sits over the
 	// left panel, which never scrolls).
 	const DIRECTION_THRESHOLD = 8;
-	const TOP_ZONE = 76; // ≈ bar height: above this the bar always shows, bare
+	const TOP_ZONE = 76; // ≈ header height: above this the controls always show
 
 	let hidden = $state(false);
 	let atTop = $state(true);
@@ -45,11 +45,8 @@
 	class="Header"
 	class:is-entered={ui.entered}
 	class:is-hidden={hidden && !ui.menuOpen}
-	class:is-solid={!atTop && !ui.menuOpen}
 	class:is-menu-open={ui.menuOpen}
 >
-	<div class="bar" aria-hidden="true"></div>
-
 	<button
 		class="menu-btn"
 		type="button"
@@ -88,41 +85,24 @@
 		display: contents;
 	}
 
-	.bar,
+	/* No background on either breakpoint — the controls sit straight on the
+	   page (SP tucks them away on scroll-down instead). */
 	.menu-btn,
 	.mark {
 		position: fixed;
 		transition:
 			opacity 0.8s var(--ease-out),
-			transform 0.6s var(--ease-out),
-			background-color 0.3s ease;
+			transform 0.6s var(--ease-out);
 	}
 
 	/* Until the page enters (the opening plays over it) the controls are
 	   invisible AND unreachable — no invisible click/Tab targets under the
 	   overlay. JS only: without it they simply show. */
-	:global(html.js) .Header:not(.is-entered) :is(.bar, .menu-btn, .mark) {
+	:global(html.js) .Header:not(.is-entered) :is(.menu-btn, .mark) {
 		opacity: 0;
 		visibility: hidden;
 	}
 
-	/* SP bar: white only once the page has scrolled (the Figma frames show
-	   the header on the bare page). */
-	.bar {
-		top: 0;
-		left: 0;
-		right: 0;
-		height: calc(var(--header-h) + env(safe-area-inset-top, 0px));
-		z-index: calc(var(--z-menu) + 1);
-		background: transparent;
-		pointer-events: none;
-	}
-
-	.is-solid .bar {
-		background: var(--color-bg);
-	}
-
-	.is-hidden .bar,
 	.is-hidden .menu-btn,
 	.is-hidden .mark {
 		transform: translateY(-100%);
@@ -209,10 +189,6 @@
 		.is-menu-open .mark {
 			visibility: hidden;
 			transition: visibility 0s linear 0.5s;
-		}
-
-		.bar {
-			display: none;
 		}
 
 		.mark {
