@@ -16,9 +16,15 @@
 
 	<div class="text t-body">
 		{#each ABOUT as section (section.heading)}
+			<!-- Both languages in the page; html[data-lang] picks one (EN head
+			     + JA subtitle in Japanese mode, as on Office). -->
 			<section>
-				<h2>{section.heading}</h2>
-				<p>{section.body}</p>
+				<h2>
+					<span lang="en">{section.heading}</span>
+					<span class="x-ja" lang="ja">{section.headingJa}</span>
+				</h2>
+				<p class="x-en" lang="en">{section.body}</p>
+				<p class="x-ja" lang="ja">{section.bodyJa}</p>
 			</section>
 		{/each}
 	</div>
@@ -43,6 +49,11 @@
 	.text {
 		max-width: calc(var(--measure) + 2 * var(--gutter));
 		padding: 40px var(--gutter) 0;
+	}
+
+	:global(html[data-lang='ja']) .x-en,
+	:global(html:not([data-lang='ja'])) .x-ja {
+		display: none;
 	}
 
 	/* Figma separates the sections by two empty lines. */
