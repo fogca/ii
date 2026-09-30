@@ -24,7 +24,7 @@
    compatibility change) — no ©, /, &, @, ;, ?, curly quotes, £ etc. Those
    fall back per-glyph to Norma (Office's Latin face), the next family in
    every stack below.
-   Japanese matches Office: 石井ゴシック R (TypeSquare) ahead of Tazugane
+   Japanese matches Office: 石井ゴシック M (TypeSquare) ahead of Tazugane
    (FONTPLUS), both loaded from app.html.
    Bump ?v= here AND in app.html's preload when a font file changes.
    --------------------------------------------------------------------- */
@@ -59,7 +59,7 @@
 
 	/* Type stacks */
 	--font-en: 'Elio', 'Norma by AUGUST.tf VF09', 'Helvetica Neue', Arial, sans-serif;
-	--font-ja: 'Elio', 'Norma by AUGUST.tf VF09', 'Ishii Gothic R', TazuganeGothicStdN-Book,
+	--font-ja: 'Elio', 'Norma by AUGUST.tf VF09', 'Ishii Gothic M', TazuganeGothicStdN-Book,
 		'TazuganeGothicStdN-Book', 'Tazugane Gothic StdN', 'Tazugane Gothic', 'Hiragino Sans',
 		'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Meiryo', sans-serif;
 

@@ -175,14 +175,8 @@ export const toWorkDetail = (w: Work, index: number): WorkDetail => {
 			? { text: bodyJa, lang: 'ja' as const }
 			: null;
 
-	let colophon = parseColophon(w.colophon_text);
-	if (!colophon.length) {
-		// Most works have no colophon_text yet — show what the CMS does know.
-		colophon = [
-			...(w.brand ? [{ label: 'Client', value: w.brand }] : []),
-			...(w.scope?.length ? [{ label: 'Scope', value: w.scope.join(' / ') }] : [])
-		];
-	}
+	// colophon_text only — a work without one shows no Colophon section.
+	const colophon = parseColophon(w.colophon_text);
 
 	return {
 		slug: w.id,
