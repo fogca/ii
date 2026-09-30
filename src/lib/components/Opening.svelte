@@ -131,10 +131,11 @@
 		<div class="logo" bind:this={logo}>
 			<Logo sizes="(min-width: 1024px) 25vw, 34vw" />
 		</div>
-		<!-- The light mark over the photograph: always the flat vector (a
-		     render can't turn #F1F0EF), crossfaded in as the photo arrives. -->
+		<!-- The light mark over the photograph, crossfaded in as the photo
+		     arrives: the same mark, lightened — the flat vector recolors to
+		     #F1F0EF, the 3D render is inverted (keeps its modelling). -->
 		<div class="logo logo--light" bind:this={logoLight}>
-			<Logo vector />
+			<Logo sizes="(min-width: 1024px) 25vw, 34vw" />
 		</div>
 	</div>
 {/if}
@@ -192,6 +193,11 @@
 	   capped by height so a short landscape window keeps it inside. */
 	.logo--light {
 		color: var(--color-logo-on-image);
+	}
+
+	/* invert(0.94) takes the render's black to ≈ #F0F0F0 (≈ #F1F0EF). */
+	.logo--light :global(img.Logo) {
+		filter: invert(0.94);
 	}
 
 	.logo {

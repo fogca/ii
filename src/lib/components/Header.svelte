@@ -62,8 +62,7 @@
 	</button>
 
 	<a class="mark" href="/" aria-label="II — Creation Archive" aria-current={page.url.pathname === '/' ? 'page' : undefined}>
-		<span class="mark-render"><Logo /></span>
-		<span class="mark-vector"><Logo vector /></span>
+		<Logo />
 	</a>
 </header>
 
@@ -171,25 +170,15 @@
 		color: var(--color-text);
 	}
 
-	/* Top page (full-bleed photographs): white controls, flat white mark. */
+	/* Top page (full-bleed photographs): white controls; the mark turns
+	   white too — the vector by color, the 3D render by inversion (keeps
+	   its modelling instead of swapping to the flat mark). */
 	:global(html.is-top) .Header:not(.is-menu-open) :is(.menu-btn, .mark) {
 		color: #fff;
 	}
 
-	:global(html.is-top) .Header:not(.is-menu-open) .mark-render {
-		display: none;
-	}
-
-	.mark-render {
-		display: block;
-	}
-
-	.mark-vector {
-		display: none;
-	}
-
-	:global(html.is-top) .Header:not(.is-menu-open) .mark-vector {
-		display: block;
+	:global(html.is-top) .Header:not(.is-menu-open) .mark :global(img.Logo) {
+		filter: invert(1);
 	}
 
 	/* PC geometry (Figma 79:154): lines 60 × 1.5px, 11px apart, top stroke's
