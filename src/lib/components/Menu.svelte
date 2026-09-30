@@ -11,7 +11,7 @@
 	let { features = [] }: { features?: Feature[] } = $props();
 
 	const LINKS = [
-		{ label: 'Work Archives', href: '/', external: false },
+		{ label: 'Work Archives', href: '/works', external: false },
 		{ label: 'About Institute', href: '/about', external: false },
 		{ label: 'Get in touch', href: CONTACT_URL, external: true }
 	];
