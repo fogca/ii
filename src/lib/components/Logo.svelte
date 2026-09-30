@@ -1,11 +1,35 @@
 <script lang="ts">
-	// The II mark — geometry from Figma (node 79:139, "II"). Every size in
-	// the designs (31.8 / 39.8 / 94.9 / 133.8 / 357.5px) is this same shape
-	// scaled, so one component serves all of them; the parent sets the width
-	// and the color (fill follows currentColor).
-	let { label = 'II' }: { label?: string } = $props();
+	import { LOGO_STYLE } from '$lib/js/site';
+
+	// The II mark. Two looks, picked site-wide by LOGO_STYLE ($lib/js/site):
+	// - 'render': the shaded 3D render (raster, always black-ish; the
+	//   parent sets the width, height follows its 1166:1355 proportions).
+	// - 'vector': Figma geometry (node 79:139, "II") — every size in the
+	//   designs (31.8 / 39.8 / 94.9 / 133.8 / 357.5px) is this shape scaled;
+	//   fill follows currentColor.
+	// `vector` forces the flat mark regardless (e.g. where it must recolor).
+	let {
+		label = 'II',
+		vector = false,
+		sizes = '40px'
+	}: { label?: string; vector?: boolean; sizes?: string } = $props();
+
+	const RENDER_SRCSET = [160, 480, 1166].map((w) => `/images/logo/ii-render-${w}.webp ${w}w`).join(', ');
+	const useRender = $derived(LOGO_STYLE === 'render' && !vector);
 </script>
 
+{#if useRender}
+	<img
+		class="Logo"
+		src="/images/logo/ii-render-480.webp"
+		srcset={RENDER_SRCSET}
+		{sizes}
+		alt={label}
+		width="1166"
+		height="1355"
+		decoding="async"
+	/>
+{:else}
 <svg
 	class="Logo"
 	viewBox="0 0 357.311 357.48"
@@ -23,6 +47,7 @@
 		fill="currentColor"
 	/>
 </svg>
+{/if}
 
 <style>
 	.Logo {

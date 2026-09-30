@@ -71,7 +71,7 @@
 		</nav>
 
 		<a class="mark" href="/" aria-label="II — Creation Archive" tabindex="-1">
-			<Logo />
+			<Logo sizes="95px" />
 		</a>
 
 		{#if features.length}

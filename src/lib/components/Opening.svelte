@@ -18,14 +18,13 @@
 	// The archive starts flowing in just after the overlay starts to clear,
 	// so the columns' directions read instead of happening under the veil.
 	const ENTER_AFTER = 0.15;
-	// = --color-logo-on-image (GSAP needs a literal to tween color to).
-	const LOGO_ON_IMAGE = '#f1f0ef';
 	// The photograph waits (at most this long) to be decoded before it fades
 	// in, so a slow connection never shows it half-painted.
 	const IMAGE_WAIT_MS = 2500;
 
 	let root = $state<HTMLDivElement>();
 	let logo = $state<HTMLDivElement>();
+	let logoLight = $state<HTMLDivElement>();
 	let image = $state<HTMLDivElement>();
 	let photo = $state<HTMLImageElement>();
 	let done = $state(false);
@@ -64,7 +63,7 @@
 				await tick();
 				// Two frames so bind:this targets are settled before reading them.
 				await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
-				if (cancelled || !root || !logo || !image) return;
+				if (cancelled || !root || !logo || !logoLight || !image) return;
 
 				const photoReady = Promise.race([
 					photo?.decode().catch(() => {}) ?? Promise.resolve(),
@@ -92,7 +91,8 @@
 					)
 					.to(image, { opacity: 1, duration: IMAGE_IN * 0.7, ease: 'power2.out' }, 'image')
 					.to(image, { scale: 1, duration: IMAGE_IN, ease: 'power3.out' }, 'image')
-					.to(logo, { color: LOGO_ON_IMAGE, duration: IMAGE_IN * 0.6, ease: 'power2.inOut' }, 'image')
+					.to(logo, { opacity: 0, duration: IMAGE_IN * 0.6, ease: 'power2.inOut' }, 'image')
+					.to(logoLight, { opacity: 1, duration: IMAGE_IN * 0.6, ease: 'power2.inOut' }, 'image')
 					// Absolute from 'image' — '>' would resolve against the (shorter)
 					// color tween added last, not the image's full settle.
 					.addLabel('handoff', `image+=${IMAGE_IN + IMAGE_HOLD}`)
@@ -129,7 +129,12 @@
 			</picture>
 		</div>
 		<div class="logo" bind:this={logo}>
-			<Logo />
+			<Logo sizes="(min-width: 1024px) 25vw, 34vw" />
+		</div>
+		<!-- The light mark over the photograph: always the flat vector (a
+		     render can't turn #F1F0EF), crossfaded in as the photo arrives. -->
+		<div class="logo logo--light" bind:this={logoLight}>
+			<Logo vector />
 		</div>
 	</div>
 {/if}
@@ -185,6 +190,10 @@
 
 	/* Figma: 133 / 393 of the SP width, 357.3 / 1440 of the PC width —
 	   capped by height so a short landscape window keeps it inside. */
+	.logo--light {
+		color: var(--color-logo-on-image);
+	}
+
 	.logo {
 		position: absolute;
 		top: 50%;

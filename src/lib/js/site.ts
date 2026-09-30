@@ -23,6 +23,12 @@ export const LEGAL_LINKS: { label: string; href?: string }[] = [
 ];
 
 // Double space before the year, as set in Figma (render with white-space: pre).
+/** Which II mark the site shows (2026-09-30 trial):
+    'render' = the shaded 3D render (static/images/logo/ii-render-*.webp,
+    source in src/lib/assets/logo/), 'vector' = the flat Figma mark.
+    Switching back is this one line. */
+export const LOGO_STYLE: 'render' | 'vector' = 'render';
+
 export const COPYRIGHT = `©II All Rights Reserved,  ${new Date().getFullYear()}`;
 
 /** <title> suffix. */

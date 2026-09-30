@@ -9,7 +9,7 @@
      (123:115). On PC the legal line lives in the left panel instead. -->
 <footer class="SiteFooter sp" {inert}>
 	<a class="mark" href="/" aria-label="II — Creation Archive">
-		<Logo />
+		<Logo sizes="134px" />
 	</a>
 	<p class="name t-subtitle">{SITE_FULL_NAME}</p>
 
