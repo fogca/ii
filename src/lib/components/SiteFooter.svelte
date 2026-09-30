@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Logo from './Logo.svelte';
+	import LangSwitch from './LangSwitch.svelte';
 	import { COPYRIGHT, INSTAGRAM, LEGAL_LINKS, SITE_FULL_NAME } from '$lib/js/site';
 
 	let { inert = false }: { inert?: boolean } = $props();
@@ -19,6 +20,7 @@
 			{#each LEGAL_LINKS as l (l.label)}
 				{#if l.href}<a href={l.href}>{l.label}</a>{:else}<span>{l.label}</span>{/if}
 			{/each}
+			<LangSwitch />
 		</p>
 		<p class="copy">{COPYRIGHT}</p>
 	</div>

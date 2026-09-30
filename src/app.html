@@ -13,7 +13,7 @@
 		<!-- Decided before first paint so nothing flashes:
 		     - .js      → CSS may hide things that JS will animate in.
 		     - data-lang → EN/JA display language: this tab session's choice,
-		       else the browser's language. Mirrored in
+		       else English (the default). Mirrored in
 		       lib/state/lang.svelte.ts's restore() — keep the two in sync.
 		     - data-op  → whether the opening (logo + photograph) plays.
 		       It plays once per tab session, only when the visit STARTS on
@@ -26,12 +26,7 @@
 				root.classList.add('js');
 				try {
 					var savedLang = sessionStorage.getItem('ii-lang');
-					var displayLang =
-						savedLang === 'en' || savedLang === 'ja'
-							? savedLang
-							: (navigator.language || '').toLowerCase().indexOf('ja') === 0
-								? 'ja'
-								: 'en';
+					var displayLang = savedLang === 'ja' ? 'ja' : 'en';
 					root.dataset.lang = displayLang;
 				} catch (e) {}
 				var play = false;

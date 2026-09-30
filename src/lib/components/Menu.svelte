@@ -3,6 +3,7 @@
 	import { page } from '$app/state';
 	import { afterNavigate } from '$app/navigation';
 	import Logo from './Logo.svelte';
+	import LangSwitch from './LangSwitch.svelte';
 	import { ui } from '$lib/state/ui.svelte';
 	import { imgOpt, imgSrcset } from '$lib/js/img';
 	import { CONTACT_URL, COPYRIGHT, INSTAGRAM, LEGAL_LINKS } from '$lib/js/site';
@@ -68,6 +69,7 @@
 					</li>
 				{/each}
 			</ul>
+			<p class="lang t-eyebrow" style="--i: {LINKS.length}"><LangSwitch /></p>
 		</nav>
 
 		<a class="mark" href="/" aria-label="II — Creation Archive" tabindex="-1">
@@ -157,7 +159,12 @@
 		transform: none;
 	}
 
+	.lang {
+		margin-top: 24px;
+	}
+
 	.nav li,
+	.nav .lang,
 	.features li {
 		opacity: 0;
 		transform: translateY(12px);
@@ -167,6 +174,7 @@
 	}
 
 	.is-open .nav li,
+	.is-open .nav .lang,
 	.is-open .features li {
 		opacity: 1;
 		transform: none;
