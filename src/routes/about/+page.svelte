@@ -15,16 +15,30 @@
 	</figure>
 
 	<div class="text t-body">
-		{#each ABOUT as section (section.heading)}
-			<!-- Both languages in the page; html[data-lang] picks one (EN head
-			     + JA subtitle in Japanese mode, as on Office). -->
+		<!-- Both languages are in the page; html[data-lang] picks one. The
+		     numbered titles and item names stay English (JA mode adds the
+		     item's JA subtitle, as on Office). -->
+		{#each ABOUT as section (section.title)}
 			<section>
-				<h2>
-					<span lang="en">{section.heading}</span>
-					<span class="x-ja" lang="ja">{section.headingJa}</span>
-				</h2>
-				<p class="x-en" lang="en">{section.body}</p>
-				<p class="x-ja" lang="ja">{section.bodyJa}</p>
+				<h2 class="title" lang="en">{section.title}</h2>
+				{#if section.heading}
+					<h3 class="heading x-en" lang="en">{section.heading.en}</h3>
+					<h3 class="heading x-ja" lang="ja">{section.heading.ja}</h3>
+				{/if}
+				{#if section.body}
+					<p class="copy x-en" lang="en">{section.body.en}</p>
+					<p class="copy x-ja" lang="ja">{section.body.ja}</p>
+				{/if}
+				{#each section.items ?? [] as item (item.name)}
+					<div class="item">
+						<h4 class="name">
+							<span lang="en">{item.name}</span>
+							<span class="x-ja" lang="ja">/ {item.nameJa}</span>
+						</h4>
+						<p class="copy x-en" lang="en">{item.body.en}</p>
+						<p class="copy x-ja" lang="ja">{item.body.ja}</p>
+					</div>
+				{/each}
 			</section>
 		{/each}
 	</div>
@@ -58,8 +72,20 @@
 		background: var(--color-accent);
 	}
 
-	.text p {
+	/* Numbered titles and item names at the body size; headings and copy
+	   at --fs-about (SP 16px / PC 28px). */
+	.heading,
+	.copy {
 		font-size: var(--fs-about);
+	}
+
+	.heading {
+		font-weight: var(--fw-medium);
+		margin-bottom: 0.6em;
+	}
+
+	.item {
+		margin-top: calc(var(--fs-about) * 1.2);
 	}
 
 	:global(html[data-lang='ja']) .x-en,
