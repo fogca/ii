@@ -20,28 +20,18 @@
 		{#each ABOUT as section (section.title)}
 			<section>
 				<h2 class="title" lang="en">{section.title}</h2>
-				{#if section.heading}
-					<h3 class="heading x-en" lang="en">{section.heading.en}</h3>
-					<h3 class="heading x-ja" lang="ja">{section.heading.ja}</h3>
-				{/if}
-				{#if section.body}
-					<p class="copy x-en" lang="en">{section.body.en}</p>
-					<p class="copy x-ja" lang="ja">{section.body.ja}</p>
-				{/if}
-				<!-- Items run on as one paragraph: "1. Name (bold) body 2. Name
-				     body …" — the name in the reading language. -->
-				{#if section.items}
-					<p class="copy x-en" lang="en">
-						{#each section.items as item, i (item.name)}<b class="name"
-								>{i + 1}. {item.name}</b
-							> {item.body.en}{' '}{/each}
+				<!-- One block per language: heading, then (line break) the lead,
+				     then (line break) the numbered items run on — "1. Name (bold)
+				     body 2. Name body …", names in the reading language. -->
+				{#each ['en', 'ja'] as const as l (l)}
+					<p class="copy x-{l}" lang={l}>
+						{#if section.heading}<b class="heading">{section.heading[l]}</b><br />{/if}
+						{#if section.body}{section.body[l]}{#if section.items}<br />{/if}{/if}
+						{#each section.items ?? [] as item, i (item.name)}<b class="name"
+								>{i + 1}. {l === 'en' ? item.name : item.nameJa}</b
+							> {item.body[l]}{' '}{/each}
 					</p>
-					<p class="copy x-ja" lang="ja">
-						{#each section.items as item, i (item.name)}<b class="name"
-								>{i + 1}. {item.nameJa}</b
-							> {item.body.ja}{' '}{/each}
-					</p>
-				{/if}
+				{/each}
 			</section>
 		{/each}
 	</div>
@@ -75,16 +65,14 @@
 		background: var(--color-accent);
 	}
 
-	/* Numbered titles and item names at the body size; headings and copy
-	   at --fs-about (SP 16px / PC 28px). */
-	.heading,
+	/* Numbered titles at the body size; everything else at --fs-about
+	   (SP 16px / PC 28px), headings and item names in the medium weight. */
 	.copy {
 		font-size: var(--fs-about);
 	}
 
 	.heading {
 		font-weight: var(--fw-medium);
-		margin-bottom: 0.6em;
 	}
 
 	.name {
