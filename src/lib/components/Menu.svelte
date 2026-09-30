@@ -11,9 +11,9 @@
 	let { features = [] }: { features?: Feature[] } = $props();
 
 	const LINKS = [
-		{ label: 'Work Archives', href: '/works', external: false },
-		{ label: 'About Institute', href: '/about', external: false },
-		{ label: 'Get in touch', href: CONTACT_URL, external: true }
+		{ label: 'Archives', href: '/works', external: false },
+		{ label: 'Institute', href: '/about', external: false },
+		{ label: 'Contact', href: CONTACT_URL, external: true }
 	];
 	const FEATURE_WIDTHS = [480, 700, 940, 1400];
 
