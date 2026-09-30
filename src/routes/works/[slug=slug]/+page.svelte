@@ -20,16 +20,16 @@
 {#key work.slug}
 	<article class="Work">
 		{#if work.hero}
-			<div class="hero">
-				<Media media={work.hero} cover eager sizes={HERO_SIZES} widths={HERO_WIDTHS} alt={work.title} />
+			<div class="hero" style="--ar: {arOf(work.hero)}">
+				<Media media={work.hero} eager sizes={HERO_SIZES} widths={HERO_WIDTHS} alt={work.title} />
 			</div>
 		{/if}
 
 		{#if work.pair.length}
 			<div class="pair" class:is-single={work.pair.length === 1}>
 				{#each work.pair as media, i (i)}
-					<div class="cell cell--{i + 1}">
-						<Media {media} cover sizes={PAIR_SIZES} />
+					<div class="cell" style="--ar: {arOf(media)}">
+						<Media {media} sizes={PAIR_SIZES} />
 					</div>
 				{/each}
 			</div>
@@ -77,35 +77,34 @@
 
 <style>
 	/* ── SP (Figma 128:376) ─────────────────────────────────────────────
-	   hero 393 × 376 full-bleed · pair 197 × 264 + 194 × 159 (2px apart,
-	   top-aligned) · lead 24px at x=20 · body 11px / 1.5 in 353px · further
-	   images 353px wide, 20px apart · Colophon */
+	   hero full-bleed · image pair (2px apart) · lead 24px at x=20 · body
+	   11px / 1.5 in 353px · further images 353px wide, 20px apart ·
+	   Colophon. Every image keeps its own aspect ratio — nothing is
+	   cropped (Figma's fixed 393 × 376 / 197 × 264 + 194 × 159 boxes were
+	   placeholders). */
+
+	/* Very tall images are capped at the viewport height (narrower instead
+	   of cropped). */
 	.hero {
-		aspect-ratio: 393 / 376;
+		width: min(100%, calc(100vh * var(--ar)));
 	}
 
+	/* The pair shares one row height: each image's width is proportional to
+	   its aspect ratio, so both show whole at the same height. */
 	.pair {
-		display: grid;
-		grid-template-columns: 197fr 194fr;
-		align-items: start;
+		display: flex;
 		gap: var(--tile-gap);
 		margin-top: var(--tile-gap);
 	}
 
-	.pair.is-single {
-		grid-template-columns: 1fr;
+	.cell {
+		flex: var(--ar) 1 0;
+		min-width: 0;
 	}
 
-	.cell--1 {
-		aspect-ratio: 197 / 264;
-	}
-
-	.cell--2 {
-		aspect-ratio: 194 / 159;
-	}
-
-	.is-single .cell--1 {
-		aspect-ratio: 393 / 264;
+	.pair.is-single .cell {
+		flex: none;
+		width: min(100%, calc(100vh * var(--ar)));
 	}
 
 	.text {
@@ -187,27 +186,11 @@
 	}
 
 	/* ── PC (Figma 79:229) ──────────────────────────────────────────────
-	   The panel right of the left column scrolls with the page: hero
-	   984 × 822, then 552 + 432 × 480; below the fold the SP order
+	   The panel right of the left column scrolls with the page: hero, then
+	   the image pair (uncropped, as on SP); below the fold the SP order
 	   continues at PC type sizes, text aligned to the panel's left edge
 	   like About. */
 	@media (min-width: 1024px) {
-		.hero {
-			aspect-ratio: 984 / 822;
-		}
-
-		.pair {
-			grid-template-columns: 552fr 432fr;
-			align-items: stretch;
-			aspect-ratio: 984 / 480;
-		}
-
-		.cell--1,
-		.cell--2,
-		.is-single .cell--1 {
-			aspect-ratio: auto;
-			height: 100%;
-		}
 
 		.text {
 			padding: 120px var(--gutter) 0 0;
