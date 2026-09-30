@@ -1,6 +1,10 @@
 <script lang="ts">
 	import { ABOUT } from '$lib/content/about';
 
+	// Photo hidden for now (2026-09-30) — a new image will be added later.
+	// Flip back to true to show /images/about.jpg again.
+	const SHOW_PHOTO = false;
+
 	// The accent background covers the whole page (body), not just this
 	// article — flag <html> while About is shown.
 	$effect(() => {
@@ -10,9 +14,11 @@
 </script>
 
 <article class="About">
-	<figure class="photo">
-		<img src="/images/about.jpg" alt="" width="736" height="981" decoding="async" fetchpriority="high" />
-	</figure>
+	{#if SHOW_PHOTO}
+		<figure class="photo">
+			<img src="/images/about.jpg" alt="" width="736" height="981" decoding="async" fetchpriority="high" />
+		</figure>
+	{/if}
 
 	<div class="text t-body">
 		<!-- Both languages are in the page; html[data-lang] picks one. The
@@ -26,7 +32,8 @@
 				{#each ['en', 'ja'] as const as l (l)}
 					<p class="copy x-{l}" lang={l}>
 						{#if section.heading}<b class="heading">{section.heading[l]}</b><br />{/if}
-						{#if section.body}{section.body[l]}{#if section.items}<br />{/if}{/if}
+						{#if section.body}{#each section.body[l].split('\n') as line, j (j)}{#if j}<br
+									/>{/if}{line}{/each}{#if section.items}<br />{/if}{/if}
 						{#each section.items ?? [] as item, i (item.name)}<b class="name"
 								>{i + 1}. {l === 'en' ? item.name : item.nameJa}</b
 							> {item.body[l]}{' '}{/each}

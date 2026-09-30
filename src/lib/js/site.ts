@@ -6,8 +6,8 @@ export const SITE_DESCRIPTION =
 	'II — Isobe Institute. A creative institute for design and craft, at the intersection of culture, philosophy and creation.';
 
 export const INSTAGRAM = {
-	handle: '@ii_institute',
-	url: 'https://www.instagram.com/ii_institute/'
+	handle: '@ii_ii.co',
+	url: 'https://www.instagram.com/ii_ii.co/'
 };
 
 // TODO(launch): no contact page or address has been designed yet — "Get in

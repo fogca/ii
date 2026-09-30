@@ -3,7 +3,8 @@
 // is EN/JA and follows the display-language switch. Services and the Ethos
 // lead derive from the Office site's copy (Dev/OTIF/src/routes/office/
 // +page.svelte), summarised; Office's "Image Visualisation" is replaced by
-// Research & Strategy. Static content: not in the CMS.
+// Research & Strategy. IV. Director is Office's director profile as is.
+// A "\n" in a body is a line break. Static content: not in the CMS.
 
 export type Bilingual = { en: string; ja: string };
 
@@ -104,5 +105,16 @@ export const ABOUT: AboutSection[] = [
 				}
 			}
 		]
+	},
+	{
+		title: 'IV. Director',
+		heading: {
+			en: 'Takumi Isobe',
+			ja: '磯部タクミ'
+		},
+		body: {
+			en: 'Born in Japan in 2001.\nWhile attending the University of Westminster in the UK, exposed to a wide range of cultures and arts, I developed a strong interest in visual expression and entered the creative design industry. After returning to Japan during COVID-19 and working at several design studios in Tokyo, I established my own practice. Today, as creative director at Mirai Service Co., Ltd., I run a design office at the core of my work, alongside AUGUST — a type foundry designing original typefaces — and an image-making studio.',
+			ja: '2001年日本生まれ。\n英国University of Westminster在学時、多様な文化と芸術に触れる中で、視覚表現に強く興味を抱きクリエイティブ・デザイン業界へ。COVID19の中で帰国し東京都内のデザインオフィス数社を経て、独立。現在は株式会社みらいサービスのクリエイティブ事業部ディレクターとして、デザインオフィスを基軸に独自の書体を開発設計するAUGUSTタイプファウンダリやイメージメークスタジオの運営を行っている。'
+		}
 	}
 ];
