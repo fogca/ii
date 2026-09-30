@@ -62,7 +62,8 @@
 	</button>
 
 	<a class="mark" href="/" aria-label="II — Creation Archive" aria-current={page.url.pathname === '/' ? 'page' : undefined}>
-		<Logo />
+		<span class="mark-render"><Logo /></span>
+		<span class="mark-vector"><Logo vector /></span>
 	</a>
 </header>
 
@@ -168,6 +169,27 @@
 		   was tried — it keeps the mark visible on dark images but tints it
 		   in the photo's complementary color, e.g. cyan over red). */
 		color: var(--color-text);
+	}
+
+	/* Top page (full-bleed photographs): white controls, flat white mark. */
+	:global(html.is-top) .Header:not(.is-menu-open) :is(.menu-btn, .mark) {
+		color: #fff;
+	}
+
+	:global(html.is-top) .Header:not(.is-menu-open) .mark-render {
+		display: none;
+	}
+
+	.mark-render {
+		display: block;
+	}
+
+	.mark-vector {
+		display: none;
+	}
+
+	:global(html.is-top) .Header:not(.is-menu-open) .mark-vector {
+		display: block;
 	}
 
 	/* PC geometry (Figma 79:154): lines 60 × 1.5px, 11px apart, top stroke's

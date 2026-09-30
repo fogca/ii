@@ -24,8 +24,10 @@ npm run dev            # http://localhost:3300
 
 | Path | |
 |---|---|
-| `src/routes/+page.*` | Opening + Creation Archive (masonry) |
-| `src/routes/works/[slug]` | Work detail |
+| `src/routes/+page.*` | Opening + one full-screen slide per work (sticky stack) |
+| `src/routes/works/+page.*` | Creation Archive (flowing masonry) |
+| `src/routes/works/list` | All works as one stream (varying widths) |
+| `src/routes/works/[slug=slug]` | Work detail |
 | `src/routes/about` | About Institute (static copy in `src/lib/content/about.ts`) |
 | `src/lib/components` | Header, Menu, Aside (left panel / page head), SiteFooter (SP), Opening, Masonry, Media, Logo |
 | `src/lib/js/works.ts` | microCMS `works` → page data |
