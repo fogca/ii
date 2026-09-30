@@ -16,8 +16,7 @@
 
 	<div class="text t-body">
 		<!-- Both languages are in the page; html[data-lang] picks one. The
-		     numbered titles and item names stay English (JA mode adds the
-		     item's JA subtitle, as on Office). -->
+		     numbered section titles stay English. -->
 		{#each ABOUT as section (section.title)}
 			<section>
 				<h2 class="title" lang="en">{section.title}</h2>
@@ -29,16 +28,20 @@
 					<p class="copy x-en" lang="en">{section.body.en}</p>
 					<p class="copy x-ja" lang="ja">{section.body.ja}</p>
 				{/if}
-				{#each section.items ?? [] as item (item.name)}
-					<div class="item">
-						<h4 class="name">
-							<span lang="en">{item.name}</span>
-							<span class="x-ja" lang="ja">/ {item.nameJa}</span>
-						</h4>
-						<p class="copy x-en" lang="en">{item.body.en}</p>
-						<p class="copy x-ja" lang="ja">{item.body.ja}</p>
-					</div>
-				{/each}
+				<!-- Items run on as one paragraph: "1. Name (bold) body 2. Name
+				     body …" — the name in the reading language. -->
+				{#if section.items}
+					<p class="copy x-en" lang="en">
+						{#each section.items as item, i (item.name)}<b class="name"
+								>{i + 1}. {item.name}</b
+							> {item.body.en}{' '}{/each}
+					</p>
+					<p class="copy x-ja" lang="ja">
+						{#each section.items as item, i (item.name)}<b class="name"
+								>{i + 1}. {item.nameJa}</b
+							> {item.body.ja}{' '}{/each}
+					</p>
+				{/if}
 			</section>
 		{/each}
 	</div>
@@ -84,8 +87,8 @@
 		margin-bottom: 0.6em;
 	}
 
-	.item {
-		margin-top: calc(var(--fs-about) * 1.2);
+	.name {
+		font-weight: var(--fw-medium);
 	}
 
 	:global(html[data-lang='ja']) .x-en,

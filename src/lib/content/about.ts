@@ -7,8 +7,8 @@
 
 export type Bilingual = { en: string; ja: string };
 
-/** An item with an English name (plus a JA subtitle shown in Japanese
-    mode, as on Office) and a bilingual body. */
+/** A numbered item (Services / Ethos parts): its name in each language
+    and a bilingual body; rendered run-in, one paragraph per section. */
 export type AboutItem = { name: string; nameJa: string; body: Bilingual };
 
 export type AboutSection = {
