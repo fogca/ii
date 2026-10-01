@@ -1,20 +1,37 @@
 import { getVisibleWorks } from '$lib/js/microcms';
-import { buildTiles } from '$lib/js/works';
+import { padNumber, workMedia, type Media } from '$lib/js/works';
 import { titleOf } from '$lib/js/site';
 import type { PageServerLoad } from './$types';
 
-// /works — II_Works, the creation archive as a flowing masonry (was the
-// top page until 2026-09-30).
+export type WorkCard = {
+	slug: string;
+	title: string;
+	number: string;
+	/** First two scope tags, e.g. "V.I. / Web" (same as Office's home feed). */
+	scope: string;
+	visual: Media | null;
+};
+
+// /works — the default archive view: every work as one stream,
+// Office-home style (varying widths). The masonry lives at /works/grid.
 export const load: PageServerLoad = async () => {
 	const data = await getVisibleWorks({
 		limit: 100,
 		orders: 'order',
-		fields: ['id', 'title', 'main_visual', 'thumbnail', 'repeat', 'hidden']
+		fields: ['id', 'title', 'scope', 'main_visual', 'thumbnail', 'repeat', 'hidden']
 	});
 
+	const cards: WorkCard[] = data.contents.map((w, i) => ({
+		slug: w.id,
+		title: w.title,
+		number: padNumber(i),
+		scope: (w.scope ?? []).slice(0, 2).join(' / '),
+		visual: workMedia(w)[0] ?? null
+	}));
+
 	return {
-		tiles: buildTiles(data.contents),
-		aside: { eyebrow: 'Design to Craft', title: 'Creation\nArchive' },
-		seo: { title: titleOf('Creation Archive') }
+		cards,
+		aside: { eyebrow: 'Creation Archive', title: 'Work\nArchives' },
+		seo: { title: titleOf('Work Archives') }
 	};
 };
