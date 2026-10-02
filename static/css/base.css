@@ -19,20 +19,23 @@
 
 /* ---------------------------------------------------------------------
    Font faces
-   Elio (II's Latin face) ships 151 glyphs as of VF20 (¥ drawn since VF17,
+   Elio (II's Latin face) ships 151 glyphs as of VF21 (¥ drawn since VF17,
    2026-09-30; VF18 refined G/K/R/f/g/t + yen; VF19 added – (endash) plus
    outline refinement on e/eacute/egrave/ecircumflex/edieresis/d/A/emdash/
-   b/w/r/g/two/three; VF20, 2026-10-01, refines s further — no
-   compatibility change) — no ©, /, &, @, ;, ?, curly quotes, £ etc. Those
-   fall back per-glyph to Norma (Office's Latin face), the next family in
-   every stack below.
+   b/w/r/g/two/three; VF20 refined s further; VF21, 2026-10-02, widens
+   every glyph's advance width by 5 units — UPM 1000, so the font's own
+   default spacing now reads roughly like letter-spacing: 0.005em baked
+   in, at the user's request — outlines unchanged, no compatibility
+   change) — no ©, /, &, @, ;, ?, curly quotes, £ etc. Those fall back
+   per-glyph to Norma (Office's Latin face), the next family in every
+   stack below.
    Japanese matches Office: 石井ゴシック M (TypeSquare) ahead of Tazugane
    (FONTPLUS), both loaded from app.html.
    Bump ?v= here AND in app.html's preload when a font file changes.
    --------------------------------------------------------------------- */
 @font-face {
 	font-family: 'Elio';
-	src: url('/fonts/Elio-VF20.woff2?v=20') format('woff2-variations');
+	src: url('/fonts/Elio-VF21.woff2?v=21') format('woff2-variations');
 	font-weight: 150 950;
 	font-style: normal;
 	font-display: swap;
