@@ -25,9 +25,9 @@ npm run dev            # http://localhost:3300
 | Path | |
 |---|---|
 | `src/routes/+page.*` | Opening + one full-screen slide per work (sticky stack) |
-| `src/routes/works/+page.*` | All works as one stream (varying widths) — default archive view |
+| `src/routes/works/+page.*` | All works in a 3-column grid (2 on SP) — default archive view |
 | `src/routes/works/grid` | Creation Archive (flowing masonry) |
-| `src/routes/works/list` | 301 → `/works` (old URL of the list view) |
+| `src/routes/works/list` | 301 → `/works` (old URL of the former list view) |
 | `src/routes/works/[slug=slug]` | Work detail |
 | `src/routes/about` | About Institute (static copy in `src/lib/content/about.ts`) |
 | `src/lib/components` | Header, Menu, Aside (left panel / page head), SiteFooter (SP), Opening, Masonry, Media, Logo |

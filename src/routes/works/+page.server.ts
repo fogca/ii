@@ -12,8 +12,9 @@ export type WorkCard = {
 	visual: Media | null;
 };
 
-// /works — the default archive view: every work as one stream,
-// Office-home style (varying widths). The masonry lives at /works/grid.
+// /works — the default archive view: every work in a 3-column grid (2 on
+// SP), lead visual + number / title / scope. The masonry lives at
+// /works/grid.
 export const load: PageServerLoad = async () => {
 	const data = await getVisibleWorks({
 		limit: 100,
