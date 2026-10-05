@@ -99,6 +99,15 @@
 			transform: translateY(calc(-50% + 8px));
 		}
 
+		/* A work page swaps the title for its text once scrolled (see
+		   works/[slug]/+page.svelte): the title fades out softly. */
+		:global(html.is-aside-swapped) .head {
+			opacity: 0;
+			transform: translateY(calc(-50% - 8px));
+			transition-delay: 0s;
+			pointer-events: none;
+		}
+
 		.eyebrow {
 			position: absolute;
 			left: 0;

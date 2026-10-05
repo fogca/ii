@@ -4,6 +4,23 @@
 	let { data } = $props();
 	const work = $derived(data.work);
 
+	// PC: once the page is scrolled, the left panel swaps the work's title
+	// for its text (lead + body) — the title fades out (Aside.svelte), the
+	// .text block below fades in, pinned in the panel. SP keeps the text in
+	// the flow. Works without text keep the title.
+	const SWAP_AFTER = 80; // px of scroll
+	$effect(() => {
+		if (!work.lead && !work.body) return;
+		const html = document.documentElement;
+		const update = () => html.classList.toggle('is-aside-swapped', window.scrollY > SWAP_AFTER);
+		update();
+		window.addEventListener('scroll', update, { passive: true });
+		return () => {
+			window.removeEventListener('scroll', update);
+			html.classList.remove('is-aside-swapped');
+		};
+	});
+
 	// Panel width on PC = viewport minus the 455/1440 left panel.
 	const PANEL = 'calc(100vw - 455 / 1440 * 100vw)';
 	const HERO_SIZES = `(min-width: 1024px) ${PANEL}, 100vw`;
@@ -12,7 +29,7 @@
 	const HERO_WIDTHS = [640, 900, 1400, 2000, 2800];
 	const REST_WIDTHS = [640, 900, 1400, 2000, 2800];
 
-	/** w/h — sizes the two pair images to one shared row height (videos:
+	/** w/h — the hero's box and the SP pair's shared row height (videos:
 	    16:9 until known). */
 	const arOf = (m: { width?: number; height?: number }) =>
 		m.width && m.height ? m.width / m.height : 16 / 9;
@@ -21,8 +38,8 @@
 {#key work.slug}
 	<article class="Work">
 		{#if work.hero}
-			<div class="hero">
-				<Media media={work.hero} eager sizes={HERO_SIZES} widths={HERO_WIDTHS} alt={work.title} />
+			<div class="hero" style="--ar: {arOf(work.hero)}">
+				<Media media={work.hero} cover eager sizes={HERO_SIZES} widths={HERO_WIDTHS} alt={work.title} />
 			</div>
 		{/if}
 
@@ -96,6 +113,12 @@
 	   Colophon. Every image keeps its own aspect ratio — nothing is
 	   cropped (Figma's fixed 393 × 376 / 197 × 264 + 194 × 159 boxes were
 	   placeholders). */
+
+	/* The hero's box takes the image's own ratio (so `cover` crops nothing);
+	   on PC it's also at least a screen tall. */
+	.hero {
+		aspect-ratio: var(--ar);
+	}
 
 	/* The pair shares one row height: each image's width is proportional to
 	   its aspect ratio, so both show whole at the same height. */
@@ -200,18 +223,62 @@
 	   continues at PC type sizes, text aligned to the panel's left edge
 	   like About. */
 	@media (min-width: 1024px) {
-
-		.text {
-			padding: 120px var(--gutter) 0 0;
+		.hero {
+			min-height: 100vh;
+			min-height: 100dvh;
 		}
 
-		.body {
-			margin-top: 24px;
+		/* No pair on PC: every image after the hero runs full width, one
+		   under the other, 2px apart. */
+		.pair {
+			flex-direction: column;
+		}
+
+		.cell,
+		.pair.is-single .cell {
+			flex: none;
+			width: 100%;
 		}
 
 		.rest {
 			gap: var(--tile-gap);
-			padding: 120px 0 0;
+			margin-top: var(--tile-gap);
+			padding: 0;
+		}
+
+		/* The text lives in the left panel, shown once the page scrolls
+		   (html.is-aside-swapped, set above) as the title fades out. It
+		   stops above the panel's legal line and scrolls itself if long. */
+		.text {
+			position: fixed;
+			top: 0;
+			left: 0;
+			bottom: 48px;
+			z-index: var(--z-content);
+			width: var(--aside-w);
+			padding: 110px var(--gutter) 24px;
+			overflow-y: auto;
+			overscroll-behavior: contain;
+			scrollbar-width: none;
+			opacity: 0;
+			visibility: hidden;
+			transform: translateY(10px);
+			transition:
+				opacity 0.9s var(--ease-out),
+				transform 1.1s var(--ease-out),
+				visibility 0s linear 0.9s;
+		}
+
+		:global(html.is-aside-swapped) .text {
+			opacity: 1;
+			visibility: visible;
+			transform: none;
+			transition-delay: 0.2s, 0.2s, 0s;
+		}
+
+		.body {
+			margin-top: 24px;
+			max-width: none;
 		}
 
 		.Colophon {

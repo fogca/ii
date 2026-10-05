@@ -166,7 +166,11 @@ export const toWorkDetail = (w: Work, index: number): WorkDetail => {
 	const tag = w.description ? splitTag(w.description) : { ja: '', en: '' };
 	const bilingual = (en: string, ja: string): Bilingual | null =>
 		en || ja ? { en, ja } : null;
-	const lead = bilingual(w.headline?.trim() || tag.en, tag.ja);
+	// `headline` may use the same "ja!en" format as `description` (e.g. ANGO);
+	// without a "!" it's a plain English line, as before.
+	const headline = w.headline?.trim() ?? '';
+	const head = headline.includes('!') ? splitTag(headline) : { ja: '', en: headline };
+	const lead = bilingual(head.en || tag.en, head.ja || tag.ja);
 	const body = bilingual(w.body_en?.trim() ?? '', w.body_jp?.trim() ?? '');
 
 	// colophon_text only — a work without one shows no Colophon section.
