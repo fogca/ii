@@ -277,8 +277,12 @@
 		}
 
 		.body {
-			margin-top: 24px;
+			margin-top: 10px;
 			max-width: none;
+		}
+
+		.lead:lang(ja) {
+			line-height: 1.4;
 		}
 
 		.Colophon {
