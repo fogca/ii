@@ -5,7 +5,8 @@
 
 	// SP: 2 columns, each image at its own ratio, caption under it.
 	// PC: full-width 3-column grid (no left panel), 3px apart, every image
-	// cropped to 3:2; the caption shows over the image's bottom-left on hover.
+	// cropped to 3:2; on hover a one-line caption (scope at the right) shows
+	// over the image's bottom edge in difference blend.
 	const SIZES = '(min-width: 1024px) 33vw, 50vw';
 	const WIDTHS = [480, 700, 940, 1400];
 	const EAGER_COUNT = 3; // the first row
@@ -106,36 +107,33 @@
 			aspect-ratio: 3 / 2;
 		}
 
-		/* A soft shade along the bottom on hover so the white caption reads
-		   on light images too. */
-		.thumb::after {
-			content: '';
-			position: absolute;
-			inset: auto 0 0;
-			height: 40%;
-			background: linear-gradient(to top, rgba(0, 0, 0, 0.35), transparent);
-			opacity: 0;
-			transition: opacity 0.35s ease;
-			pointer-events: none;
-		}
-
-		.card:hover .thumb::after,
-		.card:focus-visible .thumb::after {
-			opacity: 1;
-		}
-
 		.meta {
 			position: absolute;
 			left: 12px;
 			right: 12px;
 			bottom: 10px;
+			flex-wrap: nowrap;
 			color: #fff;
+			mix-blend-mode: difference; /* reads on light and dark images alike */
 			opacity: 0;
 			transform: translateY(4px);
 			transition:
 				opacity 0.35s ease,
 				transform 0.5s var(--ease-out);
 			pointer-events: none;
+		}
+
+		/* One line: "01 Title" left, the scope pushed to the right edge. */
+		.title {
+			min-width: 0;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+
+		.scope {
+			flex: none;
+			margin-left: auto;
 		}
 
 		.card:hover .meta,
