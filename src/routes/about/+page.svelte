@@ -66,14 +66,14 @@
 	}
 
 	/* The whole page takes the accent color while About is shown (both
-	   breakpoints); the statement body is --fs-about (SP 16px / PC 28px),
+	   breakpoints); the statement body is --fs-about (SP 16px / PC 20px),
 	   section heads keep the body size. */
 	:global(html.is-about body) {
 		background: var(--color-accent);
 	}
 
 	/* Numbered titles at the body size; everything else at --fs-about
-	   (SP 16px / PC 28px), headings and item names in the medium weight. */
+	   (SP 16px / PC 20px), headings and item names in the medium weight. */
 	.copy {
 		font-size: var(--fs-about);
 	}
@@ -97,7 +97,7 @@
 	}
 
 	/* ── PC: the page goes to the accent color; the statement runs the full
-	   width of the panel at 28px and passes OVER the photo, which stays
+	   width of the panel at 20px and passes OVER the photo, which stays
 	   pinned at the top right (446 × 595, 24px from the edge, y=22) while
 	   the text scrolls. Section heads keep the 16px body size. ── */
 	@media (min-width: 1024px) {
