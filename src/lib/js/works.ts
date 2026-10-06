@@ -29,6 +29,8 @@ export type WorkDetail = {
 	slug: string;
 	title: string;
 	number: string;
+	/** The CMS `scope` select values (V.I. / Web / …). */
+	scope: string[];
 	hero: Media | null;
 	/** The two images directly under the hero (Figma: 552 + 432 / 197 + 194). */
 	pair: Media[];
@@ -180,6 +182,7 @@ export const toWorkDetail = (w: Work, index: number): WorkDetail => {
 		slug: w.id,
 		title: w.title,
 		number: padNumber(index),
+		scope: w.scope ?? [],
 		hero,
 		pair: gallery.slice(0, 2),
 		rest: gallery.slice(2),

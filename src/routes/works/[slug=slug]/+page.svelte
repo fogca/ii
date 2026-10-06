@@ -37,6 +37,12 @@
 
 {#key work.slug}
 	<article class="Work">
+		<!-- Scope (CMS select): SP above the hero; PC pinned at the bottom of
+		     the left panel, above the legal line. -->
+		{#if work.scope.length}
+			<p class="scope t-eyebrow" aria-label="Scope">{work.scope.join(' / ')}</p>
+		{/if}
+
 		{#if work.hero}
 			<div class="hero" style="--ar: {arOf(work.hero)}">
 				<Media media={work.hero} cover eager sizes={HERO_SIZES} widths={HERO_WIDTHS} alt={work.title} />
@@ -113,6 +119,10 @@
 	   Colophon. Every image keeps its own aspect ratio — nothing is
 	   cropped (Figma's fixed 393 × 376 / 197 × 264 + 194 × 159 boxes were
 	   placeholders). */
+
+	.scope {
+		padding: 0 var(--gutter) 12px;
+	}
 
 	/* The hero's box takes the image's own ratio (so `cover` crops nothing);
 	   on PC it's also at least a screen tall. */
@@ -228,6 +238,15 @@
 			min-height: 100dvh;
 		}
 
+		.scope {
+			position: fixed;
+			left: var(--gutter);
+			bottom: calc(44px + env(safe-area-inset-bottom, 0px));
+			z-index: var(--z-content);
+			width: calc(var(--aside-w) - 2 * var(--gutter));
+			padding: 0;
+		}
+
 		/* No pair on PC: every image after the hero runs full width, one
 		   under the other, 2px apart. */
 		.pair {
@@ -253,7 +272,7 @@
 			position: fixed;
 			top: 0;
 			left: 0;
-			bottom: 48px;
+			bottom: 64px;
 			z-index: var(--z-content);
 			width: var(--aside-w);
 			padding: 80px var(--gutter) 24px;
