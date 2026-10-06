@@ -122,6 +122,10 @@
 
 	.scope {
 		padding: 0 var(--gutter) 12px;
+		font-size: 12.5px;
+		font-weight: var(--fw-regular); /* 450 */
+		letter-spacing: 0;
+		text-transform: none;
 	}
 
 	/* The hero's box takes the image's own ratio (so `cover` crops nothing);
