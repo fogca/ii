@@ -62,6 +62,21 @@ const rowMedia = (row: MediaRow | null | undefined): Media | null => {
     repeat row flagged 優先表示 beats main_visual, as on Office), then the
     remaining rows. Falls back to the legacy `thumbnail` when a work has no
     main_visual at all (e.g. YSOVE). */
+/** /works cards for one work: its thumbnail (main_visual, else the legacy
+    thumbnail, else its first visual) followed by every repeat row flagged
+    優先表示 (pj_images_priority). */
+export const thumbAndPriority = (w: Work): { thumb: Media | null; priority: Media[] } => {
+	const legacy = w.thumbnail?.url
+		? { src: w.thumbnail.url, isVideo: false, width: w.thumbnail.width, height: w.thumbnail.height }
+		: null;
+	const rows = (w.repeat ?? []).map((row) => ({ row, media: rowMedia(row) }));
+	const thumb = rowMedia(w.main_visual) ?? legacy ?? rows.find((r) => r.media)?.media ?? null;
+	const priority = rows
+		.filter((r) => r.row.pj_images_priority && r.media && r.media.src !== thumb?.src)
+		.map((r) => r.media as Media);
+	return { thumb, priority };
+};
+
 export const workMedia = (w: Work): Media[] => {
 	const rows = (w.repeat ?? []).map((row) => ({ row, media: rowMedia(row) }));
 	const priority = rows.find((r) => r.row.pj_images_priority && r.media);
