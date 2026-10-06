@@ -288,7 +288,7 @@
 
 		/* The text lives in the left panel, shown once the page scrolls
 		   (html.is-aside-swapped, set above) as the title fades out. It
-		   stops above the panel's legal line and scrolls itself if long. */
+		   stops above the scope line. */
 		.text {
 			position: fixed;
 			top: 0;
@@ -297,9 +297,9 @@
 			z-index: var(--z-content);
 			width: var(--aside-w);
 			padding: 80px var(--gutter) 24px;
-			overflow-y: auto;
-			overscroll-behavior: contain;
-			scrollbar-width: none;
+			/* Not a scroll container: the wheel over the panel scrolls the
+			   page, like anywhere else. */
+			overflow: clip;
 			opacity: 0;
 			visibility: hidden;
 			transform: translateY(10px);

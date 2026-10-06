@@ -58,10 +58,6 @@ const rowMedia = (row: MediaRow | null | undefined): Media | null => {
 	return null;
 };
 
-/** Every visual of a work in display order: the lead visual first (a
-    repeat row flagged 優先表示 beats main_visual, as on Office), then the
-    remaining rows. Falls back to the legacy `thumbnail` when a work has no
-    main_visual at all (e.g. YSOVE). */
 /** /works cards for one work: its thumbnail (main_visual, else the legacy
     thumbnail, else its first visual) followed by every repeat row flagged
     優先表示 (pj_images_priority). */
@@ -77,25 +73,20 @@ export const thumbAndPriority = (w: Work): { thumb: Media | null; priority: Medi
 	return { thumb, priority };
 };
 
+/** Every visual of a work in display order: the thumbnail (main_visual,
+    else the legacy `thumbnail`, e.g. YSOVE) first, then the repeat rows in
+    CMS order. */
 export const workMedia = (w: Work): Media[] => {
-	const rows = (w.repeat ?? []).map((row) => ({ row, media: rowMedia(row) }));
-	const priority = rows.find((r) => r.row.pj_images_priority && r.media);
-	const main = rowMedia(w.main_visual);
-	const lead =
-		priority?.media ??
-		main ??
+	// The thumbnail (main_visual, else the legacy thumbnail) always leads;
+	// 優先表示 (pj_images_priority) does NOT reorder anything here — it only
+	// picks the extra images shown on /works (see thumbAndPriority).
+	const rows = (w.repeat ?? []).map((row) => rowMedia(row)).filter((m): m is Media => m !== null);
+	const main =
+		rowMedia(w.main_visual) ??
 		(w.thumbnail?.url
 			? { src: w.thumbnail.url, isVideo: false, width: w.thumbnail.width, height: w.thumbnail.height }
 			: null);
-
-	const others = rows
-		.filter((r) => r !== priority && r.media)
-		.map((r) => r.media as Media);
-	// A priority row displaced main_visual from the lead slot — keep it in
-	// the sequence rather than dropping it.
-	if (priority?.media && main) others.unshift(main);
-
-	return lead ? [lead, ...others] : others;
+	return main ? [main, ...rows] : rows;
 };
 
 const MAX_TILES_PER_WORK = 6;
