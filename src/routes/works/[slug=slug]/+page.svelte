@@ -321,6 +321,10 @@
 			line-height: 1.4;
 		}
 
+		.body:lang(ja) {
+			font-size: 14px;
+		}
+
 		.Colophon {
 			padding: 120px var(--gutter) 160px 0;
 		}
