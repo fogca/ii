@@ -256,7 +256,7 @@
 			bottom: 48px;
 			z-index: var(--z-content);
 			width: var(--aside-w);
-			padding: 110px var(--gutter) 24px;
+			padding: 80px var(--gutter) 24px;
 			overflow-y: auto;
 			overscroll-behavior: contain;
 			scrollbar-width: none;
