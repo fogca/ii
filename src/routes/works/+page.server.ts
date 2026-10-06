@@ -14,8 +14,26 @@ export type WorkCard = {
 };
 
 // /works — the default archive view: a 3-column grid (2 on SP) of every
-// work's thumbnail, then every work's 優先表示 images; number / title /
-// scope per card. The masonry lives at /works/grid.
+// work's thumbnail, then every work's 優先表示 images shuffled; number /
+// title / scope per card. The masonry lives at /works/grid.
+
+/** Random order (new on every request) in which no two neighbours come from
+    the same work, as far as the mix allows: each pick is drawn at random
+    from the remaining cards of a different work than the previous one. */
+const shuffleApart = (cards: WorkCard[]): WorkCard[] => {
+	const pool = [...cards];
+	const out: WorkCard[] = [];
+	while (pool.length) {
+		const prev = out.at(-1)?.slug;
+		const options = pool.filter((c) => c.slug !== prev);
+		const from = options.length ? options : pool;
+		const pick = from[Math.floor(Math.random() * from.length)];
+		pool.splice(pool.indexOf(pick), 1);
+		out.push(pick);
+	}
+	return out;
+};
+
 export const load: PageServerLoad = async () => {
 	const data = await getVisibleWorks({
 		limit: 100,
@@ -24,7 +42,7 @@ export const load: PageServerLoad = async () => {
 	});
 
 	// Every work's thumbnail first (archive order), then every work's
-	// 優先表示 images (same order). Each card links to its work.
+	// 優先表示 images in random order. Each card links to its work.
 	const thumbs: WorkCard[] = [];
 	const extras: WorkCard[] = [];
 	data.contents.forEach((w, i) => {
@@ -38,7 +56,7 @@ export const load: PageServerLoad = async () => {
 		thumbs.push({ ...base, key: `${w.id}:thumb`, visual: thumb });
 		priority.forEach((visual, j) => extras.push({ ...base, key: `${w.id}:p${j}`, visual }));
 	});
-	const cards = [...thumbs, ...extras];
+	const cards = [...thumbs, ...shuffleApart(extras)];
 
 	return {
 		cards,
