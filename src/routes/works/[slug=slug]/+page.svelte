@@ -131,6 +131,10 @@
 	/* The hero's box takes the image's own ratio (so `cover` crops nothing);
 	   on PC it's also at least a screen tall. */
 	.hero {
+		/* width:100% explicit — with aspect-ratio + the PC min-height, an
+		   auto width would be derived from the min-height through the ratio
+		   and overflow the panel (e.g. a 16:9 video hero). */
+		width: 100%;
 		aspect-ratio: var(--ar);
 	}
 
