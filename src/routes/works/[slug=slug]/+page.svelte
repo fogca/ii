@@ -156,6 +156,19 @@
 		white-space: pre-line;
 	}
 
+	/* English text block: a quieter lead (capitalized, not uppercase) and a
+	   lighter body. */
+	.lead:lang(en) {
+		font-size: 24px;
+		text-transform: capitalize;
+		letter-spacing: 0;
+	}
+
+	.body:lang(en) {
+		font-size: 14px;
+		opacity: 0.5;
+	}
+
 	:global(html[data-lang='ja']) .x-en:not(.is-only),
 	:global(html:not([data-lang='ja'])) .x-ja:not(.is-only) {
 		display: none;
