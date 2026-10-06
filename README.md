@@ -33,4 +33,4 @@ npm run dev            # http://localhost:3300
 | `src/lib/components` | Header, Menu, Aside (left panel / page head), SiteFooter (SP), Opening, Masonry, Media, Logo |
 | `src/lib/js/works.ts` | microCMS `works` → page data |
 | `static/css/base.css` | tokens, reset, type primitives |
-| `static/fonts` | Ango VF23 (Latin; formerly Elio), Norma VF09 (fallback for glyphs Ango doesn't ship) |
+| `static/fonts` | Ango VF25 (Latin; formerly Elio), Norma VF09 (fallback for glyphs Ango doesn't ship) |
