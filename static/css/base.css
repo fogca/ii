@@ -20,13 +20,14 @@
 /* ---------------------------------------------------------------------
    Font faces
    Ango (II's Latin face; formerly Elio — renamed 2026-10-03, files were
-   Elio-VF##.woff2 up to VF21) ships 151 glyphs as of VF25 (¥ drawn since VF17,
+   Elio-VF##.woff2 up to VF21) ships 151 glyphs as of VF26 (¥ drawn since VF17,
    2026-09-30; VF18 refined G/K/R/f/g/t + yen; VF19 added – (endash) plus
    outline refinement on e/eacute/egrave/ecircumflex/edieresis/d/A/emdash/
    b/w/r/g/two/three; VF20 refined s further; VF21, 2026-10-02, widens
    every glyph's advance width by 5 units — UPM 1000, so the font's own
    default spacing now reads roughly like letter-spacing: 0.005em baked
-   in, at the user's request; VF22-25 refine u/q/A/N/P/b/d/s/W/p and
+   in, at the user's request; VF22-26 refine u/q/A/N/P/b/d/s/W/p and (VF26, 2026-10-07: broadly
+   A/N/T/W/c/d/e/g/h/i/m/o/p/r/v/w/y, quotesingle, cent)
    (from VF23) carry the new family name in the binary itself — no
    compatibility change) — no ©, /, &, @, ;, ?, curly quotes, £ etc. Those fall back
    per-glyph to Norma (Office's Latin face), the next family in every
@@ -37,7 +38,7 @@
    --------------------------------------------------------------------- */
 @font-face {
 	font-family: 'Ango';
-	src: url('/fonts/Ango-VF25.woff2?v=25') format('woff2-variations');
+	src: url('/fonts/Ango-VF26.woff2?v=26') format('woff2-variations');
 	font-weight: 150 950;
 	font-style: normal;
 	font-display: swap;
