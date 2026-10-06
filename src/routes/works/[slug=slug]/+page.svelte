@@ -24,10 +24,14 @@
 	// Panel width on PC = viewport minus the 455/1440 left panel.
 	const PANEL = 'calc(100vw - 455 / 1440 * 100vw)';
 	const HERO_SIZES = `(min-width: 1024px) ${PANEL}, 100vw`;
-	const PAIR_SIZES = `(min-width: 1024px) calc(${PANEL} * 0.56), 50vw`;
+	// PC stacks the pair full width, like the rest.
+	const PAIR_SIZES = `(min-width: 1024px) ${PANEL}, 50vw`;
 	const REST_SIZES = `(min-width: 1024px) ${PANEL}, calc(100vw - 40px)`;
 	const HERO_WIDTHS = [640, 900, 1400, 2000, 2800];
 	const REST_WIDTHS = [640, 900, 1400, 2000, 2800];
+	// The work page is where the photographs are looked at closely: a higher
+	// encode than the site default (72) — about +30% bytes.
+	const QUALITY = 85;
 
 	/** w/h — the hero's box and the SP pair's shared row height (videos:
 	    16:9 until known). */
@@ -45,7 +49,7 @@
 
 		{#if work.hero}
 			<div class="hero" style="--ar: {arOf(work.hero)}">
-				<Media media={work.hero} cover eager sizes={HERO_SIZES} widths={HERO_WIDTHS} alt={work.title} />
+				<Media media={work.hero} cover eager sizes={HERO_SIZES} widths={HERO_WIDTHS} quality={QUALITY} alt={work.title} />
 			</div>
 		{/if}
 
@@ -53,7 +57,7 @@
 			<div class="pair" class:is-single={work.pair.length === 1}>
 				{#each work.pair as media, i (i)}
 					<div class="cell" style="--ar: {arOf(media)}">
-						<Media {media} sizes={PAIR_SIZES} />
+						<Media {media} sizes={PAIR_SIZES} widths={REST_WIDTHS} quality={QUALITY} />
 					</div>
 				{/each}
 			</div>
@@ -87,7 +91,7 @@
 			<div class="rest">
 				{#each work.rest as media, i (i)}
 					<div class="rest-item">
-						<Media {media} sizes={REST_SIZES} widths={REST_WIDTHS} />
+						<Media {media} sizes={REST_SIZES} widths={REST_WIDTHS} quality={QUALITY} />
 					</div>
 				{/each}
 			</div>

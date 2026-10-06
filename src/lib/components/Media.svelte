@@ -9,6 +9,7 @@
 		widths = [640, 900, 1400, 2000, 2800],
 		cover = false,
 		eager = false,
+		quality,
 		alt = ''
 	}: {
 		media: Media;
@@ -20,6 +21,8 @@
 		cover?: boolean;
 		/** Above the fold: load immediately. */
 		eager?: boolean;
+		/** Output quality (imgOpt's default when omitted). */
+		quality?: number;
 		alt?: string;
 	} = $props();
 
@@ -78,8 +81,8 @@
 		></video>
 	{:else}
 		<img
-			src={imgOpt(media.src, 1400)}
-			srcset={imgSrcset(media.src, widths)}
+			src={imgOpt(media.src, 1400, quality)}
+			srcset={imgSrcset(media.src, widths, quality)}
 			{sizes}
 			{alt}
 			width={media.width}
