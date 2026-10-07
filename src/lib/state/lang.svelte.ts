@@ -3,22 +3,22 @@
 // that hold both EN and JA copy; app.html's pre-paint script sets it first
 // (no flash) and restore() mirrors that decision — keep the two in sync.
 // An explicit choice lasts for the tab session (sessionStorage); without
-// one the site is English — the browser's language is deliberately NOT
-// consulted (unlike Office): EN is the default for everyone.
+// one the site is Japanese — the browser's language is deliberately NOT
+// consulted (unlike Office): JA is the default for everyone.
 export type Lang = 'en' | 'ja';
 
 export const LANG_STORAGE_KEY = 'ii-lang';
 
 class LangState {
-	current = $state<Lang>('en');
+	current = $state<Lang>('ja');
 
-	/** Client-only: adopt the session's choice, else stay English. */
+	/** Client-only: adopt the session's choice, else stay Japanese. */
 	restore() {
 		try {
 			const saved = sessionStorage.getItem(LANG_STORAGE_KEY);
 			if (saved === 'en' || saved === 'ja') this.current = saved;
 		} catch {
-			// storage unavailable — stays English
+			// storage unavailable — stays Japanese
 		}
 	}
 

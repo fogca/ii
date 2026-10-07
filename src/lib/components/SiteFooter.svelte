@@ -27,7 +27,7 @@
 	/* The ii-ii.co wordmark across the full width, then 40px down the
 	   Instagram handle and the legal + © row. */
 	.SiteFooter {
-		padding: 74px var(--gutter) calc(18px + env(safe-area-inset-bottom, 0px));
+		padding: 120px var(--gutter) calc(18px + env(safe-area-inset-bottom, 0px));
 		text-align: center;
 	}
 
