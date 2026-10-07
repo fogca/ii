@@ -73,7 +73,10 @@
 						<h2 class="lead t-subtitle x-en" class:is-only={!work.lead.ja} lang="en">{work.lead.en}</h2>
 					{/if}
 					{#if work.lead.ja}
-						<h2 class="lead t-subtitle x-ja" class:is-only={!work.lead.en} lang="ja">{work.lead.ja}</h2>
+						<!-- Its "?" line breaks apply on PC only (SP runs it on). -->
+						<h2 class="lead t-subtitle x-ja" class:is-only={!work.lead.en} lang="ja">
+							{#each work.lead.ja.split('\n') as line, i (i)}{#if i}<br class="pc-br" />{/if}{line}{/each}
+						</h2>
 					{/if}
 				{/if}
 				{#if work.body}
@@ -190,6 +193,24 @@
 		max-width: var(--measure);
 		margin-top: 10px;
 		white-space: pre-line;
+	}
+
+	.lead:lang(ja) {
+		line-height: 1.4;
+	}
+
+	/* SP: the Japanese lead runs on as one paragraph; the body is set
+	   smaller and looser. */
+	@media (max-width: 1023.98px) {
+		.pc-br {
+			display: none;
+		}
+
+		.body:lang(ja) {
+			max-width: max-content;
+			font-size: 13.5px;
+			line-height: 1.7;
+		}
 	}
 
 	.rest {
@@ -323,10 +344,6 @@
 		.body {
 			margin-top: 10px;
 			max-width: none;
-		}
-
-		.lead:lang(ja) {
-			line-height: 1.4;
 		}
 
 		.body:lang(ja) {
