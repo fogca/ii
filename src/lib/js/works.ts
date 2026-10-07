@@ -32,9 +32,7 @@ export type WorkDetail = {
 	/** The CMS `scope` select values (V.I. / Web / …). */
 	scope: string[];
 	hero: Media | null;
-	/** The two images directly under the hero (Figma: 552 + 432 / 197 + 194). */
-	pair: Media[];
-	/** Everything after the text block. */
+	/** Every image after the hero, shown after the text block. */
 	rest: Media[];
 	/** EN/JA copy; either may be '' (the page then shows the other one in
 	    both languages). null when neither exists. */
@@ -190,8 +188,7 @@ export const toWorkDetail = (w: Work, index: number): WorkDetail => {
 		number: padNumber(index),
 		scope: w.scope ?? [],
 		hero,
-		pair: gallery.slice(0, 2),
-		rest: gallery.slice(2),
+		rest: gallery,
 		lead,
 		body,
 		colophon

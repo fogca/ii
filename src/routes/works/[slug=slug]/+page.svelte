@@ -24,8 +24,6 @@
 	// Panel width on PC = viewport minus the 455/1440 left panel.
 	const PANEL = 'calc(100vw - 455 / 1440 * 100vw)';
 	const HERO_SIZES = `(min-width: 1024px) ${PANEL}, 100vw`;
-	// PC stacks the pair full width, like the rest.
-	const PAIR_SIZES = `(min-width: 1024px) ${PANEL}, 50vw`;
 	const REST_SIZES = `(min-width: 1024px) ${PANEL}, calc(100vw - 40px)`;
 	const HERO_WIDTHS = [640, 900, 1400, 2000, 2800];
 	const REST_WIDTHS = [640, 900, 1400, 2000, 2800];
@@ -33,8 +31,7 @@
 	// encode than the site default (72) — about +30% bytes.
 	const QUALITY = 85;
 
-	/** w/h — the hero's box and the SP pair's shared row height (videos:
-	    16:9 until known). */
+	/** w/h of the hero's box (videos: 16:9 until known). */
 	const arOf = (m: { width?: number; height?: number }) =>
 		m.width && m.height ? m.width / m.height : 16 / 9;
 </script>
@@ -50,16 +47,6 @@
 		{#if work.hero}
 			<div class="hero" style="--ar: {arOf(work.hero)}">
 				<Media media={work.hero} cover eager sizes={HERO_SIZES} widths={HERO_WIDTHS} quality={QUALITY} alt={work.title} />
-			</div>
-		{/if}
-
-		{#if work.pair.length}
-			<div class="pair" class:is-single={work.pair.length === 1}>
-				{#each work.pair as media, i (i)}
-					<div class="cell" style="--ar: {arOf(media)}">
-						<Media {media} sizes={PAIR_SIZES} widths={REST_WIDTHS} quality={QUALITY} />
-					</div>
-				{/each}
 			</div>
 		{/if}
 
@@ -121,8 +108,8 @@
 
 <style>
 	/* ── SP (Figma 128:376) ─────────────────────────────────────────────
-	   hero full-bleed · image pair (2px apart) · lead 24px at x=20 · body
-	   11px / 1.5 in 353px · further images 353px wide, 20px apart ·
+	   hero full-bleed · lead 24px at x=20 · body 11px / 1.5 in 353px ·
+	   the other images 353px wide, 20px apart ·
 	   Colophon. Every image keeps its own aspect ratio — nothing is
 	   cropped (Figma's fixed 393 × 376 / 197 × 264 + 194 × 159 boxes were
 	   placeholders). */
@@ -145,26 +132,8 @@
 		aspect-ratio: var(--ar);
 	}
 
-	/* The pair shares one row height: each image's width is proportional to
-	   its aspect ratio, so both show whole at the same height. */
-	.pair {
-		display: flex;
-		gap: var(--tile-gap);
-		margin-top: var(--tile-gap);
-	}
-
-	.cell {
-		flex: var(--ar) 1 0;
-		min-width: 0;
-	}
-
-	.pair.is-single .cell {
-		flex: none;
-		width: 100%;
-	}
-
 	.text {
-		padding: 68px var(--gutter) 0;
+		padding: 40px var(--gutter) 0;
 	}
 
 	.lead {
@@ -274,10 +243,9 @@
 	}
 
 	/* ── PC (Figma 79:229) ──────────────────────────────────────────────
-	   The panel right of the left column scrolls with the page: hero, then
-	   the image pair (uncropped, as on SP); below the fold the SP order
-	   continues at PC type sizes, text aligned to the panel's left edge
-	   like About. */
+	   The panel right of the left column scrolls with the page: the hero,
+	   then every other image full width, one under the other, 2px apart;
+	   the text moves into the left panel. */
 	@media (min-width: 1024px) {
 		.hero {
 			min-height: 100vh;
@@ -291,18 +259,6 @@
 			z-index: var(--z-content);
 			width: calc(var(--aside-w) - 2 * var(--gutter));
 			padding: 0;
-		}
-
-		/* No pair on PC: every image after the hero runs full width, one
-		   under the other, 2px apart. */
-		.pair {
-			flex-direction: column;
-		}
-
-		.cell,
-		.pair.is-single .cell {
-			flex: none;
-			width: 100%;
 		}
 
 		.rest {
