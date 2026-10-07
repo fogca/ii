@@ -19,6 +19,26 @@
 	const SCALE_GAIN = 0.2; // AVATR: scale(calc(var(--prg0) * .2 + 1))
 	const SMOOTHING = 0.14; // per-frame approach of the drawn progress to the scroll position
 	const PRELOAD_AHEAD = 1; // slides kept mounted on each side of the current one
+	const WIDTHS = [900, 1400, 2000, 2800, 3840];
+	const QUALITY = 85; // full-screen photographs: above the site default (72)
+
+	// `sizes` for a full-screen `cover` image. A landscape image in a portrait
+	// box is drawn at the box's HEIGHT, i.e. ratio × 100vh wide — far wider
+	// than "100vw" (which made phones fetch ~1400px for a ~3800px need).
+	// On SP the height-bound width is taken at 2/3 so a 3x phone gets ~2x
+	// density: sharp, without decoding 3840px frames for every slide it keeps
+	// mounted (iOS kills tabs that hold too many big bitmaps).
+	const SP_DENSITY_CAP = 2 / 3;
+	const sizesFor = (m: MediaItem): string => {
+		if (!m.width || !m.height) return '100vw';
+		const ratio = m.width / m.height;
+		const ar = `${Math.round(ratio * 1000)}/1000`;
+		return [
+			`(max-width: 1023.98px) calc(${(ratio * SP_DENSITY_CAP).toFixed(3)} * 100vh)`,
+			`(max-aspect-ratio: ${ar}) calc(${ratio.toFixed(3)} * 100vh)`,
+			'100vw'
+		].join(', ');
+	};
 
 	let root = $state<HTMLElement>();
 	let slideEls = $state<HTMLElement[]>([]);
@@ -118,8 +138,9 @@
 							media={slide.visual}
 							cover
 							eager={i === 0}
-							sizes="100vw"
-							widths={[900, 1400, 2000, 2800, 3840]}
+							sizes={sizesFor(slide.visual)}
+							widths={WIDTHS}
+							quality={QUALITY}
 							alt={slide.title}
 						/>
 					{/if}
