@@ -120,6 +120,7 @@
 		font-weight: var(--fw-regular); /* 450 */
 		letter-spacing: 0;
 		text-transform: none;
+		text-align: center;
 	}
 
 	/* The hero's box takes the image's own ratio (so `cover` crops nothing);
@@ -259,6 +260,7 @@
 			z-index: var(--z-content);
 			width: calc(var(--aside-w) - 2 * var(--gutter));
 			padding: 0;
+			text-align: left;
 		}
 
 		.rest {
