@@ -3,6 +3,7 @@
 	import { page } from '$app/state';
 	import { afterNavigate } from '$app/navigation';
 	import Logo from './Logo.svelte';
+	import DomainMark from './DomainMark.svelte';
 	import LangSwitch from './LangSwitch.svelte';
 	import { ui } from '$lib/state/ui.svelte';
 	import { imgOpt, imgSrcset } from '$lib/js/img';
@@ -95,6 +96,8 @@
 			</ul>
 		{/if}
 
+		<div class="domain"><DomainMark /></div>
+
 		<div class="foot t-meta">
 			<a href={INSTAGRAM.url} target="_blank" rel="noopener">{INSTAGRAM.handle}</a>
 			<p class="legal">
@@ -125,7 +128,7 @@
 		position: absolute;
 		inset: 0;
 		width: 100%;
-		background: var(--color-scrim);
+		background: rgba(0, 0, 0, 0.3);
 		opacity: 0;
 		cursor: default;
 		transition: opacity 0.6s var(--ease-out);
@@ -135,15 +138,22 @@
 		opacity: 1;
 	}
 
-	/* SP: the sheet fills the screen (no SP menu frame exists in Figma — this
-	   follows the PC sheet's type and order). */
+	@media (min-width: 1024px) {
+		.scrim {
+			background: var(--color-scrim);
+		}
+	}
+
+	/* SP: the sheet drops to 90% of the screen over a light scrim (no SP
+	   menu frame exists in Figma — this follows the PC sheet's type and
+	   order). */
 	.sheet {
 		position: absolute;
 		top: 0;
 		left: 0;
 		right: 0;
-		height: 100vh;
-		height: 100dvh;
+		height: 90vh;
+		height: 90dvh;
 		display: flex;
 		flex-direction: column;
 		padding: calc(var(--header-h) + 24px + env(safe-area-inset-top, 0px)) var(--gutter)
@@ -205,8 +215,15 @@
 		display: none;
 	}
 
-	.foot {
+	/* Like the SP footer: the full-width wordmark, then 40px to the legal
+	   block, both at the bottom of the sheet. */
+	.domain {
 		margin-top: auto;
+		padding-top: 40px;
+	}
+
+	.foot {
+		margin-top: 40px;
 		display: grid;
 		grid-template-columns: 1fr auto;
 		grid-template-areas:
@@ -288,6 +305,7 @@
 			transform: scale(1.03);
 		}
 
+		.domain,
 		.foot {
 			display: none;
 		}
