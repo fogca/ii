@@ -1,7 +1,10 @@
 <script lang="ts">
 	import { LOGO_STYLE } from '$lib/js/site';
 
-	// The II mark. Two looks, picked site-wide by LOGO_STYLE ($lib/js/site):
+	// The II mark. Three looks, picked site-wide by LOGO_STYLE ($lib/js/site):
+	// - 'ii': the first "ii" of the ii-ii.co wordmark (DomainMark), cropped
+	//   to its own box (6.71:7.96 — close to the render's proportions, so the
+	//   widths set for the render still fit); fill follows currentColor.
 	// - 'render': the shaded 3D render (raster, always black-ish; the
 	//   parent sets the width, height follows its 1166:1355 proportions).
 	// - 'vector': Figma geometry (node 79:139, "II") — every size in the
@@ -18,7 +21,12 @@
 	const useRender = $derived(LOGO_STYLE === 'render' && !vector);
 </script>
 
-{#if useRender}
+{#if LOGO_STYLE === 'ii'}
+	<svg class="Logo" viewBox="0 0 6.71 7.96" xmlns="http://www.w3.org/2000/svg" role="img" aria-label={label}>
+		<path d="M0,7.96v-.16l.73-.56v-3.41l-.73-.54v-.16c.26-.1,1.54-.5,2.47-.73v4.83l.72.56v.16H0ZM1.55,0c.53,0,.96.37.96.94,0,.52-.43.94-.96.94s-.97-.42-.97-.94c0-.56.44-.94.97-.94Z" fill="currentColor" />
+		<path d="M3.52,7.96v-.16l.73-.56v-3.41l-.73-.54v-.16c.26-.1,1.54-.5,2.47-.73v4.83l.72.56v.16h-3.19ZM5.06,0c.53,0,.96.37.96.94,0,.52-.43.94-.96.94s-.97-.42-.97-.94c0-.56.44-.94.97-.94Z" fill="currentColor" />
+	</svg>
+{:else if useRender}
 	<img
 		class="Logo"
 		src="/images/logo/ii-render-480.webp"
