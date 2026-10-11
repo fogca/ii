@@ -20,11 +20,11 @@
 /* ---------------------------------------------------------------------
    Font faces
    Ango (II's Latin face; formerly Elio — renamed 2026-10-03, files were
-   Elio-VF##.woff2 up to VF21) ships 175 characters as of VF27 (2026-10-11):
+   Elio-VF##.woff2 up to VF21) ships 175 characters as of VF28 (2026-10-12):
    A–Z, a–z, 0–9, accents, ¥ (VF17), – (VF19) and, new in VF27, 24
    punctuation/symbols (! " # & * + / ; < = > ? [ \ ] _ | © « ® ° » ’ “ ” ™).
    VF21 widened every advance by 5 units (≈ letter-spacing: 0.005em baked
-   in); VF22-26 were outline refinements; VF23 carries the new family name
+   in); VF22-26 and VF28 were outline refinements; VF23 carries the new family name
    in the binary. Still missing: % @ ^ ~ { } £ § ¶ ¡ ¿ × ÷ ± • ‹ › and ß æ ø ð þ — those
    fall back per-glyph to Norma (Office's Latin face), the next family in
    every stack below.
@@ -34,7 +34,7 @@
    --------------------------------------------------------------------- */
 @font-face {
 	font-family: 'Ango';
-	src: url('/fonts/Ango-VF27.woff2?v=27') format('woff2-variations');
+	src: url('/fonts/Ango-VF28.woff2?v=28') format('woff2-variations');
 	font-weight: 150 950;
 	font-style: normal;
 	font-display: swap;
