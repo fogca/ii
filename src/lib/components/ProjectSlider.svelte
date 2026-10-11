@@ -247,8 +247,6 @@
 		mix-blend-mode: difference; /* reads on light and dark images alike */
 		font-size: 12px;
 		line-height: 1.2;
-		letter-spacing: var(--tracking-title);
-		text-transform: uppercase;
 	}
 
 	.num {

@@ -243,9 +243,8 @@ h6 {
    Typography primitives
    --------------------------------------------------------------------- */
 
-/* Uppercase display text — titles, eyebrows, menu, section heads.
+/* Uppercase display text — eyebrows, menu, section heads.
    5% tracking + uppercase per the II type rule. */
-.t-title,
 .t-eyebrow,
 .t-subtitle,
 .t-menu {
@@ -254,7 +253,10 @@ h6 {
 	line-height: var(--lh-title);
 }
 
+/* Titles (page / work names) keep their own case as written — no
+   uppercase, so no uppercase tracking either. */
 .t-title {
+	line-height: var(--lh-title);
 	font-size: var(--fs-title);
 	font-weight: var(--fw-medium);
 }
