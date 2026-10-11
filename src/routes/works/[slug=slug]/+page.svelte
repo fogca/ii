@@ -22,6 +22,13 @@
 		};
 	});
 
+	// Flags the work page on <html> so its SP title block (the shared
+	// Aside) can take this page's own spacing.
+	$effect(() => {
+		document.documentElement.classList.add('is-work');
+		return () => document.documentElement.classList.remove('is-work');
+	});
+
 	// Panel width on PC = viewport minus the 455/1440 left panel.
 	const PANEL = 'calc(100vw - 455 / 1440 * 100vw)';
 	const HERO_SIZES = `(min-width: 1024px) ${PANEL}, 100vw`;
@@ -115,8 +122,18 @@
 	   cropped (Figma's fixed 393 × 376 / 197 × 264 + 194 × 159 boxes were
 	   placeholders). */
 
+	/* SP: the title block sits 120px down with 60px under it. */
+	@media (max-width: 1023.98px) {
+		:global(html.is-work .Aside) {
+			min-height: auto;
+			padding-top: 120px;
+			padding-bottom: 60px;
+		}
+	}
+
 	.scope {
-		padding: 0 var(--gutter) 12px;
+		padding: 0 var(--gutter) 20px;
+		opacity: 0.3;
 		font-size: 12.5px;
 		font-weight: var(--fw-regular); /* 450 */
 		letter-spacing: 0;
@@ -262,6 +279,7 @@
 			z-index: var(--z-content);
 			width: calc(var(--aside-w) - 2 * var(--gutter));
 			padding: 0;
+			opacity: 1;
 			text-align: left;
 		}
 
