@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Media from '$lib/components/Media.svelte';
+	import { spRatio } from '$lib/js/works';
 
 	let { data } = $props();
 	const work = $derived(data.work);
@@ -45,7 +46,7 @@
 		{/if}
 
 		{#if work.hero}
-			<div class="hero" style="--ar: {arOf(work.hero)}">
+			<div class="hero" style="--ar: {arOf(work.hero)}; --ar-sp: {spRatio(work.hero)}">
 				<Media media={work.hero} cover eager sizes={HERO_SIZES} widths={HERO_WIDTHS} quality={QUALITY} alt={work.title} />
 			</div>
 		{/if}
@@ -130,7 +131,7 @@
 		   auto width would be derived from the min-height through the ratio
 		   and overflow the panel (e.g. a 16:9 video hero). */
 		width: 100%;
-		aspect-ratio: var(--ar);
+		aspect-ratio: var(--ar-sp); /* the mobile thumbnail's, if any */
 	}
 
 	.text {
@@ -249,6 +250,7 @@
 	   the text moves into the left panel. */
 	@media (min-width: 1024px) {
 		.hero {
+			aspect-ratio: var(--ar);
 			min-height: 100vh;
 			min-height: 100dvh;
 		}

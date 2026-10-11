@@ -41,6 +41,8 @@ export type Work = {
 	body_jp?: string;
 	/** Legacy primary image — still set on most works; used as a fallback. */
 	thumbnail?: MicroCMSImage;
+	/** Mobile thumbnail — replaces the thumbnail on SP wherever it shows. */
+	sp_thumbnail?: MicroCMSImage;
 	main_visual?: MediaRow | null;
 	repeat?: MediaRow[];
 	/** richEditor HTML, one "Label!Value" credit per line. */

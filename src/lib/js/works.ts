@@ -10,6 +10,9 @@ export type Media = {
 	width?: number;
 	height?: number;
 	caption?: string;
+	/** SP replacement image (the CMS `sp_thumbnail`) — set on a work's
+	    thumbnail only; Media.svelte swaps it in below the PC breakpoint. */
+	sp?: { src: string; width?: number; height?: number };
 };
 
 /** One tile of the archive masonry — always an image (see buildTiles). */
@@ -56,6 +59,18 @@ const rowMedia = (row: MediaRow | null | undefined): Media | null => {
 	return null;
 };
 
+/** w/h of a media on SP (its `sp` image when set); videos: 16:9 until known. */
+export const spRatio = (m: Media): number => {
+	const v = m.sp ?? m;
+	return v.width && v.height ? v.width / v.height : 16 / 9;
+};
+
+/** The thumbnail with the work's mobile thumbnail attached, if any. */
+const withSp = (m: Media | null, w: Work): Media | null =>
+	m && w.sp_thumbnail?.url
+		? { ...m, sp: { src: w.sp_thumbnail.url, width: w.sp_thumbnail.width, height: w.sp_thumbnail.height } }
+		: m;
+
 /** /works cards for one work: its thumbnail (main_visual, else the legacy
     thumbnail, else its first visual) followed by every repeat row flagged
     優先表示 (pj_images_priority). */
@@ -64,7 +79,7 @@ export const thumbAndPriority = (w: Work): { thumb: Media | null; priority: Medi
 		? { src: w.thumbnail.url, isVideo: false, width: w.thumbnail.width, height: w.thumbnail.height }
 		: null;
 	const rows = (w.repeat ?? []).map((row) => ({ row, media: rowMedia(row) }));
-	const thumb = rowMedia(w.main_visual) ?? legacy ?? rows.find((r) => r.media)?.media ?? null;
+	const thumb = withSp(rowMedia(w.main_visual) ?? legacy ?? rows.find((r) => r.media)?.media ?? null, w);
 	const priority = rows
 		.filter((r) => r.row.pj_images_priority && r.media && r.media.src !== thumb?.src)
 		.map((r) => r.media as Media);
@@ -84,7 +99,8 @@ export const workMedia = (w: Work): Media[] => {
 		(w.thumbnail?.url
 			? { src: w.thumbnail.url, isVideo: false, width: w.thumbnail.width, height: w.thumbnail.height }
 			: null);
-	return main ? [main, ...rows] : rows;
+	const lead = withSp(main ?? rows.shift() ?? null, w);
+	return lead ? [lead, ...rows] : rows;
 };
 
 const MAX_TILES_PER_WORK = 6;

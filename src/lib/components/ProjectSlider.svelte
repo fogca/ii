@@ -32,9 +32,11 @@
 	const sizesFor = (m: MediaItem): string => {
 		if (!m.width || !m.height) return '100vw';
 		const ratio = m.width / m.height;
+		// SP draws the mobile thumbnail instead, when the work has one.
+		const spRatio = m.sp?.width && m.sp.height ? m.sp.width / m.sp.height : ratio;
 		const ar = `${Math.round(ratio * 1000)}/1000`;
 		return [
-			`(max-width: 1023.98px) calc(${(ratio * SP_DENSITY_CAP).toFixed(3)} * 100vh)`,
+			`(max-width: 1023.98px) calc(${(spRatio * SP_DENSITY_CAP).toFixed(3)} * 100vh)`,
 			`(max-aspect-ratio: ${ar}) calc(${ratio.toFixed(3)} * 100vh)`,
 			'100vw'
 		].join(', ');

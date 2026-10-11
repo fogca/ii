@@ -33,6 +33,13 @@
 	);
 	const lqip = $derived(media.isVideo ? videoFrame(media.src, 64) : imgOpt(media.src, 32, 30));
 
+	// SP replacement image (`media.sp`, the CMS mobile thumbnail): shown
+	// below the PC breakpoint in place of the main image or video — picked
+	// by <source media> / CSS, so the server render is the same for both.
+	const SP_QUERY = '(max-width: 1023.98px)';
+	const sp = $derived(media.sp);
+	const spRatio = $derived(sp?.width && sp.height ? `${sp.width} / ${sp.height}` : null);
+
 	let loaded = $state(false);
 
 	function revealOnLoad(img: HTMLImageElement) {
@@ -65,33 +72,63 @@
 	class="Media"
 	class:is-cover={cover}
 	class:is-loaded={loaded}
-	style:aspect-ratio={cover ? undefined : ratio}
-	style:background-image={lqip ? `url('${lqip}')` : undefined}
+	class:has-sp={!!sp}
+	style:--ratio={cover ? undefined : ratio}
+	style:--ratio-sp={cover ? undefined : (spRatio ?? ratio)}
+	style:--lqip={lqip ? `url('${lqip}')` : undefined}
+	style:--lqip-sp={sp ? `url('${imgOpt(sp.src, 32, 30)}')` : undefined}
 >
+	{#if sp && media.isVideo}
+		<!-- SP: the still replaces the video entirely (the video is
+		     display:none there, so lazyVideo never starts it). -->
+		<img
+			class="sp-still"
+			src={imgOpt(sp.src, 1400, quality)}
+			srcset={imgSrcset(sp.src, widths, quality)}
+			{sizes}
+			{alt}
+			width={sp.width}
+			height={sp.height}
+			loading={eager ? 'eager' : 'lazy'}
+			decoding="async"
+			use:revealOnLoad
+		/>
+	{/if}
 	{#if media.isVideo}
 		<video
 			src={media.src}
 			muted
 			loop
 			playsinline
-			autoplay={eager}
-			preload={eager ? 'auto' : 'metadata'}
+			autoplay={eager && !sp}
+			preload={eager && !sp ? 'auto' : 'metadata'}
 			use:lazyVideo
 			use:videoAspect
 		></video>
 	{:else}
-		<img
-			src={imgOpt(media.src, 1400, quality)}
-			srcset={imgSrcset(media.src, widths, quality)}
-			{sizes}
-			{alt}
-			width={media.width}
-			height={media.height}
-			loading={eager ? 'eager' : 'lazy'}
-			fetchpriority={eager ? 'high' : undefined}
-			decoding="async"
-			use:revealOnLoad
-		/>
+		<picture>
+			{#if sp}
+				<source
+					media={SP_QUERY}
+					srcset={imgSrcset(sp.src, widths, quality)}
+					{sizes}
+					width={sp.width}
+					height={sp.height}
+				/>
+			{/if}
+			<img
+				src={imgOpt(media.src, 1400, quality)}
+				srcset={imgSrcset(media.src, widths, quality)}
+				{sizes}
+				{alt}
+				width={media.width}
+				height={media.height}
+				loading={eager ? 'eager' : 'lazy'}
+				fetchpriority={eager ? 'high' : undefined}
+				decoding="async"
+				use:revealOnLoad
+			/>
+		</picture>
 	{/if}
 	{#if media.caption}
 		<figcaption class="sr-only">{media.caption}</figcaption>
@@ -105,8 +142,31 @@
 		overflow: clip;
 		isolation: isolate;
 		background-color: var(--color-tile);
+		background-image: var(--lqip);
 		background-size: cover;
 		background-position: center;
+		aspect-ratio: var(--ratio);
+	}
+
+	@media (max-width: 1023.98px) {
+		.Media.has-sp {
+			background-image: var(--lqip-sp);
+			aspect-ratio: var(--ratio-sp);
+		}
+
+		.has-sp video {
+			display: none;
+		}
+	}
+
+	@media (min-width: 1024px) {
+		.sp-still {
+			display: none;
+		}
+	}
+
+	picture {
+		display: contents;
 	}
 
 	.Media.is-cover {

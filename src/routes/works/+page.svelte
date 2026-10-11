@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Media from '$lib/components/Media.svelte';
+	import { spRatio } from '$lib/js/works';
 
 	let { data } = $props();
 
@@ -10,9 +11,6 @@
 	const SIZES = '(min-width: 1024px) 33vw, 50vw';
 	const WIDTHS = [480, 700, 940, 1400];
 	const EAGER_COUNT = 3; // the first row
-
-	const arOf = (m: { width?: number; height?: number } | null) =>
-		m?.width && m.height ? m.width / m.height : 3 / 2;
 
 	// The PC layout drops the left panel on this page (flag on <html>).
 	$effect(() => {
@@ -25,7 +23,7 @@
 	{#each data.cards as card, i (card.key)}
 		<a class="card" href="/works/{card.slug}">
 			{#if card.visual}
-				<div class="thumb" style="--ar: {arOf(card.visual)}">
+				<div class="thumb" style="--ar: {spRatio(card.visual)}">
 					<Media media={card.visual} cover sizes={SIZES} widths={WIDTHS} eager={i < EAGER_COUNT} alt={card.title} />
 				</div>
 			{/if}

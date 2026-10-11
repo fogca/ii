@@ -11,7 +11,7 @@ export const load: PageServerLoad = async () => {
 	const data = await getVisibleWorks({
 		limit: 100,
 		orders: 'order',
-		fields: ['id', 'title', 'main_visual', 'thumbnail', 'repeat', 'hidden']
+		fields: ['id', 'title', 'main_visual', 'thumbnail', 'sp_thumbnail', 'repeat', 'hidden']
 	});
 
 	const slides: Slide[] = data.contents
