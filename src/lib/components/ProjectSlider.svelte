@@ -214,8 +214,8 @@
 	}
 
 	/* SP: the video is laid out at the stage's swapped size (lvh wide, vw
-	   tall), centered, then turned 90° clockwise to fill the stage. The
-	   1.02 keeps Media.svelte's iOS edge overscan. */
+	   tall), centered, then turned 90° clockwise and enlarged 1.5x
+	   (offset slightly to frame the logo). */
 	@media (max-width: 1023.98px) {
 		.is-rotated-sp :global(video) {
 			position: absolute;
@@ -225,7 +225,7 @@
 			width: 100lvh;
 			max-width: none; /* base.css caps media at 100% */
 			height: 100vw;
-			transform: translate(-50%, -50%) rotate(90deg) scale(1.02);
+			transform: translate(-49%, -47%) rotate(90deg) scale(1.5);
 		}
 	}
 
