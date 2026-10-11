@@ -20,6 +20,9 @@
 	const SMOOTHING = 0.14; // per-frame approach of the drawn progress to the scroll position
 	const PRELOAD_AHEAD = 1; // slides kept mounted on each side of the current one
 	const WIDTHS = [900, 1400, 2000, 2800, 3840];
+	// Works whose (landscape) video is turned 90° on SP so it fills the
+	// portrait screen instead of being cropped to a narrow strip.
+	const ROTATE_ON_SP = new Set(['one']);
 	const QUALITY = 85; // full-screen photographs: above the site default (72)
 
 	// `sizes` for a full-screen `cover` image. A landscape image in a portrait
@@ -134,7 +137,7 @@
 	<div class="stage">
 		{#each slides as slide, i (slide.slug)}
 			<a class="slide" href="/works/{slide.slug}" style="z-index: {i + 1}" bind:this={slideEls[i]}>
-				<div class="media" bind:this={mediaEls[i]}>
+				<div class="media" class:is-rotated-sp={ROTATE_ON_SP.has(slide.slug)} bind:this={mediaEls[i]}>
 					{#if mounted[i]}
 						<Media
 							media={slide.visual}
@@ -208,6 +211,22 @@
 
 	.media :global(.Media) {
 		height: 100%;
+	}
+
+	/* SP: the video is laid out at the stage's swapped size (lvh wide, vw
+	   tall), centered, then turned 90° clockwise to fill the stage. The
+	   1.02 keeps Media.svelte's iOS edge overscan. */
+	@media (max-width: 1023.98px) {
+		.is-rotated-sp :global(video) {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			width: 100vh;
+			width: 100lvh;
+			max-width: none; /* base.css caps media at 100% */
+			height: 100vw;
+			transform: translate(-50%, -50%) rotate(90deg) scale(1.02);
+		}
 	}
 
 	.caption {
