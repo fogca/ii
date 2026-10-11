@@ -236,6 +236,7 @@
 		display: flex;
 		gap: 0.8em;
 		color: #fff;
+		mix-blend-mode: difference; /* reads on light and dark images alike */
 		font-size: 12px;
 		line-height: 1.2;
 		letter-spacing: var(--tracking-title);
