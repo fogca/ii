@@ -10,9 +10,10 @@ export type Media = {
 	width?: number;
 	height?: number;
 	caption?: string;
-	/** SP replacement image (the CMS `sp_thumbnail`) — set on a work's
-	    thumbnail only; Media.svelte swaps it in below the PC breakpoint. */
-	sp?: { src: string; width?: number; height?: number };
+	/** SP replacement (the CMS `sp_thumbnail_video`, else `sp_thumbnail`) —
+	    set on a work's thumbnail only; Media.svelte swaps it in below the PC
+	    breakpoint. */
+	sp?: Media;
 };
 
 /** One tile of the archive masonry — always an image (see buildTiles). */
@@ -49,27 +50,39 @@ export type WorkDetail = {
     duplicates in the CMS). */
 export const padNumber = (n: number): string => String(n + 1).padStart(2, '0');
 
+/** A video's pixel size from its file name ("…_1620x2880_30fps.mp4") — the
+    CMS stores none, and boxes sized at render time need the ratio up front. */
+const sizeFromName = (url: string): { width?: number; height?: number } => {
+	const m = url.match(/_(\d{3,5})x(\d{3,5})_/);
+	return m ? { width: Number(m[1]), height: Number(m[2]) } : {};
+};
+
 const rowMedia = (row: MediaRow | null | undefined): Media | null => {
 	if (!row) return null;
 	const caption = row.pj_images_title?.trim() || undefined;
 	const video = row.pj_videos?.trim();
-	if (video) return { src: video, isVideo: true, caption };
+	if (video) return { src: video, isVideo: true, caption, ...sizeFromName(video) };
 	const img = row.pj_images;
 	if (img?.url) return { src: img.url, isVideo: false, width: img.width, height: img.height, caption };
 	return null;
 };
 
-/** w/h of a media on SP (its `sp` image when set); videos: 16:9 until known. */
+/** w/h of a media on SP (its `sp` replacement when set); 16:9 when unknown. */
 export const spRatio = (m: Media): number => {
 	const v = m.sp ?? m;
 	return v.width && v.height ? v.width / v.height : 16 / 9;
 };
 
-/** The thumbnail with the work's mobile thumbnail attached, if any. */
-const withSp = (m: Media | null, w: Work): Media | null =>
-	m && w.sp_thumbnail?.url
-		? { ...m, sp: { src: w.sp_thumbnail.url, width: w.sp_thumbnail.width, height: w.sp_thumbnail.height } }
-		: m;
+/** The thumbnail with the work's mobile thumbnail attached, if any: the
+    SP video field first, then the SP image. */
+const withSp = (m: Media | null, w: Work): Media | null => {
+	if (!m) return m;
+	const img = w.sp_thumbnail;
+	const sp =
+		rowMedia(w.sp_thumbnail_video) ??
+		(img?.url ? { src: img.url, isVideo: false, width: img.width, height: img.height } : null);
+	return sp ? { ...m, sp } : m;
+};
 
 /** /works cards for one work: its thumbnail (main_visual, else the legacy
     thumbnail, else its first visual) followed by every repeat row flagged

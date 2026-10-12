@@ -33,14 +33,26 @@
 	);
 	const lqip = $derived(media.isVideo ? videoFrame(media.src, 64) : imgOpt(media.src, 32, 30));
 
-	// SP replacement image (`media.sp`, the CMS mobile thumbnail): shown
-	// below the PC breakpoint in place of the main image or video — picked
-	// by <source media> / CSS, so the server render is the same for both.
+	// SP replacement (`media.sp`, the CMS mobile thumbnail — image or
+	// video): shown below the PC breakpoint in place of the main image or
+	// video — picked by <source media> / CSS, so the server render is the
+	// same for both. A hidden video is display:none, so lazyVideo never
+	// starts it; neither autoplays when a replacement exists.
 	const SP_QUERY = '(max-width: 1023.98px)';
+	// Stands in for the main image on SP when the replacement is a video,
+	// so the browser fetches nothing for the hidden <img> there.
+	const BLANK_SRC = 'data:image/gif;base64,R0lGODlhAQABAAAAACw=';
 	const sp = $derived(media.sp);
 	const spRatio = $derived(sp?.width && sp.height ? `${sp.width} / ${sp.height}` : null);
+	const spLqip = $derived(sp ? (sp.isVideo ? videoFrame(sp.src, 64) : imgOpt(sp.src, 32, 30)) : '');
 
 	let loaded = $state(false);
+
+	function revealOnData(video: HTMLVideoElement) {
+		const done = () => (loaded = true);
+		if (video.readyState >= 1) done();
+		video.addEventListener('loadedmetadata', done, { once: true });
+	}
 
 	function revealOnLoad(img: HTMLImageElement) {
 		const done = () => (loaded = true);
@@ -76,13 +88,22 @@
 	style:--ratio={cover ? undefined : ratio}
 	style:--ratio-sp={cover ? undefined : (spRatio ?? ratio)}
 	style:--lqip={lqip ? `url('${lqip}')` : undefined}
-	style:--lqip-sp={sp ? `url('${imgOpt(sp.src, 32, 30)}')` : undefined}
+	style:--lqip-sp={spLqip ? `url('${spLqip}')` : undefined}
 >
-	{#if sp && media.isVideo}
-		<!-- SP: the still replaces the video entirely (the video is
-		     display:none there, so lazyVideo never starts it). -->
+	{#if sp?.isVideo}
+		<video
+			class="sp-only"
+			src={sp.src}
+			muted
+			loop
+			playsinline
+			preload="metadata"
+			use:lazyVideo
+			use:revealOnData
+		></video>
+	{:else if sp && media.isVideo}
 		<img
-			class="sp-still"
+			class="sp-only"
 			src={imgOpt(sp.src, 1400, quality)}
 			srcset={imgSrcset(sp.src, widths, quality)}
 			{sizes}
@@ -96,6 +117,7 @@
 	{/if}
 	{#if media.isVideo}
 		<video
+			class:pc-only={!!sp}
 			src={media.src}
 			muted
 			loop
@@ -107,7 +129,9 @@
 		></video>
 	{:else}
 		<picture>
-			{#if sp}
+			{#if sp?.isVideo}
+				<source media={SP_QUERY} srcset={BLANK_SRC} />
+			{:else if sp}
 				<source
 					media={SP_QUERY}
 					srcset={imgSrcset(sp.src, widths, quality)}
@@ -117,6 +141,7 @@
 				/>
 			{/if}
 			<img
+				class:pc-only={sp?.isVideo}
 				src={imgOpt(media.src, 1400, quality)}
 				srcset={imgSrcset(media.src, widths, quality)}
 				{sizes}
@@ -154,13 +179,13 @@
 			aspect-ratio: var(--ratio-sp);
 		}
 
-		.has-sp video {
+		.pc-only {
 			display: none;
 		}
 	}
 
 	@media (min-width: 1024px) {
-		.sp-still {
+		.sp-only {
 			display: none;
 		}
 	}

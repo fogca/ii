@@ -38,7 +38,7 @@ export const load: PageServerLoad = async () => {
 	const data = await getVisibleWorks({
 		limit: 100,
 		orders: 'order',
-		fields: ['id', 'title', 'scope', 'main_visual', 'thumbnail', 'sp_thumbnail', 'repeat', 'hidden']
+		fields: ['id', 'title', 'scope', 'main_visual', 'thumbnail', 'sp_thumbnail', 'sp_thumbnail_video', 'repeat', 'hidden']
 	});
 
 	// Every work's thumbnail first (archive order), then every work's

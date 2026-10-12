@@ -43,6 +43,8 @@ export type Work = {
 	thumbnail?: MicroCMSImage;
 	/** Mobile thumbnail — replaces the thumbnail on SP wherever it shows. */
 	sp_thumbnail?: MicroCMSImage;
+	/** Mobile thumbnail as a video (or image) row — beats sp_thumbnail. */
+	sp_thumbnail_video?: MediaRow | null;
 	main_visual?: MediaRow | null;
 	repeat?: MediaRow[];
 	/** richEditor HTML, one "Label!Value" credit per line. */
