@@ -183,8 +183,10 @@
 		white-space: pre-line;
 	}
 
+	/* The Japanese lead keeps its Latin words as written (no uppercase). */
 	.lead:lang(ja) {
 		line-height: 1.4;
+		text-transform: none;
 	}
 
 	/* SP: the Japanese lead runs on as one paragraph; the body is set
@@ -332,7 +334,9 @@
 			padding: 120px var(--gutter) 160px 0;
 		}
 
+		/* The rows run the full width of the panel, to the right gutter. */
 		.Colophon dl {
+			max-width: none;
 			margin-top: 28px;
 		}
 	}

@@ -98,7 +98,7 @@
 
 		<div class="domain"><DomainMark /></div>
 
-		<div class="foot t-meta">
+		<div class="foot t-meta" style="--i: {LINKS.length + 1}">
 			<a href={INSTAGRAM.url} target="_blank" rel="noopener">{INSTAGRAM.handle}</a>
 			<p class="legal">
 				{#each LEGAL_LINKS as l (l.label)}
@@ -173,22 +173,39 @@
 		margin-top: 24px;
 	}
 
+	/* Everything in the sheet drifts in softly, one after another. */
 	.nav li,
 	.nav .lang,
-	.features li {
+	.features li,
+	.foot {
 		opacity: 0;
-		transform: translateY(12px);
+		transform: translateY(16px);
 		transition:
-			opacity 0.5s var(--ease-out),
-			transform 0.7s var(--ease-out);
+			opacity 0.9s var(--ease-out),
+			transform 1.1s var(--ease-out);
 	}
 
 	.is-open .nav li,
 	.is-open .nav .lang,
-	.is-open .features li {
+	.is-open .features li,
+	.is-open .foot {
 		opacity: 1;
 		transform: none;
 		transition-delay: calc(0.35s + var(--i) * 0.06s);
+	}
+
+	/* ii-ii.co: each glyph rises out of the wordmark's own box (the svg
+	   clips to its viewBox), left to right — as the Apres Guerre opening
+	   logo. translateY is in viewBox units: 8.5 clears the box. */
+	.domain :global(.DomainMark path) {
+		transform: translateY(8.5px);
+		transition: transform 0.4s var(--ease-out);
+	}
+
+	.is-open .domain :global(.DomainMark path) {
+		transform: none;
+		transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+		transition-delay: calc(0.5s + var(--i) * 60ms);
 	}
 
 	.nav ul {
