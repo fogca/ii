@@ -49,14 +49,22 @@
 
 <style>
 	/* Plain single column (no left panel, no two-column layout, both
-	   breakpoints): the text flows full width under the header. */
+	   breakpoints). */
 	.About {
-		padding: calc(var(--header-h) + 40px) var(--gutter) 0;
+		padding: 0 var(--gutter) 120px;
 	}
 
-	/* The wordmark across the column, then the text under it. */
+	/* The first screen: the wordmark at the full column width, centered
+	   both ways in the viewport; the text starts below it. */
 	.mark {
-		margin-bottom: 40px;
+		display: grid;
+		place-items: center;
+		min-height: 100vh;
+		min-height: 100dvh;
+	}
+
+	.text {
+		padding-top: 40px;
 	}
 
 	.photo {
@@ -81,10 +89,12 @@
 		color-scheme: dark;
 	}
 
-	/* PC: the column is 80% of the width, so the lines stay readable. */
+	/* PC: the text is 65% of the width (centered), so the lines stay
+	   readable. */
 	@media (min-width: 1024px) {
-		.About {
-			width: 80%;
+		.text {
+			width: 65%;
+			margin-inline: auto;
 		}
 	}
 
