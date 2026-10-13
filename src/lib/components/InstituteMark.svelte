@@ -9,7 +9,9 @@
 	    The "-ii.co" glyphs come from the ii-ii.co artwork, which is the same
 	    type at the same size (identical outlines, baseline 0.75 lower here),
 	    and every letter-to-letter gap is the artwork's own where the pair
-	    exists in either mark, so the end state is exactly ii-ii.co.
+	    exists in either mark, so "ii-ii.co" lands exactly on the artwork.
+	    Then, after a beat, " :)" — the colon is the artwork's period twice,
+	    the parenthesis drawn to match (neither artwork has them).
 	    What makes it read as typing rather than animation: nothing moves
 	    smoothly (each keystroke snaps the re-centered line and the caret),
 	    the rhythm is a person's (uneven keys, a pause before a new word,
@@ -37,6 +39,8 @@
 	const DELETE_SPREAD = 50; // …uneven too
 	const BEAT = 380; // small decisions: a caret move, the next edit
 	const SEE_II = 900; // "ii" stays a moment
+	const BEFORE_SMILE = 650; // a beat after "ii-ii.co", then " :)"
+	const COLON_PAREN_GAP = 0.3; // ":" to ")" (neither artwork has the pair)
 	const REST_AFTER = 530; // the caret starts blinking this long after a key
 
 	// Caret, in viewBox units (the glyphs run 0 → 8.71 baseline).
@@ -57,7 +61,7 @@
 		const track = group;
 		const caret = cursor;
 		if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
-			root.querySelectorAll<SVGPathElement>('path:not(.extra):not(.ref)').forEach((p) => (p.style.opacity = '1'));
+			root.querySelectorAll<SVGPathElement>('path:not(.extra):not(.ref):not(.smile)').forEach((p) => (p.style.opacity = '1'));
 			phase = 'rest';
 			return;
 		}
@@ -67,9 +71,10 @@
 			const b = el.getBBox();
 			return { el, ch: el.dataset.ch ?? '', left: b.x, width: b.width, dy };
 		};
-		const word = [...root.querySelectorAll<SVGPathElement>('path:not(.extra):not(.ref)')].map((el) => glyphOf(el, 0));
+		const word = [...root.querySelectorAll<SVGPathElement>('path:not(.extra):not(.ref):not(.smile)')].map((el) => glyphOf(el, 0));
 		const extra = [...root.querySelectorAll<SVGPathElement>('path.extra')].map((el) => glyphOf(el, EXTRA_DY));
 		const ref = [...root.querySelectorAll<SVGPathElement>('path.ref')].map((el) => glyphOf(el, EXTRA_DY));
+		const smile = [...root.querySelectorAll<SVGPathElement>('path.smile')].map((el) => glyphOf(el, EXTRA_DY));
 
 		// Letter-to-letter gaps (ink to ink) as the two artworks set them.
 		const gaps = new Map<string, number>();
@@ -78,6 +83,7 @@
 		learn(word.slice(0, 5)); // isobe
 		learn(word.slice(5)); // institute
 		learn([...ref, ...extra]); // ii-ii.co
+		gaps.set(':)', COLON_PAREN_GAP);
 		const spaceW = word[5].left - (word[4].left + word[4].width) - SPACE_GAP_AFTER;
 
 		// The line being edited: glyphs and the one space, and a caret index.
@@ -117,7 +123,7 @@
 		// the box, the caret at its index. No transitions — every change snaps.
 		const draw = () => {
 			const { xs, end } = layout();
-			[...word, ...extra].forEach((g) => (g.el.style.opacity = '0'));
+			[...word, ...extra, ...smile].forEach((g) => (g.el.style.opacity = '0'));
 			line.forEach((t, i) => {
 				if ('space' in t) return;
 				const g = t.glyph;
@@ -154,6 +160,9 @@
 		// 5. End, then "-ii.co"
 		steps.push({ wait: SEE_II, act: () => (at = line.length) });
 		extra.forEach((g, i) => typeOne({ glyph: g }, i === 0 ? BEAT : human()));
+		// 6. and a smile: " :)"
+		typeOne({ space: true }, BEFORE_SMILE);
+		smile.forEach((g) => typeOne({ glyph: g }, human()));
 
 		const timers: number[] = [];
 		draw();
@@ -217,6 +226,19 @@
 			<path class="extra" data-ch="o" d="M29.24,2.45c1.39,0,2.99.89,2.99,2.76s-1.66,2.9-3.02,2.9-2.96-.89-2.96-2.76,1.64-2.9,3-2.9ZM29.23,7.35c.55,0,1.13-.89,1.13-2.05s-.58-2.12-1.13-2.12-1.09.91-1.09,2.09.56,2.09,1.09,2.09Z" />
 			<path class="ref" data-ch="i" d="M0,7.96v-.16l.73-.56v-3.41l-.73-.54v-.16c.26-.1,1.54-.5,2.47-.73v4.83l.72.56v.16H0ZM1.55,0c.53,0,.96.37.96.94,0,.52-.43.94-.96.94s-.97-.42-.97-.94c0-.56.44-.94.97-.94Z" />
 			<path class="ref" data-ch="i" d="M3.52,7.96v-.16l.73-.56v-3.41l-.73-.54v-.16c.26-.1,1.54-.5,2.47-.73v4.83l.72.56v.16h-3.19ZM5.06,0c.53,0,.96.37.96.94,0,.52-.43.94-.96.94s-.97-.42-.97-.94c0-.56.44-.94.97-.94Z" />
+			<!-- ":" = the artwork's "." twice, the upper one topped at the
+			     x-height; ")" drawn to the type's weight, from above the
+			     ascenders to below the baseline (neither artwork has them). -->
+			<path
+				class="smile"
+				data-ch=":"
+				d="M19.1,8.13c-.61,0-1.03-.44-1.03-1.01s.42-1.02,1.03-1.02c.56,0,1.01.46,1.01,1.02s-.43,1.01-1.01,1.01ZM19.1,4.63c-.61,0-1.03-.44-1.03-1.01s.42-1.02,1.03-1.02c.56,0,1.01.46,1.01,1.02s-.43,1.01-1.01,1.01Z"
+			/>
+			<path
+				class="smile"
+				data-ch=")"
+				d="M0,-.6C2.75,1,3.55,2.9,3.55,4.5S2.75,8,0,9.6L-.35,9.15C1.4,7.75,1.85,6.2,1.85,4.5S1.4,1.25-.35,-.15Z"
+			/>
 			<rect bind:this={cursor} class="cursor" x="0" y="0" width="0" height="0" />
 		{/if}
 	</g>
@@ -236,6 +258,7 @@
 	   glyphs only ever show when typed; the reference "i"s never do. */
 	:global(html.js) .InstituteMark[data-typewriter] path,
 	.extra,
+	.smile,
 	.ref {
 		opacity: 0;
 	}
