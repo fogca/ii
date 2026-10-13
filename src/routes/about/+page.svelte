@@ -15,7 +15,7 @@
 </script>
 
 <article class="About">
-	<h1 class="mark"><InstituteMark /></h1>
+	<h1 class="mark"><InstituteMark typewriter /></h1>
 
 	{#if SHOW_PHOTO}
 		<figure class="photo">
