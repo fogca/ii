@@ -45,11 +45,13 @@
 </article>
 
 <style>
-	/* ── SP (Figma 123:115): photo full-bleed at y=333 (11px above the
-	   shared 344 content line), 527 tall; statement in a 353px column 40px
-	   below it, 11px / 1.5. */
+	/* Plain single column (no left panel, no two-column layout, both
+	   breakpoints): the text flows full width under the header. */
+	.About {
+		padding: calc(var(--header-h) + 40px) var(--gutter) 0;
+	}
+
 	.photo {
-		margin-top: -11px;
 		aspect-ratio: 393 / 527;
 		background: var(--color-tile);
 	}
@@ -60,14 +62,9 @@
 		object-fit: cover;
 	}
 
-	.text {
-		max-width: calc(var(--measure) + 2 * var(--gutter));
-		padding: 40px var(--gutter) 0;
-	}
-
 	/* The whole page goes black with white text while About is shown (both
 	   breakpoints): the color tokens are swapped on <html>, so the header,
-	   left panel, footer and menu follow; the statement body is --fs-about
+	   footer and menu follow; the statement body is --fs-about
 	   (SP 16px / PC 20px), section heads keep the body size. */
 	:global(html.is-about) {
 		--color-bg: #000000;
@@ -98,39 +95,5 @@
 	/* Figma separates the sections by two empty lines. */
 	section + section {
 		margin-top: calc(2 * var(--lh-body) * 1em);
-	}
-
-	/* ── PC: the page goes to the accent color; the statement runs the full
-	   width of the panel at 20px and passes OVER the photo, which stays
-	   pinned at the top right (446 × 595, 24px from the edge, y=22) while
-	   the text scrolls. Section heads keep the 16px body size. ── */
-	@media (min-width: 1024px) {
-		.About {
-			display: grid;
-			grid-template-columns: minmax(0, 1fr);
-			padding-right: calc(24 / 1440 * 100vw);
-			padding-bottom: 160px;
-		}
-
-		.photo {
-			grid-column: 1;
-			grid-row: 1;
-			justify-self: end;
-			align-self: start;
-			position: sticky;
-			top: 22px;
-			width: calc(446 / 1440 * 100vw);
-			margin-top: 22px;
-			aspect-ratio: 446 / 595;
-		}
-
-		.text {
-			grid-column: 1;
-			grid-row: 1;
-			position: relative;
-			z-index: 1;
-			max-width: none;
-			padding: 84px 0 0;
-		}
 	}
 </style>

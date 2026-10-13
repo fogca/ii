@@ -3,6 +3,6 @@ import type { PageLoad } from './$types';
 
 // II_About — static page.
 export const load: PageLoad = () => ({
-	aside: { eyebrow: '(Isobe Institute)', title: 'About\nInstitute' },
+	// No `aside`: About is a plain single column, without the left panel.
 	seo: { title: titleOf('About Institute') }
 });
