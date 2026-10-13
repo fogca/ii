@@ -1,68 +1,103 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 
-	/** Types the wordmark out letter by letter, a cursor trailing the last
-	    letter, the typed part kept centered as it grows (so it starts at the
-	    middle and widens outward). Plays once on mount; with reduced motion
-	    the finished mark just shows. */
+	/** Types the wordmark out like text typed into a centered field: one
+	    keystroke at a time, a text caret after the last letter, the line
+	    re-centered on every keystroke (so it starts at the middle and widens
+	    outward). What sells it as typing, not animation:
+	    - nothing moves smoothly — each keystroke snaps the line by half a
+	      letter and the caret jumps, exactly as a centered input does;
+	    - a human rhythm — uneven intervals, a beat of thought before a new
+	      word, the space typed as its own keystroke (the caret steps on, no
+	      letter yet);
+	    - a real caret — a thin bar from above the ascenders to below the
+	      baseline (a bar stopping on the baseline reads as the letter "l"),
+	      solid while keys are pressed, blinking (hard on/off, ~530 ms) only
+	      when the hand rests, and still blinking at the end.
+	    Plays once on mount; with reduced motion the finished mark shows. */
 	let { typewriter = false }: { typewriter?: boolean } = $props();
 
-	const START_MS = 500; // cursor blinks alone first
-	const LETTER_MS = 115; // per letter, a touch of rhythm added below
-	const WORD_GAP_MS = 140; // the pause at the space
-	const BLINK_MS = 1900; // the cursor keeps blinking after the last letter, then goes
-	const CURSOR_W = 0.42; // viewBox units
-	const CURSOR_GAP = 0.3;
+	const START_MS = 1060; // the caret blinks alone first: one full on/off
+	const KEY_MS = 75; // fastest keystroke…
+	const KEY_SPREAD_MS = 85; // …plus up to this much, at random
+	const HESITATE_CHANCE = 0.15; // now and then a slower key
+	const HESITATE_MS = 110;
+	const NEW_WORD_MS = 180; // the pause after the space, before the next word
+	const SETTLE_MS = 530; // the caret stays lit this long after the last key
+	// Caret, in viewBox units (the glyphs run 0 → 8.71 baseline).
+	const CARET_TOP = -0.9;
+	const CARET_BOTTOM = 10.9;
+	const CARET_GAP = 0.28; // from the last letter's edge
+	const CARET_MIN_PX = 2; // never thinner than this on screen
+	const CARET_EM = 0.16; // otherwise this many viewBox units
 
 	let svg = $state<SVGSVGElement>();
 	let group = $state<SVGGElement>();
 	let cursor = $state<SVGRectElement>();
-	let phase = $state<'idle' | 'typing' | 'blink' | 'done'>('idle');
+	let phase = $state<'idle' | 'typing' | 'rest'>('idle');
 
 	onMount(() => {
 		if (!typewriter || !svg || !group || !cursor) return;
 		const root = svg;
 		const track = group;
-		const bar = cursor;
+		const caret = cursor;
 		const paths = [...root.querySelectorAll<SVGPathElement>('path')];
-		const rights = paths.map((p) => {
-			const b = p.getBBox();
-			return b.x + b.width;
-		});
-		const lefts = paths.map((p) => p.getBBox().x);
-		const total = rights[rights.length - 1];
-		const timers: number[] = [];
-		const later = (fn: () => void, ms: number) => timers.push(window.setTimeout(fn, ms));
-
-		const show = (k: number) => {
-			paths.forEach((p, i) => (p.style.opacity = i < k ? '1' : '0'));
-			// The typed span [0, rights[k-1]] centered on the full span.
-			const typed = k ? rights[k - 1] : 0;
-			track.style.transform = `translateX(${(total - typed) / 2}px)`;
-			bar.setAttribute('x', String(k ? typed + CURSOR_GAP : total / 2 - CURSOR_W / 2));
-		};
 
 		if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
 			paths.forEach((p) => (p.style.opacity = '1'));
-			phase = 'done';
+			phase = 'rest';
 			return;
 		}
 
-		show(0);
-		phase = 'idle';
-		let at = START_MS;
+		const boxes = paths.map((p) => p.getBBox());
+		const lefts = boxes.map((b) => b.x);
+		const rights = boxes.map((b) => b.x + b.width);
+		const total = rights[rights.length - 1];
+		const unitPx = root.getBoundingClientRect().width / root.viewBox.baseVal.width;
+		const caretW = Math.max(CARET_EM, CARET_MIN_PX / unitPx);
+		caret.setAttribute('y', String(CARET_TOP));
+		caret.setAttribute('height', String(CARET_BOTTOM - CARET_TOP));
+		caret.setAttribute('width', String(caretW));
+
+		// Keystrokes: every letter, plus the space wherever a word ends.
+		type Key = { shown: number; end: number; newWord?: boolean };
+		const keys: Key[] = [];
 		paths.forEach((_, i) => {
-			const k = i + 1;
+			keys.push({ shown: i + 1, end: rights[i] });
+			const next = lefts[i + 1];
+			if (next !== undefined && next - rights[i] > 1) {
+				keys.push({ shown: i + 1, end: next - CARET_GAP * 2, newWord: true });
+			}
+		});
+
+		// The line [0, end] centered on the finished mark [0, total]; the
+		// caret just after it. No transitions: every change is a snap.
+		const press = (shown: number, end: number) => {
+			paths.forEach((p, i) => (p.style.opacity = i < shown ? '1' : '0'));
+			track.setAttribute('transform', `translate(${(total - end) / 2} 0)`);
+			caret.setAttribute('x', String(end + CARET_GAP));
+		};
+
+		const timers: number[] = [];
+		const later = (fn: () => void, ms: number) => timers.push(window.setTimeout(fn, ms));
+
+		// Before typing: the caret alone, at the middle of the empty line.
+		press(0, -CARET_GAP);
+		track.setAttribute('transform', `translate(${total / 2 - caretW / 2} 0)`);
+		phase = 'idle';
+
+		let at = START_MS;
+		keys.forEach((key, i) => {
 			later(() => {
-				show(k);
+				press(key.shown, key.end);
 				phase = 'typing';
 			}, at);
-			// Rhythm: a little uneven, longer where the next letter starts a new word.
-			const gap = i < paths.length - 1 ? lefts[i + 1] - rights[i] : 0;
-			at += LETTER_MS + (gap > 1 ? WORD_GAP_MS : 0) + ((i * 37) % 5) * 8;
+			let wait = KEY_MS + Math.random() * KEY_SPREAD_MS;
+			if (Math.random() < HESITATE_CHANCE) wait += HESITATE_MS;
+			if (key.newWord) wait += NEW_WORD_MS;
+			if (i < keys.length - 1) at += wait;
 		});
-		later(() => (phase = 'blink'), at);
-		later(() => (phase = 'done'), at + BLINK_MS);
+		later(() => (phase = 'rest'), at + SETTLE_MS);
 
 		return () => timers.forEach((t) => clearTimeout(t));
 	});
@@ -97,7 +132,7 @@
 		<path d="M66.19,4.26v2.72c0,.26.25.64.97.64.37,0,.67-.08.83-.13l.08.14c-.32.42-1.08,1.21-1.98,1.21-1.09,0-1.66-.83-1.66-1.31v-3.27h-.71v-.2l2.35-1.92h.11v1.21h2.2l-.55.91h-1.64Z" />
 		<path d="M70.1,5.68c.04,1.24.79,1.9,1.99,1.9.64,0,1.22-.14,1.5-.24l.07.13c-.38.58-1.18,1.37-2.53,1.37-1.54,0-2.65-1.06-2.65-2.72s1.4-2.93,2.64-2.93,2.06.91,2.45,2.39v.11h-3.47ZM70.15,5.07h1.75c-.13-.86-.6-1.14-.85-1.14-.3,0-.75.41-.9,1.14Z" />
 		{#if typewriter}
-			<rect bind:this={cursor} class="cursor" x="0" y="0" width="0.42" height="8.87" />
+			<rect bind:this={cursor} class="cursor" x="0" y="0" width="0" height="0" />
 		{/if}
 	</g>
 </svg>
@@ -107,34 +142,28 @@
 		display: block;
 		width: 100%;
 		fill: currentColor;
-		/* The cursor trails past the last letter. */
+		/* The caret reaches past the glyphs (above, below, after). */
 		overflow: visible;
 	}
 
 	/* Without JS the mark is just shown; with it, the letters wait for
-	   their turn (the script sets each one's opacity). */
+	   their keystroke (the script sets each one's opacity). */
 	:global(html.js) .InstituteMark[data-typewriter] path {
 		opacity: 0;
 	}
 
-	.InstituteMark g {
-		transition: transform 130ms ease-out;
-	}
-
+	/* Lit while typing; blinking, hard on/off like a text caret, when the
+	   hand rests — before the first key and after the last. */
 	.cursor {
-		opacity: 0;
-	}
-
-	.InstituteMark[data-state='idle'] .cursor,
-	.InstituteMark[data-state='blink'] .cursor {
-		animation: cursor-blink 1.05s steps(1, end) infinite;
-	}
-
-	.InstituteMark[data-state='typing'] .cursor {
 		opacity: 1;
 	}
 
-	@keyframes cursor-blink {
+	.InstituteMark[data-state='idle'] .cursor,
+	.InstituteMark[data-state='rest'] .cursor {
+		animation: caret-blink 1.06s steps(1, end) infinite;
+	}
+
+	@keyframes caret-blink {
 		0%,
 		100% {
 			opacity: 1;
