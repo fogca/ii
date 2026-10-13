@@ -5,49 +5,109 @@
 	let { data } = $props();
 	const work = $derived(data.work);
 
-	// PC: once the page is scrolled, the left panel's title block (eyebrow +
-	// title, Aside.svelte) moves to the panel's top left at a smaller size,
-	// its scope line (also Aside's, hidden until then) fades in under it,
-	// and the work's text (lead + body) fades in below them. The move is a FLIP: each element is measured
-	// before and after the class flips, then animated from the old box to
-	// the new one. SP keeps the text in the flow. Works without text keep
-	// the title where it is.
+	// PC: once the page is scrolled, the left panel's title block (Aside.svelte)
+	// is reset at the panel's top left — eyebrow, "PJ: title", "Scope: …"
+	// stacked small — and the work's text (lead + body) fades in below. The
+	// change is a letter cascade, not a move: the letters drop away one after
+	// another, the layout switches, and they drop in again at the new place.
+	// It plays on a throwaway copy of the block (split into one span per
+	// letter), so the real heading is never re-written — Svelte's DOM and
+	// the type's kerning stay intact. SP keeps the text in the flow. Works
+	// without text keep the title where it is.
 	const SWAP_AFTER = 80; // px of scroll
-	const MOVE_MS = 900;
-	const MOVE_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)'; // --ease-out
+	const DROP = '0.45em'; // how far each letter travels
+	const OUT_MS = 380;
+	const IN_MS = 620;
+	const STEP_MS = 18; // stagger per letter…
+	const STAGGER_MAX_MS = 420; // …squeezed so a long title stays brisk
 	const PC_QUERY = '(min-width: 1024px)';
 
-	const setSwapped = (html: HTMLElement, on: boolean) => {
-		if (html.classList.contains('is-aside-swapped') === on) return;
-		const animate =
-			matchMedia(PC_QUERY).matches && !matchMedia('(prefers-reduced-motion: reduce)').matches;
-		const head = document.querySelector<HTMLElement>('.Aside .head');
-		const els = ['.Aside .eyebrow', '.Aside .title']
-			.map((s) => document.querySelector<HTMLElement>(s))
-			.filter((e): e is HTMLElement => !!e);
-		const first = els.map((e) => e.getBoundingClientRect());
-		const firstSize = els.map((e) => parseFloat(getComputedStyle(e).fontSize));
-		// The head's own CSS transition must not tween its transform change
-		// under the FLIP.
-		if (head) head.style.transition = 'none';
-		html.classList.toggle('is-aside-swapped', on);
-		if (animate) {
-			els.forEach((el, i) => {
-				const f = first[i];
-				const l = el.getBoundingClientRect();
-				if (!l.height) return;
-				// Font sizes, not box heights: the line-heights differ too.
-				const scale = firstSize[i] / parseFloat(getComputedStyle(el).fontSize);
-				el.animate(
-					[
-						{ transformOrigin: '0 0', transform: `translate(${f.left - l.left}px, ${f.top - l.top}px) scale(${scale})` },
-						{ transformOrigin: '0 0', transform: 'none' }
-					],
-					{ duration: MOVE_MS, easing: MOVE_EASE }
-				);
-			});
+	/** Splits every text node under `root` into inline-block letter spans
+	    (words kept unbreakable); returns the letters that are displayed. */
+	const splitLetters = (root: HTMLElement): HTMLElement[] => {
+		const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+		const nodes: Text[] = [];
+		while (walker.nextNode()) nodes.push(walker.currentNode as Text);
+		const letters: HTMLElement[] = [];
+		for (const node of nodes) {
+			const frag = document.createDocumentFragment();
+			for (const part of node.data.split(/(\s+)/)) {
+				if (!part) continue;
+				if (/^\s+$/.test(part)) {
+					frag.append(part);
+					continue;
+				}
+				const word = document.createElement('span');
+				word.style.whiteSpace = 'nowrap';
+				for (const char of part) {
+					const letter = document.createElement('span');
+					letter.textContent = char;
+					letter.style.display = 'inline-block';
+					word.append(letter);
+					letters.push(letter);
+				}
+				frag.append(word);
+			}
+			node.replaceWith(frag);
 		}
-		requestAnimationFrame(() => head && (head.style.transition = ''));
+		return letters.filter((l) => l.getClientRects().length > 0);
+	};
+
+	/** A letter-split copy of the head laid over it, in its current layout. */
+	const copyOf = (head: HTMLElement) => {
+		const copy = head.cloneNode(true) as HTMLElement;
+		copy.setAttribute('aria-hidden', 'true');
+		copy.style.transition = 'none';
+		copy.style.visibility = '';
+		head.after(copy);
+		return { copy, letters: splitLetters(copy) };
+	};
+
+	const cascade = (letters: HTMLElement[], keyframes: Keyframe[], duration: number, easing: string) => {
+		const step = Math.min(STEP_MS, STAGGER_MAX_MS / Math.max(letters.length, 1));
+		return Promise.all(
+			letters.map(
+				(l, i) => l.animate(keyframes, { duration, delay: i * step, easing, fill: 'both' }).finished
+			)
+		);
+	};
+
+	let busy = false;
+
+	const setSwapped = async (html: HTMLElement, on: boolean) => {
+		if (busy || html.classList.contains('is-aside-swapped') === on) return;
+		const head = document.querySelector<HTMLElement>('.Aside .head');
+		const animate =
+			!!head && matchMedia(PC_QUERY).matches && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+		if (!animate) {
+			html.classList.toggle('is-aside-swapped', on);
+			return;
+		}
+		busy = true;
+		head.style.transition = 'none';
+		const out = copyOf(head);
+		head.style.visibility = 'hidden';
+		await cascade(
+			out.letters,
+			[{ transform: 'none', opacity: 1 }, { transform: `translateY(${DROP})`, opacity: 0 }],
+			OUT_MS,
+			'cubic-bezier(0.55, 0, 1, 0.45)' // ease-in: they fall away
+		);
+		out.copy.remove();
+		html.classList.toggle('is-aside-swapped', on);
+		const inn = copyOf(head);
+		await cascade(
+			inn.letters,
+			[{ transform: `translateY(-${DROP})`, opacity: 0 }, { transform: 'none', opacity: 1 }],
+			IN_MS,
+			'cubic-bezier(0.22, 1, 0.36, 1)' // --ease-out: they settle
+		);
+		head.style.visibility = '';
+		inn.copy.remove();
+		requestAnimationFrame(() => (head.style.transition = ''));
+		busy = false;
+		// The scroll may have crossed back while this played.
+		setSwapped(html, window.scrollY > SWAP_AFTER);
 	};
 
 	$effect(() => {
@@ -59,6 +119,10 @@
 		return () => {
 			window.removeEventListener('scroll', update);
 			html.classList.remove('is-aside-swapped');
+			// Leaving mid-cascade: drop the copies, show the real heading.
+			document.querySelectorAll('.Aside .head[aria-hidden="true"]').forEach((c) => c.remove());
+			document.querySelector<HTMLElement>('.Aside .head')?.style.removeProperty('visibility');
+			busy = false;
 		};
 	});
 
