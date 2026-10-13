@@ -13,8 +13,8 @@
 	// the new one. SP keeps the text in the flow. Works without text keep
 	// the title where it is.
 	const SWAP_AFTER = 80; // px of scroll
-	const SCOPE_GAP = 14; // px from the moved title to the scope line
-	const TEXT_GAP = 36; // px from the scope line to the text
+	const SCOPE_GAP = 0; // the scope line follows the moved title directly
+	const TEXT_GAP = 48; // px from the scope line to the text
 	const MOVE_MS = 900;
 	const MOVE_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)'; // --ease-out
 	const PC_QUERY = '(min-width: 1024px)';
@@ -39,6 +39,7 @@
 			.map((s) => document.querySelector<HTMLElement>(s))
 			.filter((e): e is HTMLElement => !!e);
 		const first = els.map((e) => e.getBoundingClientRect());
+		const firstSize = els.map((e) => parseFloat(getComputedStyle(e).fontSize));
 		// The head's own CSS transition must not tween its transform change
 		// under the FLIP.
 		if (head) head.style.transition = 'none';
@@ -49,7 +50,8 @@
 				const f = first[i];
 				const l = el.getBoundingClientRect();
 				if (!l.height) return;
-				const scale = f.height / l.height;
+				// Font sizes, not box heights: the line-heights differ too.
+				const scale = firstSize[i] / parseFloat(getComputedStyle(el).fontSize);
 				el.animate(
 					[
 						{ transformOrigin: '0 0', transform: `translate(${f.left - l.left}px, ${f.top - l.top}px) scale(${scale})` },
@@ -350,11 +352,16 @@
 		.has-text .scope {
 			top: var(--swap-scope-top);
 			bottom: auto;
+			line-height: 20px; /* = Aside's --lh-aside-meta */
 			opacity: 0;
 			visibility: hidden;
 			transition:
 				opacity 0.6s var(--ease-out),
 				visibility 0s linear 0.6s;
+		}
+
+		.has-text .scope::before {
+			content: 'Scope: ';
 		}
 
 		:global(html.is-aside-swapped) .has-text .scope {

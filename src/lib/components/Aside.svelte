@@ -74,6 +74,8 @@
 	   bottom (y=873). */
 	@media (min-width: 1024px) {
 		.Aside {
+			--fs-aside-meta: 12.5px;
+			--lh-aside-meta: 20px;
 			position: fixed;
 			top: 0;
 			left: 0;
@@ -100,18 +102,32 @@
 		}
 
 		/* A work page, once scrolled, moves the title block to the panel's
-		   top left at a smaller size, making room for its text below (see
-		   works/[slug]/+page.svelte, which animates the move). */
+		   top left, where eyebrow, "PJ: title" and the work's "Scope: …"
+		   line (works/[slug]/+page.svelte, which also animates the move)
+		   stack at one small size, one line apart. */
 		:global(html.is-aside-swapped) .head {
-			top: 96px;
+			top: 72px;
 			right: var(--gutter);
 			transform: none;
 			text-align: left;
 		}
 
+		:global(html.is-aside-swapped) .eyebrow {
+			position: static;
+			font-size: var(--fs-aside-meta);
+			line-height: var(--lh-aside-meta);
+			opacity: 0.3;
+		}
+
 		:global(html.is-aside-swapped) .title {
+			max-width: none;
 			margin-inline: 0;
-			font-size: 20px;
+			font-size: var(--fs-aside-meta);
+			line-height: var(--lh-aside-meta);
+		}
+
+		:global(html.is-aside-swapped) .title::before {
+			content: 'PJ: ';
 		}
 
 		.eyebrow {
