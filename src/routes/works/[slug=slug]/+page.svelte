@@ -15,7 +15,7 @@
 	// the type's kerning stay intact. SP keeps the text in the flow. Works
 	// without text keep the title where it is.
 	const SWAP_AFTER = 80; // px of scroll
-	const DROP = '0.25em'; // how far each letter travels
+	const DROP = '0.12em'; // how far each letter travels
 	const OUT_MS = 380;
 	const IN_MS = 620;
 	const STEP_MS = 18; // stagger per letter…

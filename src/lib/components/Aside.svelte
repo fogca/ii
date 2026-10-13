@@ -124,7 +124,7 @@
 
 		:global(html.is-aside-swapped) .eyebrow {
 			position: static;
-			font-size: 10px;
+			font-size: 9px;
 			line-height: var(--lh-aside-meta);
 			opacity: 0.3;
 		}
