@@ -7,8 +7,8 @@
 
 	// PC: once the page is scrolled, the left panel's title block (eyebrow +
 	// title, Aside.svelte) moves to the panel's top left at a smaller size,
-	// the scope line follows under it, and the work's text (lead + body)
-	// fades in below them. The move is a FLIP: each element is measured
+	// the scope line (hidden until then) fades in under it, and the work's
+	// text (lead + body) fades in below them. The move is a FLIP: each element is measured
 	// before and after the class flips, then animated from the old box to
 	// the new one. SP keeps the text in the flow. Works without text keep
 	// the title where it is.
@@ -35,7 +35,7 @@
 		const animate =
 			matchMedia(PC_QUERY).matches && !matchMedia('(prefers-reduced-motion: reduce)').matches;
 		const head = document.querySelector<HTMLElement>('.Aside .head');
-		const els = ['.Aside .eyebrow', '.Aside .title', '.Work .scope']
+		const els = ['.Aside .eyebrow', '.Aside .title']
 			.map((s) => document.querySelector<HTMLElement>(s))
 			.filter((e): e is HTMLElement => !!e);
 		const first = els.map((e) => e.getBoundingClientRect());
@@ -102,7 +102,7 @@
 </script>
 
 {#key work.slug}
-	<article class="Work">
+	<article class="Work" class:has-text={!!(work.lead || work.body)}>
 		<!-- Scope (CMS select): SP above the hero; PC pinned at the bottom of
 		     the left panel, above the legal line. -->
 		{#if work.scope.length}
@@ -343,10 +343,24 @@
 			text-align: left;
 		}
 
-		/* Scrolled: under the moved title, at the panel's top left. */
-		:global(html.is-aside-swapped) .scope {
+		/* A work with text keeps the scope line hidden until the page is
+		   scrolled; it then fades in under the moved title, at the panel's
+		   top left (a work without text never swaps, so it shows it at the
+		   bottom from the start). */
+		.has-text .scope {
 			top: var(--swap-scope-top);
 			bottom: auto;
+			opacity: 0;
+			visibility: hidden;
+			transition:
+				opacity 0.6s var(--ease-out),
+				visibility 0s linear 0.6s;
+		}
+
+		:global(html.is-aside-swapped) .has-text .scope {
+			opacity: 1;
+			visibility: visible;
+			transition-delay: 0.35s, 0s;
 		}
 
 		.rest {
