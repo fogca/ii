@@ -214,6 +214,7 @@
 
 	.lead {
 		white-space: pre-line;
+		font-weight: 480;
 	}
 
 	/* English text block: a quieter lead (capitalized, not uppercase) and a
