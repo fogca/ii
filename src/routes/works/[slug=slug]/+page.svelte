@@ -10,9 +10,9 @@
 	// stacked small — and the work's text (lead + body) fades in below. The
 	// change is a letter cascade, not a move: the letters drop away one after
 	// another, the layout switches, and they drop in again at the new place.
-	// It plays on a throwaway copy of the block (split into one span per
-	// letter), so the real heading is never re-written — Svelte's DOM and
-	// the type's kerning stay intact. SP keeps the text in the flow. Works
+	// It plays on a throwaway layer of single letters placed over the real
+	// heading's glyphs (see overlayOf), which is hidden meanwhile and never
+	// re-written — Svelte's DOM and the type's kerning stay intact. SP keeps the text in the flow. Works
 	// without text keep the title where it is.
 	const SWAP_AFTER = 80; // px of scroll
 	const DROP = '0.12em'; // how far each letter travels
@@ -23,45 +23,76 @@
 	const TEXT_OUT_MS = 400; // = the .text fade-out below; going back, the text leaves first
 	const PC_QUERY = '(min-width: 1024px)';
 
-	/** Splits every text node under `root` into inline-block letter spans
-	    (words kept unbreakable); returns the letters that are displayed. */
-	const splitLetters = (root: HTMLElement): HTMLElement[] => {
-		const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-		const nodes: Text[] = [];
-		while (walker.nextNode()) nodes.push(walker.currentNode as Text);
+	/** Letters laid exactly over `head`'s rendered glyphs, in its current
+	    layout: each character's box is measured on the real heading (a Range
+	    per character — so kerning, tracking and line breaks are the type's
+	    own) and a lone glyph is placed there in a fixed layer above it.
+	    Splitting the heading into spans instead lost kerning pairs (AT, PA…),
+	    and the letters shuffled sideways when the real heading came back. */
+	const overlayOf = (head: HTMLElement) => {
+		// The layer copies the head's own box AND transform (the centered
+		// block sits at a fractional translateY(-50%)), so the glyphs snap
+		// to the pixel grid exactly as the real ones do; letters are placed
+		// relative to it.
+		const layer = document.createElement('div');
+		layer.setAttribute('aria-hidden', 'true');
+		layer.className = 'aside-letters';
+		const hs = getComputedStyle(head);
+		Object.assign(layer.style, {
+			position: 'absolute',
+			left: `${head.offsetLeft}px`,
+			top: `${head.offsetTop}px`,
+			width: `${head.offsetWidth}px`,
+			height: `${head.offsetHeight}px`,
+			transform: hs.transform,
+			transformOrigin: hs.transformOrigin,
+			pointerEvents: 'none'
+		});
+		const box = head.getBoundingClientRect();
 		const letters: HTMLElement[] = [];
-		for (const node of nodes) {
-			const frag = document.createDocumentFragment();
-			for (const part of node.data.split(/(\s+)/)) {
-				if (!part) continue;
-				if (/^\s+$/.test(part)) {
-					frag.append(part);
-					continue;
-				}
-				const word = document.createElement('span');
-				word.style.whiteSpace = 'nowrap';
-				for (const char of part) {
-					const letter = document.createElement('span');
-					letter.textContent = char;
-					letter.style.display = 'inline-block';
-					word.append(letter);
-					letters.push(letter);
-				}
-				frag.append(word);
+		const range = document.createRange();
+		const walker = document.createTreeWalker(head, NodeFilter.SHOW_TEXT);
+		while (walker.nextNode()) {
+			const node = walker.currentNode as Text;
+			const parent = node.parentElement;
+			if (!parent || !parent.getClientRects().length) continue; // display: none
+			const cs = getComputedStyle(parent);
+			let opacity = 1;
+			for (let el: HTMLElement | null = parent; el && el !== head.parentElement; el = el.parentElement) {
+				opacity *= parseFloat(getComputedStyle(el).opacity);
 			}
-			node.replaceWith(frag);
+			const upper = cs.textTransform === 'uppercase';
+			for (let i = 0; i < node.data.length; i++) {
+				const char = node.data[i];
+				if (/\s/.test(char)) continue;
+				range.setStart(node, i);
+				range.setEnd(node, i + 1);
+				const r = range.getBoundingClientRect();
+				if (!r.width && !r.height) continue;
+				const letter = document.createElement('span');
+				letter.textContent = upper ? char.toUpperCase() : char;
+				Object.assign(letter.style, {
+					position: 'absolute',
+					left: `${r.left - box.left}px`,
+					top: `${r.top - box.top}px`,
+					height: `${r.height}px`,
+					lineHeight: `${r.height}px`,
+					whiteSpace: 'pre',
+					fontFamily: cs.fontFamily,
+					fontSize: cs.fontSize,
+					fontWeight: cs.fontWeight,
+					fontStyle: cs.fontStyle,
+					fontVariationSettings: cs.fontVariationSettings,
+					fontFeatureSettings: cs.fontFeatureSettings,
+					color: cs.color,
+					opacity: String(opacity)
+				});
+				layer.append(letter);
+				letters.push(letter);
+			}
 		}
-		return letters.filter((l) => l.getClientRects().length > 0);
-	};
-
-	/** A letter-split copy of the head laid over it, in its current layout. */
-	const copyOf = (head: HTMLElement) => {
-		const copy = head.cloneNode(true) as HTMLElement;
-		copy.setAttribute('aria-hidden', 'true');
-		copy.style.transition = 'none';
-		copy.style.visibility = '';
-		head.after(copy);
-		return { copy, letters: splitLetters(copy) };
+		head.after(layer);
+		return { layer, letters };
 	};
 
 	const cascade = (letters: HTMLElement[], keyframes: Keyframe[], duration: number, easing: string) => {
@@ -92,7 +123,7 @@
 			await new Promise((r) => setTimeout(r, TEXT_OUT_MS));
 		}
 		head.style.transition = 'none';
-		const out = copyOf(head);
+		const out = overlayOf(head);
 		head.style.visibility = 'hidden';
 		await cascade(
 			out.letters,
@@ -100,11 +131,11 @@
 			OUT_MS,
 			'linear'
 		);
-		out.copy.remove();
+		out.layer.remove();
 		html.classList.toggle('is-aside-swapped', on);
 		// Going in: the text fades in under the new block (its CSS delay).
 		if (on) html.classList.add('is-aside-text');
-		const inn = copyOf(head);
+		const inn = overlayOf(head);
 		await cascade(
 			inn.letters,
 			[{ transform: `translateY(-${DROP})`, opacity: 0 }, { transform: 'none', opacity: 1 }],
@@ -112,7 +143,7 @@
 			'linear'
 		);
 		head.style.visibility = '';
-		inn.copy.remove();
+		inn.layer.remove();
 		requestAnimationFrame(() => (head.style.transition = ''));
 		busy = false;
 		// The scroll may have crossed back while this played.
@@ -129,7 +160,7 @@
 			window.removeEventListener('scroll', update);
 			html.classList.remove('is-aside-swapped', 'is-aside-text');
 			// Leaving mid-cascade: drop the copies, show the real heading.
-			document.querySelectorAll('.Aside .head[aria-hidden="true"]').forEach((c) => c.remove());
+			document.querySelectorAll('.aside-letters').forEach((c) => c.remove());
 			document.querySelector<HTMLElement>('.Aside .head')?.style.removeProperty('visibility');
 			busy = false;
 		};
