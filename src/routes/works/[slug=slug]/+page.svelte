@@ -20,6 +20,7 @@
 	const IN_MS = 620;
 	const STEP_MS = 18; // stagger per letter…
 	const STAGGER_MAX_MS = 420; // …squeezed so a long title stays brisk
+	const TEXT_OUT_MS = 400; // = the .text fade-out below; going back, the text leaves first
 	const PC_QUERY = '(min-width: 1024px)';
 
 	/** Splits every text node under `root` into inline-block letter spans
@@ -81,9 +82,15 @@
 			!!head && matchMedia(PC_QUERY).matches && !matchMedia('(prefers-reduced-motion: reduce)').matches;
 		if (!animate) {
 			html.classList.toggle('is-aside-swapped', on);
+			html.classList.toggle('is-aside-text', on);
 			return;
 		}
 		busy = true;
+		// Going back: the text fades out first, then the title block changes.
+		if (!on) {
+			html.classList.remove('is-aside-text');
+			await new Promise((r) => setTimeout(r, TEXT_OUT_MS));
+		}
 		head.style.transition = 'none';
 		const out = copyOf(head);
 		head.style.visibility = 'hidden';
@@ -91,16 +98,18 @@
 			out.letters,
 			[{ transform: 'none', opacity: 1 }, { transform: `translateY(${DROP})`, opacity: 0 }],
 			OUT_MS,
-			'cubic-bezier(0.12, 0, 0.39, 0)' // ease-in sine: a gentle fall
+			'linear'
 		);
 		out.copy.remove();
 		html.classList.toggle('is-aside-swapped', on);
+		// Going in: the text fades in under the new block (its CSS delay).
+		if (on) html.classList.add('is-aside-text');
 		const inn = copyOf(head);
 		await cascade(
 			inn.letters,
 			[{ transform: `translateY(-${DROP})`, opacity: 0 }, { transform: 'none', opacity: 1 }],
 			IN_MS,
-			'cubic-bezier(0.61, 1, 0.88, 1)' // ease-out sine: a gentle settle
+			'linear'
 		);
 		head.style.visibility = '';
 		inn.copy.remove();
@@ -118,7 +127,7 @@
 		window.addEventListener('scroll', update, { passive: true });
 		return () => {
 			window.removeEventListener('scroll', update);
-			html.classList.remove('is-aside-swapped');
+			html.classList.remove('is-aside-swapped', 'is-aside-text');
 			// Leaving mid-cascade: drop the copies, show the real heading.
 			document.querySelectorAll('.Aside .head[aria-hidden="true"]').forEach((c) => c.remove());
 			document.querySelector<HTMLElement>('.Aside .head')?.style.removeProperty('visibility');
@@ -403,8 +412,8 @@
 		}
 
 		/* The text lives in the left panel, shown once the page scrolls
-		   (html.is-aside-swapped, set above) under the moved title and
-		   scope line. */
+		   (html.is-aside-text, set above) under the moved title block. It
+		   leaves quickly and arrives late, after the block's letters. */
 		.text {
 			position: fixed;
 			top: 0;
@@ -420,16 +429,19 @@
 			visibility: hidden;
 			transform: translateY(10px);
 			transition:
-				opacity 0.9s var(--ease-out),
-				transform 1.1s var(--ease-out),
-				visibility 0s linear 0.9s;
+				opacity 0.4s var(--ease-out),
+				transform 0.4s var(--ease-out),
+				visibility 0s linear 0.4s;
 		}
 
-		:global(html.is-aside-swapped) .text {
+		:global(html.is-aside-text) .text {
 			opacity: 1;
 			visibility: visible;
 			transform: none;
-			transition-delay: 0.45s, 0.45s, 0s; /* after the title has mostly moved */
+			transition:
+				opacity 0.9s var(--ease-out) 0.8s,
+				transform 1.1s var(--ease-out) 0.8s,
+				visibility 0s;
 		}
 
 		.body {
