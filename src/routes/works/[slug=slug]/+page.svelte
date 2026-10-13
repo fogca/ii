@@ -91,7 +91,7 @@
 			out.letters,
 			[{ transform: 'none', opacity: 1 }, { transform: `translateY(${DROP})`, opacity: 0 }],
 			OUT_MS,
-			'cubic-bezier(0.55, 0, 1, 0.45)' // ease-in: they fall away
+			'cubic-bezier(0.12, 0, 0.39, 0)' // ease-in sine: a gentle fall
 		);
 		out.copy.remove();
 		html.classList.toggle('is-aside-swapped', on);
@@ -100,7 +100,7 @@
 			inn.letters,
 			[{ transform: `translateY(-${DROP})`, opacity: 0 }, { transform: 'none', opacity: 1 }],
 			IN_MS,
-			'cubic-bezier(0.22, 1, 0.36, 1)' // --ease-out: they settle
+			'cubic-bezier(0.61, 1, 0.88, 1)' // ease-out sine: a gentle settle
 		);
 		head.style.visibility = '';
 		inn.copy.remove();
