@@ -5,7 +5,7 @@
 	// Flip back to true to show /images/about.jpg again.
 	const SHOW_PHOTO = false;
 
-	// The accent background covers the whole page (body), not just this
+	// The black background covers the whole page (body), not just this
 	// article — flag <html> while About is shown.
 	$effect(() => {
 		document.documentElement.classList.add('is-about');
@@ -65,11 +65,15 @@
 		padding: 40px var(--gutter) 0;
 	}
 
-	/* The whole page takes the accent color while About is shown (both
-	   breakpoints); the statement body is --fs-about (SP 16px / PC 20px),
-	   section heads keep the body size. */
-	:global(html.is-about body) {
-		background: var(--color-accent);
+	/* The whole page goes black with white text while About is shown (both
+	   breakpoints): the color tokens are swapped on <html>, so the header,
+	   left panel, footer and menu follow; the statement body is --fs-about
+	   (SP 16px / PC 20px), section heads keep the body size. */
+	:global(html.is-about) {
+		--color-bg: #000000;
+		--color-text: #ffffff;
+		--color-text-mute: rgba(255, 255, 255, 0.3);
+		color-scheme: dark;
 	}
 
 	/* Numbered titles at the body size; everything else at --fs-about
