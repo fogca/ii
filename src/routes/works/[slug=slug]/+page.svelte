@@ -412,7 +412,7 @@
 			bottom: 48px; /* clear of the legal line */
 			z-index: var(--z-content);
 			width: var(--aside-w);
-			padding: 130px var(--gutter) 24px; /* under the moved title block */
+			padding: 160px var(--gutter) 24px; /* under the moved title block */
 			/* Not a scroll container: the wheel over the panel scrolls the
 			   page, like anywhere else. */
 			overflow: clip;

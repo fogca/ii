@@ -116,7 +116,7 @@
 		   top left: eyebrow, "PJ: title" and "Scope: …" stacked small, one
 		   line apart (works/[slug]/+page.svelte animates the change). */
 		:global(html.is-aside-swapped) .head {
-			top: 60px;
+			top: 70px;
 			right: var(--gutter);
 			transform: none;
 			text-align: left;
