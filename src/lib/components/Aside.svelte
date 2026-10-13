@@ -99,13 +99,19 @@
 			transform: translateY(calc(-50% + 8px));
 		}
 
-		/* A work page swaps the title for its text once scrolled (see
-		   works/[slug]/+page.svelte): the title fades out softly. */
+		/* A work page, once scrolled, moves the title block to the panel's
+		   top left at a smaller size, making room for its text below (see
+		   works/[slug]/+page.svelte, which animates the move). */
 		:global(html.is-aside-swapped) .head {
-			opacity: 0;
-			transform: translateY(calc(-50% - 8px));
-			transition-delay: 0s;
-			pointer-events: none;
+			top: 96px;
+			right: var(--gutter);
+			transform: none;
+			text-align: left;
+		}
+
+		:global(html.is-aside-swapped) .title {
+			margin-inline: 0;
+			font-size: 20px;
 		}
 
 		.eyebrow {
