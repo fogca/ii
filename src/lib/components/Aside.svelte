@@ -6,8 +6,9 @@
 	let {
 		eyebrow = '',
 		title = '',
+		scope = '',
 		inert = false
-	}: { eyebrow?: string; title?: string; inert?: boolean } = $props();
+	}: { eyebrow?: string; title?: string; scope?: string; inert?: boolean } = $props();
 
 </script>
 
@@ -20,6 +21,7 @@
 		<div class="head">
 			{#if eyebrow}<p class="eyebrow t-eyebrow">{eyebrow}</p>{/if}
 			<h1 class="title t-title">{title}</h1>
+			{#if scope}<p class="scope">{scope}</p>{/if}
 		</div>
 	{/key}
 
@@ -58,6 +60,11 @@
 	:global(html.js) .Aside:not(.is-entered) .head {
 		opacity: 0;
 		transform: translateY(8px);
+	}
+
+	/* PC only (SP shows the work page's own scope line above the hero). */
+	.scope {
+		display: none;
 	}
 
 	.title {
@@ -106,7 +113,7 @@
 		   line (works/[slug]/+page.svelte, which also animates the move)
 		   stack at one small size, one line apart. */
 		:global(html.is-aside-swapped) .head {
-			top: 72px;
+			top: 60px;
 			right: var(--gutter);
 			transform: none;
 			text-align: left;
@@ -114,7 +121,7 @@
 
 		:global(html.is-aside-swapped) .eyebrow {
 			position: static;
-			font-size: var(--fs-aside-meta);
+			font-size: 10px;
 			line-height: var(--lh-aside-meta);
 			opacity: 0.3;
 		}
@@ -128,6 +135,34 @@
 
 		:global(html.is-aside-swapped) .title::before {
 			content: 'PJ: ';
+		}
+
+		/* The scope line: out of the flow and hidden until the move, then
+		   the third line of the block, fading in once the title has mostly
+		   arrived. */
+		.scope {
+			display: block;
+			position: absolute;
+			top: 100%;
+			left: 0;
+			font-size: var(--fs-aside-meta);
+			line-height: var(--lh-aside-meta);
+			opacity: 0;
+			visibility: hidden;
+			transition:
+				opacity 0.6s var(--ease-out),
+				visibility 0s linear 0.6s;
+		}
+
+		.scope::before {
+			content: 'Scope: ';
+		}
+
+		:global(html.is-aside-swapped) .scope {
+			position: static;
+			opacity: 1;
+			visibility: visible;
+			transition-delay: 0.35s, 0s;
 		}
 
 		.eyebrow {

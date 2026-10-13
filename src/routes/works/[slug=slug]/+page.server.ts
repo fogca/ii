@@ -44,7 +44,8 @@ export const load: PageServerLoad = async ({ params }) => {
 		work: detail,
 		aside: {
 			eyebrow: index >= 0 ? `Creation Archive ${detail.number}` : 'Creation Archive',
-			title: work.title
+			title: work.title,
+			scope: detail.scope.join(' / ')
 		},
 		seo: {
 			title: titleOf(work.title),

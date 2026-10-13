@@ -7,28 +7,15 @@
 
 	// PC: once the page is scrolled, the left panel's title block (eyebrow +
 	// title, Aside.svelte) moves to the panel's top left at a smaller size,
-	// the scope line (hidden until then) fades in under it, and the work's
-	// text (lead + body) fades in below them. The move is a FLIP: each element is measured
+	// its scope line (also Aside's, hidden until then) fades in under it,
+	// and the work's text (lead + body) fades in below them. The move is a FLIP: each element is measured
 	// before and after the class flips, then animated from the old box to
 	// the new one. SP keeps the text in the flow. Works without text keep
 	// the title where it is.
 	const SWAP_AFTER = 80; // px of scroll
-	const SCOPE_GAP = 0; // the scope line follows the moved title directly
-	const TEXT_GAP = 48; // px from the scope line to the text
 	const MOVE_MS = 900;
 	const MOVE_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)'; // --ease-out
 	const PC_QUERY = '(min-width: 1024px)';
-
-	/** Places the scope line and the text under the moved title. */
-	const placeUnderTitle = (html: HTMLElement) => {
-		const title = document.querySelector<HTMLElement>('.Aside .title');
-		const scope = document.querySelector<HTMLElement>('.Work .scope');
-		if (!title) return;
-		const scopeTop = title.getBoundingClientRect().bottom + SCOPE_GAP;
-		html.style.setProperty('--swap-scope-top', `${scopeTop}px`);
-		const below = scope ? scopeTop + scope.offsetHeight : scopeTop - SCOPE_GAP;
-		html.style.setProperty('--swap-text-top', `${below + TEXT_GAP}px`);
-	};
 
 	const setSwapped = (html: HTMLElement, on: boolean) => {
 		if (html.classList.contains('is-aside-swapped') === on) return;
@@ -44,7 +31,6 @@
 		// under the FLIP.
 		if (head) head.style.transition = 'none';
 		html.classList.toggle('is-aside-swapped', on);
-		if (on) placeUnderTitle(html);
 		if (animate) {
 			els.forEach((el, i) => {
 				const f = first[i];
@@ -68,16 +54,11 @@
 		if (!work.lead && !work.body) return;
 		const html = document.documentElement;
 		const update = () => setSwapped(html, window.scrollY > SWAP_AFTER);
-		const onResize = () => html.classList.contains('is-aside-swapped') && placeUnderTitle(html);
 		update();
 		window.addEventListener('scroll', update, { passive: true });
-		window.addEventListener('resize', onResize);
 		return () => {
 			window.removeEventListener('scroll', update);
-			window.removeEventListener('resize', onResize);
 			html.classList.remove('is-aside-swapped');
-			html.style.removeProperty('--swap-scope-top');
-			html.style.removeProperty('--swap-text-top');
 		};
 	});
 
@@ -345,29 +326,10 @@
 			text-align: left;
 		}
 
-		/* A work with text keeps the scope line hidden until the page is
-		   scrolled; it then fades in under the moved title, at the panel's
-		   top left (a work without text never swaps, so it shows it at the
-		   bottom from the start). */
+		/* A work with text shows its scope in the left panel's moved title
+		   block instead (Aside.svelte); one without keeps it down here. */
 		.has-text .scope {
-			top: var(--swap-scope-top);
-			bottom: auto;
-			line-height: 20px; /* = Aside's --lh-aside-meta */
-			opacity: 0;
-			visibility: hidden;
-			transition:
-				opacity 0.6s var(--ease-out),
-				visibility 0s linear 0.6s;
-		}
-
-		.has-text .scope::before {
-			content: 'Scope: ';
-		}
-
-		:global(html.is-aside-swapped) .has-text .scope {
-			opacity: 1;
-			visibility: visible;
-			transition-delay: 0.35s, 0s;
+			display: none;
 		}
 
 		.rest {
@@ -386,7 +348,7 @@
 			bottom: 48px; /* clear of the legal line */
 			z-index: var(--z-content);
 			width: var(--aside-w);
-			padding: var(--swap-text-top, 80px) var(--gutter) 24px;
+			padding: 130px var(--gutter) 24px; /* under the moved title block */
 			/* Not a scroll container: the wheel over the panel scrolls the
 			   page, like anywhere else. */
 			overflow: clip;
