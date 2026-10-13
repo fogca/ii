@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { ABOUT } from '$lib/content/about';
+	import InstituteMark from '$lib/components/InstituteMark.svelte';
 
 	// Photo hidden for now (2026-09-30) — a new image will be added later.
 	// Flip back to true to show /images/about.jpg again.
@@ -14,6 +15,8 @@
 </script>
 
 <article class="About">
+	<h1 class="mark"><InstituteMark /></h1>
+
 	{#if SHOW_PHOTO}
 		<figure class="photo">
 			<img src="/images/about.jpg" alt="" width="736" height="981" decoding="async" fetchpriority="high" />
@@ -51,6 +54,11 @@
 		padding: calc(var(--header-h) + 40px) var(--gutter) 0;
 	}
 
+	/* The wordmark across the column, then the text under it. */
+	.mark {
+		margin-bottom: 40px;
+	}
+
 	.photo {
 		aspect-ratio: 393 / 527;
 		background: var(--color-tile);
@@ -71,6 +79,13 @@
 		--color-text: #ffffff;
 		--color-text-mute: rgba(255, 255, 255, 0.3);
 		color-scheme: dark;
+	}
+
+	/* PC: the column is 80% of the width, so the lines stay readable. */
+	@media (min-width: 1024px) {
+		.About {
+			width: 80%;
+		}
 	}
 
 	/* Numbered titles at the body size; everything else at --fs-about
