@@ -5,7 +5,7 @@
 
 	let { data } = $props();
 
-	// /works: a masonry of every card at its own ratio, 20px
+	// /works: a masonry of every card at its own ratio, 10px
 	// apart — 4 columns on PC; 2 on SP, where now and then a landscape
 	// card runs the full width. Placement is pure CSS (see masonry.ts), so
 	// it is right from the first paint at every width.
@@ -22,7 +22,7 @@
 	const pc = $derived(
 		masonry(
 			cards.map((c) => pcRatio(c.visual as MediaItem)),
-			{ cols: 4, name: 'pc', cw: '--cw4', gap: '--gap', refCw: 335, refGap: 20 }
+			{ cols: 4, name: 'pc', cw: '--cw4', gap: '--gap', refCw: 342, refGap: 10 }
 		)
 	);
 	const sp = $derived(
@@ -34,7 +34,7 @@
 				cw: '--cw2',
 				gap: '--gap',
 				refCw: 175,
-				refGap: 20,
+				refGap: 10,
 				full: (_, ratio, since) => since >= SP_FULL_AFTER && ratio >= SP_FULL_MIN_RATIO
 			}
 		)
@@ -80,7 +80,7 @@
 	.Masonry {
 		container-type: inline-size;
 		padding: 0 var(--gutter) 120px;
-		--gap: 20px;
+		--gap: 10px;
 	}
 
 	.grid {
