@@ -24,8 +24,8 @@ npm run dev            # http://localhost:3300
 
 | Path | |
 |---|---|
-| `src/routes/+page.*` | Opening + one full-screen slide per work (sticky stack) |
-| `src/routes/works/+page.*` | All works in a 3-column grid (2 on SP) — default archive view |
+| `src/routes/+page.*` | Opening + every work's thumbnail as one continuous film, hard cuts (TopReel) |
+| `src/routes/works/+page.*` | All works in a masonry, 3 columns (2 on SP, the odd card full width) — default archive view |
 | `src/routes/works/grid` | Creation Archive (flowing masonry) |
 | `src/routes/works/list` | 301 → `/works` (old URL of the former list view) |
 | `src/routes/works/[slug=slug]` | Work detail |

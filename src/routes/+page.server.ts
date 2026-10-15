@@ -5,7 +5,7 @@ import type { PageServerLoad } from './$types';
 
 export type Slide = { slug: string; title: string; number: string; visual: Media };
 
-// Top — one full-screen slide per work (hinc.jp-style stack), in the
+// Top — every work's thumbnail as one continuous film (TopReel), in the
 // archive's order. Works without any visual are skipped.
 export const load: PageServerLoad = async () => {
 	const data = await getVisibleWorks({

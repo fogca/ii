@@ -1,10 +1,10 @@
 <script lang="ts">
 	import Opening from '$lib/components/Opening.svelte';
-	import ProjectSlider from '$lib/components/ProjectSlider.svelte';
+	import TopReel from '$lib/components/TopReel.svelte';
 
 	let { data } = $props();
 
-	// Full-bleed page: the header's controls turn white over the photographs
+	// Full-bleed page: the header's controls turn white over the film
 	// (flagged on <html> while the top page is shown).
 	$effect(() => {
 		document.documentElement.classList.add('is-top');
@@ -14,11 +14,4 @@
 
 <Opening />
 
-<ProjectSlider slides={data.slides} />
-
-<style>
-	/* Each slide rests whole: scrolling settles on the slide boundaries. */
-	:global(html.is-top) {
-		scroll-snap-type: y proximity;
-	}
-</style>
+<TopReel slides={data.slides} />

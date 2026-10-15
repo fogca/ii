@@ -1,13 +1,15 @@
 <script lang="ts">
 	import { onMount, tick } from 'svelte';
 	import { imgOpt, imgSrcset } from '$lib/js/img';
+	import { ui } from '$lib/state/ui.svelte';
 	import type { Media as MediaItem } from '$lib/js/works';
 
 	type Slide = { slug: string; title: string; number: string; visual: MediaItem };
 	let { slides }: { slides: Slide[] } = $props();
 
 	// The first view as one continuous film: every work's thumbnail (video
-	// or still) for 2–3 s, hard cuts, no fades, looping. To keep the cuts
+	// or still) for 3–4 s, hard cuts, no fades, looping. A click anywhere
+	// opens the archive (/works); the caption names the shot on air. To keep the cuts
 	// clean, only the shot on screen and the next one exist; the next one
 	// waits underneath, already decoded to its first frame (a muted
 	// play/pause primes it — iOS buffers nothing on `preload` alone), and a
@@ -15,7 +17,7 @@
 	// other shot has no element at all, so at most two videos ever hold a
 	// decoder. SP plays the mobile thumbnail (video or image) when a work
 	// has one.
-	const HOLD_MS = 2000; // each shot runs this long…
+	const HOLD_MS = 3000; // each shot runs this long…
 	const HOLD_SPREAD_MS = 1000; // …plus up to this much
 	const READY_POLL_MS = 60;
 	const READY_MAX_MS = 4000; // past this, cut anyway
@@ -74,6 +76,9 @@
 		started = true;
 
 		const run = async () => {
+			// The film starts with its first shot as the opening lifts (at once
+			// when there is no opening), not somewhere in the middle.
+			while (alive && !ui.entered) await sleep(50);
 			while (alive) {
 				await tick();
 				const cur = els[current];
@@ -106,7 +111,7 @@
 </script>
 
 <section class="TopReel" aria-label="Works">
-	<a class="stage" href="/works/{shown.slug}" aria-label={shown.title}>
+	<a class="stage" href="/works" aria-label="Work Archives">
 		{#each slides as slide, i (slide.slug)}
 			{#if live(i)}
 				{@const shot = shotOf(slide)}
