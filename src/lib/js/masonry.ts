@@ -8,10 +8,12 @@
 
 export type Placement = { left: string; top: string; width: string; full: boolean };
 
-type Column = { base: string | null; s: number; n: number; px: number };
+type Column = { s: number; n: number; px: number };
 
 export type MasonryOptions = {
 	cols: number;
+	/** Prefix for the base variables this layout declares (see `vars`). */
+	name: string;
 	/** CSS variable names (with --) the expressions refer to. */
 	cw: string;
 	gap: string;
@@ -27,21 +29,30 @@ const num = (v: number) => Number(v.toFixed(5));
 export const masonry = (ratios: number[], o: MasonryOptions) => {
 	const cw = `var(${o.cw})`;
 	const gap = `var(${o.gap})`;
-	const cols: Column[] = Array.from({ length: o.cols }, () => ({ base: null, s: 0, n: 0, px: 0 }));
-	const height = (c: Column) =>
-		`${c.base ? `${c.base} + ` : ''}${num(c.s)} * ${cw} + ${num(c.n)} * ${gap}`;
+	const cols: Column[] = Array.from({ length: o.cols }, () => ({ s: 0, n: 0, px: 0 }));
+	// Below a full-width box every column starts at the same height. That
+	// height is declared once on the container as a variable (`vars`, each
+	// one built on the previous), and the boxes under it refer to it — so
+	// the markup grows by one short expression per box, not by a copy of
+	// everything above it.
+	let base: string | null = null;
+	const vars: string[] = [];
+	const local = (c: Column) => `${num(c.s)} * ${cw} + ${num(c.n)} * ${gap}`;
+	const from = (expr: string) => (base ? `${base} + ${expr}` : expr);
+	const tallest = () => `max(${cols.map((c) => `calc(${local(c)})`).join(', ')})`;
 	const fullWidth = `(${o.cols} * ${cw} + ${o.cols - 1} * ${gap})`;
 
 	const items: Placement[] = [];
 	let sinceFull = 0;
 	ratios.forEach((ratio, i) => {
 		if (o.full?.(i, ratio, sinceFull)) {
-			const top = `max(${cols.map((c) => `calc(${height(c)})`).join(', ')})`;
-			items.push({ left: '0px', top, width: `calc${fullWidth}`, full: true });
+			const top = from(tallest());
+			items.push({ left: '0px', top: `calc(${top})`, width: `calc${fullWidth}`, full: true });
 			const px = Math.max(...cols.map((c) => c.px)) + (o.cols * o.refCw + (o.cols - 1) * o.refGap) / ratio + o.refGap;
+			const name = `--${o.name}-b${vars.length + 1}`;
+			vars.push(`${name}: calc(${top} + ${fullWidth} / ${num(ratio)} + ${gap})`);
+			base = `var(${name})`;
 			for (const c of cols) {
-				// Everything below starts under the full-width box.
-				c.base = `${top} + ${fullWidth} / ${num(ratio)} + ${gap}`;
 				c.s = 0;
 				c.n = 0;
 				c.px = px;
@@ -53,7 +64,7 @@ export const masonry = (ratios: number[], o: MasonryOptions) => {
 		const c = cols[k];
 		items.push({
 			left: `calc(${k} * (${cw} + ${gap}))`,
-			top: `calc(${height(c)})`,
+			top: `calc(${from(local(c))})`,
 			width: cw,
 			full: false
 		});
@@ -64,6 +75,5 @@ export const masonry = (ratios: number[], o: MasonryOptions) => {
 	});
 
 	// The tallest column, less the gap after its last box.
-	const total = `max(${cols.map((c) => `calc(${height(c)} - ${gap})`).join(', ')})`;
-	return { items, height: total };
+	return { items, height: `calc(${from(tallest())} - ${gap})`, vars: vars.join('; ') };
 };

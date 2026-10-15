@@ -85,18 +85,18 @@ const withSp = (m: Media | null, w: Work): Media | null => {
 };
 
 /** /works cards for one work: its thumbnail (main_visual, else the legacy
-    thumbnail, else its first visual) followed by every repeat row flagged
-    優先表示 (pj_images_priority). */
-export const thumbAndPriority = (w: Work): { thumb: Media | null; priority: Media[] } => {
+    thumbnail, else its first visual), the repeat rows flagged 優先表示
+    (pj_images_priority), and every other repeat row (`rest`). */
+export const thumbAndPriority = (w: Work): { thumb: Media | null; priority: Media[]; rest: Media[] } => {
 	const legacy = w.thumbnail?.url
 		? { src: w.thumbnail.url, isVideo: false, width: w.thumbnail.width, height: w.thumbnail.height }
 		: null;
 	const rows = (w.repeat ?? []).map((row) => ({ row, media: rowMedia(row) }));
 	const thumb = withSp(rowMedia(w.main_visual) ?? legacy ?? rows.find((r) => r.media)?.media ?? null, w);
-	const priority = rows
-		.filter((r) => r.row.pj_images_priority && r.media && r.media.src !== thumb?.src)
-		.map((r) => r.media as Media);
-	return { thumb, priority };
+	const others = rows.filter((r) => r.media && r.media.src !== thumb?.src);
+	const priority = others.filter((r) => r.row.pj_images_priority).map((r) => r.media as Media);
+	const rest = others.filter((r) => !r.row.pj_images_priority).map((r) => r.media as Media);
+	return { thumb, priority, rest };
 };
 
 /** Every visual of a work in display order: the thumbnail (main_visual,

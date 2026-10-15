@@ -6,13 +6,13 @@
 	let { data } = $props();
 
 	// /works: a masonry of every card at its own ratio, 20px
-	// apart — 3 columns on PC; 2 on SP, where now and then a landscape
+	// apart — 4 columns on PC; 2 on SP, where now and then a landscape
 	// card runs the full width. Placement is pure CSS (see masonry.ts), so
 	// it is right from the first paint at every width.
-	const SIZES = '(min-width: 1024px) 33vw, 50vw';
-	const SIZES_SP_FULL = '(min-width: 1024px) 33vw, 100vw';
+	const SIZES = '(min-width: 1024px) 25vw, 50vw';
+	const SIZES_SP_FULL = '(min-width: 1024px) 25vw, 100vw';
 	const WIDTHS = [480, 700, 940, 1400];
-	const EAGER_COUNT = 3;
+	const EAGER_COUNT = 4; // the first PC row
 	const SP_FULL_AFTER = 5; // at least this many 2-column cards between full-width ones…
 	const SP_FULL_MIN_RATIO = 1.25; // …and only a landscape card goes full width
 
@@ -22,7 +22,7 @@
 	const pc = $derived(
 		masonry(
 			cards.map((c) => pcRatio(c.visual as MediaItem)),
-			{ cols: 3, cw: '--cw3', gap: '--gap', refCw: 450, refGap: 20 }
+			{ cols: 4, name: 'pc', cw: '--cw4', gap: '--gap', refCw: 335, refGap: 20 }
 		)
 	);
 	const sp = $derived(
@@ -30,6 +30,7 @@
 			cards.map((c) => spRatio(c.visual as MediaItem)),
 			{
 				cols: 2,
+				name: 'sp',
 				cw: '--cw2',
 				gap: '--gap',
 				refCw: 175,
@@ -47,7 +48,7 @@
 </script>
 
 <section class="Masonry" aria-label="Works">
-	<div class="grid" style:--h-pc={pc.height} style:--h-sp={sp.height}>
+	<div class="grid" style="{pc.vars}; {sp.vars}" style:--h-pc={pc.height} style:--h-sp={sp.height}>
 		{#each cards as card, i (card.key)}
 			{@const a = pc.items[i]}
 			{@const b = sp.items[i]}
@@ -84,7 +85,7 @@
 
 	.grid {
 		--cw2: calc((100cqw - var(--gap)) / 2);
-		--cw3: calc((100cqw - 2 * var(--gap)) / 3);
+		--cw4: calc((100cqw - 3 * var(--gap)) / 4);
 		position: relative;
 		height: var(--h-sp);
 	}

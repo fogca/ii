@@ -41,10 +41,12 @@ export const load: PageServerLoad = async () => {
 		fields: ['id', 'title', 'scope', 'main_visual', 'thumbnail', 'sp_thumbnail', 'sp_thumbnail_video', 'repeat', 'hidden']
 	});
 
-	// Every work's thumbnail first (archive order), then every work's
-	// 優先表示 images in random order. Each card links to its work.
+	// Every visual of every work: the thumbnails first (archive order), then
+	// the 優先表示 images, then all the rest — each of those two groups in
+	// random order. Each card links to its work.
 	const thumbs: WorkCard[] = [];
 	const extras: WorkCard[] = [];
+	const others: WorkCard[] = [];
 	data.contents.forEach((w, i) => {
 		const base = {
 			slug: w.id,
@@ -52,11 +54,12 @@ export const load: PageServerLoad = async () => {
 			number: padNumber(i),
 			scope: (w.scope ?? []).slice(0, 2).join(' / ')
 		};
-		const { thumb, priority } = thumbAndPriority(w);
+		const { thumb, priority, rest } = thumbAndPriority(w);
 		thumbs.push({ ...base, key: `${w.id}:thumb`, visual: thumb });
 		priority.forEach((visual, j) => extras.push({ ...base, key: `${w.id}:p${j}`, visual }));
+		rest.forEach((visual, j) => others.push({ ...base, key: `${w.id}:r${j}`, visual }));
 	});
-	const cards = [...thumbs, ...shuffleApart(extras)];
+	const cards = [...thumbs, ...shuffleApart(extras), ...shuffleApart(others)];
 
 	return {
 		cards,
