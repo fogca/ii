@@ -6,15 +6,18 @@
 	let { data } = $props();
 
 	// /works: a masonry of every card at its own ratio — 4 columns on PC,
-	// 10px apart inside the page margins; 2 on SP, edge to edge and 5px
-	// apart, where now and then a landscape card runs the full width. Placement is pure CSS (see masonry.ts), so
+	// 10px apart inside the page margins; 2 on SP, 3px apart and 3px from the
+	// edges, where now and then a landscape card runs the full width.
+	// Placement is pure CSS (see masonry.ts), so
 	// it is right from the first paint at every width.
 	const SIZES = '(min-width: 1024px) 25vw, 50vw';
 	const SIZES_SP_FULL = '(min-width: 1024px) 25vw, 100vw';
 	const WIDTHS = [480, 700, 940, 1400];
 	const EAGER_COUNT = 4; // the first PC row
 	const SP_FULL_AFTER = 5; // at least this many 2-column cards between full-width ones…
-	const SP_FULL_MIN_RATIO = 1.25; // …and only a landscape card goes full width
+	const SP_FULL_MIN_RATIO = 1.25; // …and only a landscape card goes full width…
+	const SP_FULL_MAX_SPREAD = 8; // …once the two columns end within this many px of each other
+	const SP_FULL_MAX_WAIT = 14; // (it waits for at most this many cards)
 
 	const pcRatio = (m: MediaItem) => (m.width && m.height ? m.width / m.height : 16 / 9);
 
@@ -33,9 +36,14 @@
 				name: 'sp',
 				cw: '--cw2',
 				gap: '--gap',
-				refCw: 195,
-				refGap: 5,
-				full: (_, ratio, since) => since >= SP_FULL_AFTER && ratio >= SP_FULL_MIN_RATIO
+				refCw: 192,
+				refGap: 3,
+				full: {
+					afterSince: SP_FULL_AFTER,
+					accepts: (ratio) => ratio >= SP_FULL_MIN_RATIO,
+					maxSpread: SP_FULL_MAX_SPREAD,
+					maxWait: SP_FULL_MAX_WAIT
+				}
 			}
 		)
 	);
@@ -79,9 +87,9 @@
 	   (cqw), so they hold for `top` too, where % would mean height. */
 	.Masonry {
 		container-type: inline-size;
-		/* SP: edge to edge, 5px apart. */
-		padding: 0 0 120px;
-		--gap: 5px;
+		/* SP: 3px from the edges, 3px apart. */
+		padding: 0 3px 120px;
+		--gap: 3px;
 	}
 
 	.grid {

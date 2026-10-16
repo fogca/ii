@@ -20,8 +20,13 @@ export type MasonryOptions = {
 	/** px values used only to pick the shortest column. */
 	refCw: number;
 	refGap: number;
-	/** Whether item i (with this ratio) spans every column. */
-	full?: (i: number, ratio: number, sinceFull: number) => boolean;
+	/** A box that, once `afterSince` boxes have run since the last one, spans
+	    every column — only the ones this accepts (by ratio). It waits, the
+	    boxes after it filling the shorter columns, until the columns end
+	    within `maxSpread` px of each other (a full-width box under uneven
+	    columns would leave a hole in the shorter ones); if that takes more
+	    than `maxWait` boxes it stays an ordinary box. */
+	full?: { afterSince: number; accepts: (ratio: number) => boolean; maxSpread: number; maxWait: number };
 };
 
 const num = (v: number) => Number(v.toFixed(5));
@@ -42,37 +47,68 @@ export const masonry = (ratios: number[], o: MasonryOptions) => {
 	const tallest = () => `max(${cols.map((c) => `calc(${local(c)})`).join(', ')})`;
 	const fullWidth = `(${o.cols} * ${cw} + ${o.cols - 1} * ${gap})`;
 
-	const items: Placement[] = [];
-	let sinceFull = 0;
-	ratios.forEach((ratio, i) => {
-		if (o.full?.(i, ratio, sinceFull)) {
-			const top = from(tallest());
-			items.push({ left: '0px', top: `calc(${top})`, width: `calc${fullWidth}`, full: true });
-			const px = Math.max(...cols.map((c) => c.px)) + (o.cols * o.refCw + (o.cols - 1) * o.refGap) / ratio + o.refGap;
-			const name = `--${o.name}-b${vars.length + 1}`;
-			vars.push(`${name}: calc(${top} + ${fullWidth} / ${num(ratio)} + ${gap})`);
-			base = `var(${name})`;
-			for (const c of cols) {
-				c.s = 0;
-				c.n = 0;
-				c.px = px;
-			}
-			sinceFull = 0;
-			return;
-		}
+	const items: Placement[] = new Array(ratios.length);
+	const spread = () => Math.max(...cols.map((c) => c.px)) - Math.min(...cols.map((c) => c.px));
+
+	const placeRegular = (i: number) => {
+		const ratio = ratios[i];
 		const k = cols.reduce((best, c, j) => (c.px < cols[best].px - 0.5 ? j : best), 0);
 		const c = cols[k];
-		items.push({
+		items[i] = {
 			left: `calc(${k} * (${cw} + ${gap}))`,
 			top: `calc(${from(local(c))})`,
 			width: cw,
 			full: false
-		});
+		};
 		c.s += 1 / ratio;
 		c.n += 1;
 		c.px += o.refCw / ratio + o.refGap;
+	};
+
+	const placeFull = (i: number) => {
+		const ratio = ratios[i];
+		const top = from(tallest());
+		items[i] = { left: '0px', top: `calc(${top})`, width: `calc${fullWidth}`, full: true };
+		const px = Math.max(...cols.map((c) => c.px)) + (o.cols * o.refCw + (o.cols - 1) * o.refGap) / ratio + o.refGap;
+		const name = `--${o.name}-b${vars.length + 1}`;
+		vars.push(`${name}: calc(${top} + ${fullWidth} / ${num(ratio)} + ${gap})`);
+		base = `var(${name})`;
+		for (const c of cols) {
+			c.s = 0;
+			c.n = 0;
+			c.px = px;
+		}
+	};
+
+	let sinceFull = 0;
+	let pending: number | null = null;
+	let waited = 0;
+	for (let i = 0; i < ratios.length; i++) {
+		if (o.full && pending === null && sinceFull >= o.full.afterSince && o.full.accepts(ratios[i])) {
+			pending = i;
+			waited = 0;
+			if (spread() <= o.full.maxSpread) {
+				placeFull(i);
+				pending = null;
+				sinceFull = 0;
+			}
+			continue;
+		}
+		placeRegular(i);
 		sinceFull++;
-	});
+		if (pending !== null && o.full) {
+			waited++;
+			if (spread() <= o.full.maxSpread) {
+				placeFull(pending);
+				pending = null;
+				sinceFull = 0;
+			} else if (waited >= o.full.maxWait) {
+				placeRegular(pending); // gave up: an ordinary box
+				pending = null;
+			}
+		}
+	}
+	if (pending !== null) placeRegular(pending);
 
 	// The tallest column, less the gap after its last box.
 	return { items, height: `calc(${from(tallest())} - ${gap})`, vars: vars.join('; ') };

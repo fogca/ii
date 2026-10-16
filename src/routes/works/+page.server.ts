@@ -1,6 +1,7 @@
 import { getVisibleWorks } from '$lib/js/microcms';
 import { padNumber, thumbAndPriority, type Media } from '$lib/js/works';
 import { titleOf } from '$lib/js/site';
+import { videoSize } from '$lib/server/videoSize';
 import type { PageServerLoad } from './$types';
 
 export type WorkCard = {
@@ -60,6 +61,18 @@ export const load: PageServerLoad = async () => {
 		rest.forEach((visual, j) => others.push({ ...base, key: `${w.id}:r${j}`, visual }));
 	});
 	const cards = [...thumbs, ...shuffleApart(extras), ...shuffleApart(others)];
+
+	// The CMS has no size for videos; a card box on a guessed ratio would
+	// crop them, so each one's real size is read from the file.
+	await Promise.all(
+		cards
+			.flatMap((c) => [c.visual, c.visual?.sp])
+			.filter((m): m is Media => !!m?.isVideo && !m.width)
+			.map(async (m) => {
+				const size = await videoSize(m.src);
+				if (size) Object.assign(m, size);
+			})
+	);
 
 	return {
 		cards,
