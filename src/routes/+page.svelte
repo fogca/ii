@@ -12,6 +12,6 @@
 	});
 </script>
 
-<Opening />
+<Opening slides={data.slides} />
 
 <TopReel slides={data.slides} />

@@ -24,7 +24,7 @@ npm run dev            # http://localhost:3300
 
 | Path | |
 |---|---|
-| `src/routes/+page.*` | Opening + every work's thumbnail as one continuous film, hard cuts (TopReel) |
+| `src/routes/+page.*` | Opening (stack of works climbing, after Otic) + every work's thumbnail as one continuous film, hard cuts (TopReel) |
 | `src/routes/works/+page.*` | All works in a masonry, 3 columns (2 on SP, the odd card full width) — default archive view |
 | `src/routes/works/grid` | Design Creation (flowing masonry) |
 | `src/routes/works/list` | 301 → `/works` (old URL of the former list view) |

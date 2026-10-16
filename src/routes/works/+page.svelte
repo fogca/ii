@@ -6,7 +6,7 @@
 	let { data } = $props();
 
 	// /works: a masonry of every card at its own ratio — 4 columns on PC,
-	// 10px apart inside the page margins; 2 on SP, 5px apart and 3px from the
+	// 10px apart inside the page margins; 2 on SP, 5px apart and 5px from the
 	// edges, where now and then a landscape card runs the full width.
 	// Placement is pure CSS (see masonry.ts), so
 	// it is right from the first paint at every width.
@@ -91,8 +91,8 @@
 	   (cqw), so they hold for `top` too, where % would mean height. */
 	.Masonry {
 		container-type: inline-size;
-		/* SP: 3px from the edges, 5px apart. */
-		padding: 0 3px 120px;
+		/* SP: 5px from the edges, 5px apart. */
+		padding: 0 5px 120px;
 		--gap: 5px;
 	}
 
