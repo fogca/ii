@@ -20,7 +20,18 @@
 	    down, blinking (hard on/off, ~530 ms) when the hand rests.
 	    Plays once on mount; with reduced motion "isobe institute" just
 	    shows (as it does without JS). */
-	let { typewriter = false }: { typewriter?: boolean } = $props();
+	let {
+		typewriter = false,
+		speed = 1,
+		onDone
+	}: {
+		typewriter?: boolean;
+		/** Runs the whole sequence this many times faster (the opening
+		    plays it at a clip). */
+		speed?: number;
+		/** Called a beat after the last key. */
+		onDone?: () => void;
+	} = $props();
 
 	const VB_W = 73.66; // viewBox width = the full "isobe institute"
 	const EXTRA_DY = 0.75; // ii-ii.co artwork baseline → this one's
@@ -63,6 +74,7 @@
 		if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
 			root.querySelectorAll<SVGPathElement>('path:not(.extra):not(.ref):not(.smile)').forEach((p) => (p.style.opacity = '1'));
 			phase = 'rest';
+			onDone?.();
 			return;
 		}
 
@@ -169,7 +181,7 @@
 		phase = 'idle';
 		let t = 0;
 		steps.forEach((s, i) => {
-			t += s.wait;
+			t += s.wait / speed;
 			timers.push(
 				window.setTimeout(() => {
 					s.act();
@@ -179,9 +191,10 @@
 			);
 			const next = steps[i + 1]?.wait ?? Infinity;
 			if (next > REST_AFTER + 120) {
-				timers.push(window.setTimeout(() => (phase = 'rest'), t + REST_AFTER));
+				timers.push(window.setTimeout(() => (phase = 'rest'), t + REST_AFTER / speed));
 			}
 		});
+		timers.push(window.setTimeout(() => onDone?.(), t + (REST_AFTER + 450) / speed));
 
 		return () => timers.forEach((id) => clearTimeout(id));
 	});
