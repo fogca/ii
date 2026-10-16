@@ -5,9 +5,9 @@
 
 	let { data } = $props();
 
-	// /works: a masonry of every card at its own ratio, 10px
-	// apart — 4 columns on PC; 2 on SP, where now and then a landscape
-	// card runs the full width. Placement is pure CSS (see masonry.ts), so
+	// /works: a masonry of every card at its own ratio — 4 columns on PC,
+	// 10px apart inside the page margins; 2 on SP, edge to edge and 5px
+	// apart, where now and then a landscape card runs the full width. Placement is pure CSS (see masonry.ts), so
 	// it is right from the first paint at every width.
 	const SIZES = '(min-width: 1024px) 25vw, 50vw';
 	const SIZES_SP_FULL = '(min-width: 1024px) 25vw, 100vw';
@@ -33,8 +33,8 @@
 				name: 'sp',
 				cw: '--cw2',
 				gap: '--gap',
-				refCw: 175,
-				refGap: 10,
+				refCw: 195,
+				refGap: 5,
 				full: (_, ratio, since) => since >= SP_FULL_AFTER && ratio >= SP_FULL_MIN_RATIO
 			}
 		)
@@ -79,8 +79,9 @@
 	   (cqw), so they hold for `top` too, where % would mean height. */
 	.Masonry {
 		container-type: inline-size;
-		padding: 0 var(--gutter) 120px;
-		--gap: 10px;
+		/* SP: edge to edge, 5px apart. */
+		padding: 0 0 120px;
+		--gap: 5px;
 	}
 
 	.grid {
@@ -125,6 +126,11 @@
 	}
 
 	@media (min-width: 1024px) {
+		.Masonry {
+			padding: 0 var(--gutter) 120px;
+			--gap: 10px;
+		}
+
 		:global(html.is-works-wide main.Main.has-aside) {
 			margin-left: 0;
 			padding-top: 80px;
