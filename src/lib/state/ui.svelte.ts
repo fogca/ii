@@ -1,8 +1,5 @@
 // Shared UI state across the layout shell and pages.
 
-/** sessionStorage key the pre-paint script in app.html also reads/writes. */
-export const OP_STORAGE_KEY = 'ii-op';
-
 class Ui {
 	/** Menu sheet open. */
 	menuOpen = $state(false);

@@ -15,11 +15,11 @@
 		     - data-lang → EN/JA display language: this tab session's choice,
 		       else Japanese (the default). Mirrored in
 		       lib/state/lang.svelte.ts's restore() — keep the two in sync.
-		     - data-op  → whether the opening (the climbing stack of works) plays.
-		       It plays once per tab session, only when the visit STARTS on
-		       the archive index, and never under reduced motion. Landing
-		       anywhere else counts as having entered the site already.
-		     Mirrored in lib/state/ui.svelte.ts — keep the key in sync. -->
+		     - data-op  → whether the opening (the climbing stack of works) plays:
+		       on every full load of the top page (a reload included), never
+		       under reduced motion. Landing anywhere else counts as having
+		       entered the site already; a client-side return to the top
+		       doesn't replay it (Opening.svelte flips this to 'skip'). -->
 		<script>
 			(function () {
 				var root = document.documentElement;
@@ -32,9 +32,7 @@
 				var play = false;
 				try {
 					var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-					var seen = sessionStorage.getItem('ii-op') === '1';
-					play = !reduce && !seen && location.pathname === '/';
-					sessionStorage.setItem('ii-op', '1');
+					play = !reduce && location.pathname === '/';
 				} catch (e) {}
 				root.dataset.op = play ? 'play' : 'skip';
 			})();

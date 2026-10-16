@@ -8,27 +8,27 @@
 	type Slide = { slug: string; title: string; visual: Media };
 	let { slides = [] }: { slides?: Slide[] } = $props();
 
-	// Opening, after the Otic (OTIF) one: on black, a stack of works' stills
-	// comes in one after another, each sliding up from the bottom of a small
-	// card (clip-path) while it zooms in a little, the next starting before
-	// the last has finished — so the card keeps climbing. The card is the
-	// size of the first work's card on /works (as Otic's matches its first
-	// card). There, on the black, the wordmark types itself out (as on
-	// About); then the card opens to the whole screen and the overlay clears
-	// onto the film.
-	// Whether it plays at all is decided pre-paint in app.html
-	// (html[data-op]); when skipped, the page enters immediately.
-	const FRAMES = 7;
+	// Opening, as on Otic (OTIF): on black, works' stills come in one after
+	// another, each sliding up from the bottom of a centered card (clip-path)
+	// while it zooms in a little, the next starting before the last has
+	// finished. The background then turns white while the card settles a
+	// little smaller — on Otic its last frame becomes the home page's first
+	// card; here the last frame is solid black, and in it the wordmark types
+	// itself out (as on About). Then the card opens to the whole screen and
+	// the overlay clears onto the film.
+	// It plays on every full load of the top page (app.html sets
+	// html[data-op]); a client-side return doesn't replay it.
+	const FRAMES = 6; // stills, then the black frame
 	const START = 0.3;
-	const REVEAL = 1.2; // one frame's slide-up (Otic's)
-	const STAGGER = 0.35; // the next frame starts this long after the last
-	const ZOOM = 1.1; // each frame grows 1 → this while it comes in
-	const HOLD = 0.35; // the last frame rests, then the wordmark types
+	const REVEAL = 1.2; // one frame's slide-up (Otic)
+	const STAGGER = 0.35; // the next frame starts this long after the last (Otic)
+	const ZOOM = 1.1; // each still grows 1 → this while it comes in (Otic)
+	const CARD_FROM = 1.08; // the card's scale while the frames climb…
+	const BG_DELAY = 0.3; // …then, after this pause (Otic),
+	const BG_FADE = 0.9; // the black turns white and the card settles to 1 (Otic)
 	const TYPE_SPEED = 1.7; // the About typing, this many times faster
 	const EXPAND = 1.0;
 	const HANDOFF = 0.6; // overlay fade
-	// The page starts (film cut 1) as the overlay starts to clear.
-	const ENTER_AT = 0;
 	// Frames wait (at most this long) to be decoded, so a slow connection
 	// never shows one half-painted.
 	const DECODE_WAIT_MS = 2500;
@@ -41,7 +41,6 @@
 			.slice(0, FRAMES)
 			.map((s) => ({
 				slug: s.slug,
-				title: s.title,
 				src: s.visual.src,
 				sp: s.visual.sp && !s.visual.sp.isVideo ? s.visual.sp.src : null
 			}))
@@ -51,18 +50,14 @@
 	let stack = $state<HTMLDivElement>();
 	let frameEls = $state<HTMLDivElement[]>([]);
 	let imgEls = $state<HTMLImageElement[]>([]);
+	let blackEl = $state<HTMLDivElement>();
 	let done = $state(false);
 	let running = $state(false);
 	let typing = $state(false);
 	let tl: gsap.core.Timeline | undefined;
 
-	// The card's shape: the first work's thumbnail ratio (SP: its mobile one).
-	const ratioOf = (m: Media | undefined) => (m?.width && m.height ? m.width / m.height : 16 / 9);
-	const arPc = $derived(ratioOf(slides[0]?.visual));
-	const arSp = $derived(ratioOf(slides[0]?.visual.sp ?? slides[0]?.visual));
-
 	onMount(() => {
-		if (document.documentElement.dataset.op !== 'play' || !frames.length) {
+		if (document.documentElement.dataset.op !== 'play') {
 			done = true;
 			ui.entered = true;
 			return;
@@ -93,60 +88,63 @@
 				await tick();
 				// Two frames so bind:this targets are settled before reading them.
 				await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
-				const els = frameEls.filter(Boolean);
-				if (cancelled || !root || !stack || !els.length) return;
+				const stills = frameEls.filter(Boolean);
+				const imgs = imgEls.filter(Boolean);
+				if (cancelled || !root || !stack || !blackEl) return;
+				const layers = [...stills, blackEl];
 
-				// Hidden until each frame's turn.
-				gsap.set(els, { clipPath: 'inset(100% 0% 0% 0%)' });
-				gsap.set(imgEls.filter(Boolean), { scale: 1 });
+				gsap.set(layers, { clipPath: 'inset(100% 0% 0% 0%)' });
+				gsap.set(stack, { scale: CARD_FROM, force3D: true });
 
 				await Promise.race([
-					Promise.all(imgEls.filter(Boolean).map((im) => im.decode().catch(() => {}))),
+					Promise.all(imgs.map((im) => im.decode().catch(() => {}))),
 					new Promise((r) => setTimeout(r, DECODE_WAIT_MS))
 				]);
 				if (cancelled) return;
 
 				running = true;
 				tl = gsap.timeline({ onComplete: finish });
-				els.forEach((el, i) => {
+				layers.forEach((el, i) => {
 					const at = START + i * STAGGER;
-					tl!.to(el, { clipPath: 'inset(0% 0% 0% 0%)', duration: REVEAL, ease: 'power3.out', force3D: true }, at);
-					tl!.to(imgEls[i], { scale: ZOOM, duration: REVEAL + STAGGER, ease: 'power3.out', force3D: true }, at);
+					tl!.to(el, { clipPath: 'inset(0% 0% 0% 0%)', duration: REVEAL, ease: 'power3.out' }, at);
+					if (imgs[i]) {
+						tl!.to(imgs[i], { scale: ZOOM, duration: REVEAL + STAGGER, ease: 'power3.out', force3D: true }, at);
+					}
 				});
-				// The last frame settles back to 1 as the others have finished.
-				const climbed = START + (els.length - 1) * STAGGER + REVEAL;
-				tl.addLabel('type', climbed + HOLD)
-					// The timeline waits here while the wordmark types itself out.
+
+				// Black → white while the card (its last frame now solid black)
+				// settles a little smaller — Otic's hand-off to its first card.
+				const settled = START + (layers.length - 1) * STAGGER + REVEAL + BG_DELAY;
+				tl.addLabel('white', settled)
+					.to(root, { backgroundColor: '#ffffff', duration: BG_FADE, ease: 'power2.inOut' }, 'white')
+					.to(stack, { scale: 1, duration: BG_FADE, ease: 'power2.inOut' }, 'white')
+					// Once it is white, the wordmark types itself out in the black
+					// card; the timeline waits for it (resumed by onDone below).
+					// (Pausing any earlier would freeze the fade half-way: grey.)
 					.call(
 						() => {
-							// The card's height comes from its ratio; pin it in px so the
-							// opening can tween it.
-							if (stack) {
-								stack.style.height = `${stack.offsetHeight}px`;
-								stack.style.aspectRatio = 'auto';
-							}
 							typing = true;
 							tl?.pause();
 						},
 						[],
-						'type'
+						`white+=${BG_FADE}`
 					)
-					.addLabel('open', 'type')
-					// The card opens to the whole screen; the last frame settles back to 1.
-					.to(
-						stack,
-						{ width: '100vw', height: '100dvh', duration: EXPAND, ease: 'power3.inOut' },
-						'open'
-					)
-					.to(imgEls[els.length - 1], { scale: 1, duration: EXPAND, ease: 'power3.inOut' }, 'open')
-					.addLabel('handoff', `open+=${EXPAND}`)
+					.addLabel('open', `white+=${BG_FADE}`)
 					.call(
 						() => {
-							ui.entered = true;
+							// The card's height comes from its ratio; pin it in px so it
+							// can tween to the full screen.
+							if (stack) {
+								stack.style.height = `${stack.offsetHeight}px`;
+								stack.style.aspectRatio = 'auto';
+							}
 						},
 						[],
-						`handoff+=${ENTER_AT}`
+						'open'
 					)
+					.to(stack, { width: '100vw', height: '100dvh', duration: EXPAND, ease: 'power3.inOut' }, 'open')
+					.addLabel('handoff', `open+=${EXPAND}`)
+					.call(() => (ui.entered = true), [], 'handoff')
 					.to(root, { opacity: 0, duration: HANDOFF, ease: 'power2.out' }, 'handoff');
 			})
 			.catch(bail);
@@ -162,14 +160,7 @@
 </script>
 
 {#if !done}
-	<div
-		class="Opening"
-		class:is-running={running}
-		bind:this={root}
-		style:--ar-pc={arPc}
-		style:--ar-sp={arSp}
-		aria-hidden="true"
-	>
+	<div class="Opening" class:is-running={running} bind:this={root} aria-hidden="true">
 		<div class="stack" bind:this={stack}>
 			{#each frames as f, i (f.slug)}
 				<!-- lazy: when the opening is skipped the overlay is display:none,
@@ -178,17 +169,13 @@
 				<div class="frame" bind:this={frameEls[i]}>
 					<picture>
 						{#if f.sp}
-							<source
-								media="(max-width: 1023.98px)"
-								srcset={imgSrcset(f.sp, [700, 1000, 1400], 85)}
-								sizes="100vw"
-							/>
+							<source media="(max-width: 1023.98px)" srcset={imgSrcset(f.sp, [500, 800], 85)} sizes="320px" />
 						{/if}
 						<img
 							bind:this={imgEls[i]}
-							src={imgOpt(f.src, 1400, 85)}
-							srcset={imgSrcset(f.src, [900, 1400, 2000], 85)}
-							sizes="100vw"
+							src={imgOpt(f.src, 800, 85)}
+							srcset={imgSrcset(f.src, [500, 800, 1200], 85)}
+							sizes="(min-width: 1024px) 380px, (min-width: 768px) 320px, 257px"
 							alt=""
 							loading="lazy"
 							decoding="async"
@@ -196,15 +183,15 @@
 					</picture>
 				</div>
 			{/each}
-		</div>
-		<!-- The wordmark types itself out over the card and the black (as on
-		     About); difference blend keeps it readable on both. When it is
-		     done, the timeline resumes and the card opens. -->
-		{#if typing}
-			<div class="type">
-				<InstituteMark typewriter speed={TYPE_SPEED} onDone={() => tl?.play()} />
+			<!-- The last frame: solid black, where the wordmark is typed. -->
+			<div class="frame frame--black" bind:this={blackEl}>
+				{#if typing}
+					<div class="type">
+						<InstituteMark typewriter speed={TYPE_SPEED} onDone={() => tl?.play()} />
+					</div>
+				{/if}
 			</div>
-		{/if}
+		</div>
 	</div>
 {/if}
 
@@ -239,34 +226,30 @@
 		display: block;
 	}
 
-	/* The card the frames climb in: the size of the first work's card on
-	/works (SP: 2 columns, PC: 4, at the grid's margins and gaps), centered;
-	it opens to the full screen at the end (GSAP animates width/height). */
+	/* Otic's card: 257 × 385 (SP), 320 × 480 (tablet), 380 × 570 (PC),
+	   centered. It opens to the full screen at the end. */
 	.stack {
 		position: absolute;
 		top: 50%;
 		left: 50%;
-		transform: translate(-50%, -50%);
-		width: calc((100vw - 15px) / 2);
-		aspect-ratio: var(--ar-sp);
+		translate: -50% -50%;
+		width: 257px;
+		aspect-ratio: 257 / 385;
 		overflow: hidden;
+	}
+
+	@media (min-width: 768px) {
+		.stack {
+			width: 320px;
+			aspect-ratio: 320 / 480;
+		}
 	}
 
 	@media (min-width: 1024px) {
 		.stack {
-			width: calc((100vw - 70px) / 4);
-			aspect-ratio: var(--ar-pc);
+			width: 380px;
+			aspect-ratio: 380 / 570;
 		}
-	}
-
-	.type {
-		position: absolute;
-		inset: 0;
-		display: flex;
-		align-items: center;
-		padding: 0 var(--gutter);
-		color: #fff;
-		mix-blend-mode: difference;
 	}
 
 	.frame {
@@ -286,6 +269,20 @@
 	.frame img {
 		object-fit: cover;
 		will-change: transform;
+	}
+
+	.frame--black {
+		background: #000;
+	}
+
+	/* The wordmark, white, across the black card with a margin, centered. */
+	.type {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		align-items: center;
+		padding: 0 24px;
+		color: #fff;
 	}
 
 	/* The page never scrolls under the opening. */
