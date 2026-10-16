@@ -18,7 +18,7 @@
 	// the overlay clears onto the film.
 	// It plays on every full load of the top page (app.html sets
 	// html[data-op]); a client-side return doesn't replay it.
-	const FRAMES = 6; // stills, then the black frame
+	const FRAMES = 3; // stills, then the black frame
 	const START = 0.3;
 	const REVEAL = 1.2; // one frame's slide-up (Otic)
 	const STAGGER = 0.35; // the next frame starts this long after the last (Otic)
@@ -27,8 +27,13 @@
 	const BG_DELAY = 0.3; // …then, after this pause (Otic),
 	const BG_FADE = 0.9; // the black turns white and the card settles to 1 (Otic)
 	const TYPE_SPEED = 1.7; // the About typing, this many times faster
-	const EXPAND = 1.0;
-	const HANDOFF = 0.6; // overlay fade
+	// The hand-off, gentle: the card opens slowly, the wordmark fading from
+	// it, and well before it is full the film (already running underneath)
+	// starts to show through a long fade of the whole overlay.
+	const EXPAND = 1.6;
+	const MARK_FADE = 0.8; // the typed wordmark leaves at the start of the opening
+	const HANDOFF_AT = 0.55; // the overlay starts to fade at this share of EXPAND…
+	const HANDOFF = 1.3; // …over this long
 	// Frames wait (at most this long) to be decoded, so a slow connection
 	// never shows one half-painted.
 	const DECODE_WAIT_MS = 2500;
@@ -112,6 +117,10 @@
 					}
 				});
 
+				// Once the black frame has fully covered them, the stills go — a
+				// zoomed still could otherwise peek out by a sub-pixel at the edge.
+				tl.set(stills, { autoAlpha: 0 }, START + (layers.length - 1) * STAGGER + REVEAL);
+
 				// Black → white while the card (its last frame now solid black)
 				// settles a little smaller — Otic's hand-off to its first card.
 				const settled = START + (layers.length - 1) * STAGGER + REVEAL + BG_DELAY;
@@ -142,10 +151,19 @@
 						[],
 						'open'
 					)
-					.to(stack, { width: '100vw', height: '100dvh', duration: EXPAND, ease: 'power3.inOut' }, 'open')
-					.addLabel('handoff', `open+=${EXPAND}`)
-					.call(() => (ui.entered = true), [], 'handoff')
-					.to(root, { opacity: 0, duration: HANDOFF, ease: 'power2.out' }, 'handoff');
+					// The film starts underneath as the card begins to open.
+					.call(() => (ui.entered = true), [], 'open')
+					.to(stack, { width: '100vw', height: '100dvh', duration: EXPAND, ease: 'power2.inOut' }, 'open')
+					// (The wordmark layer only exists once typing began — look it up then.)
+					.call(
+						() => {
+							const mark = root?.querySelector('.type');
+							if (mark) gsap.to(mark, { opacity: 0, duration: MARK_FADE, ease: 'power1.out' });
+						},
+						[],
+						'open'
+					)
+					.to(root, { opacity: 0, duration: HANDOFF, ease: 'power1.inOut' }, `open+=${EXPAND * HANDOFF_AT}`);
 			})
 			.catch(bail);
 
@@ -271,7 +289,10 @@
 		will-change: transform;
 	}
 
+	/* 1px past the card on every side (clipped by it), so no sliver of the
+	   frames behind shows at an edge as it comes in. */
 	.frame--black {
+		inset: -1px;
 		background: #000;
 	}
 
