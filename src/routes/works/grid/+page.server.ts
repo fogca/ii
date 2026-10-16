@@ -15,6 +15,6 @@ export const load: PageServerLoad = async () => {
 	return {
 		tiles: buildTiles(data.contents),
 		aside: { eyebrow: 'Design to Craft', title: 'Creation\nArchive' },
-		seo: { title: titleOf('Creation Archive') }
+		seo: { title: titleOf('Design Creation') }
 	};
 };

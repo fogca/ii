@@ -13,7 +13,7 @@
 	let { features = [] }: { features?: Feature[] } = $props();
 
 	const LINKS = [
-		{ label: 'Archives', href: '/works', external: false },
+		{ label: 'Works', href: '/works', external: false },
 		{ label: 'Institute', href: '/about', external: false },
 		{ label: 'Contact', href: CONTACT_URL, external: true }
 	];
@@ -73,7 +73,7 @@
 			<p class="lang t-eyebrow" style="--i: {LINKS.length}"><LangSwitch /></p>
 		</nav>
 
-		<a class="mark" href="/" aria-label="II — Creation Archive" tabindex="-1">
+		<a class="mark" href="/" aria-label="II — Design Creation" tabindex="-1">
 			<Logo sizes="95px" />
 		</a>
 

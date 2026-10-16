@@ -11,7 +11,7 @@
 <section class="Error">
 	<p class="t-eyebrow">{page.status}</p>
 	<h1 class="t-title">{page.status === 404 ? 'Not Found' : 'Error'}</h1>
-	<a class="back t-eyebrow" href="/">Creation Archive</a>
+	<a class="back t-eyebrow" href="/">Design Creation</a>
 </section>
 
 <style>

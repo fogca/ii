@@ -63,7 +63,7 @@ export const load: PageServerLoad = async () => {
 
 	return {
 		cards,
-		aside: { eyebrow: 'Creation Archive', title: 'Work\nArchives' },
+		aside: { eyebrow: 'Design Creation', title: 'Work\nArchives' },
 		seo: { title: titleOf('Work Archives') }
 	};
 };

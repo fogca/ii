@@ -61,7 +61,7 @@
 		</span>
 	</button>
 
-	<a class="mark" href="/" aria-label="II — Creation Archive" aria-current={page.url.pathname === '/' ? 'page' : undefined}>
+	<a class="mark" href="/" aria-label="II — Design Creation" aria-current={page.url.pathname === '/' ? 'page' : undefined}>
 		<Logo />
 	</a>
 </header>

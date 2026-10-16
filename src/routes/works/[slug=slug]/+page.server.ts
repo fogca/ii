@@ -20,7 +20,7 @@ export const load: PageServerLoad = async ({ params }) => {
 	}
 	if (!work?.id || !work.title) error(404, `Work "${params.slug}" not found`);
 
-	// "Creation Archive NN": the work's position in the archive's own order
+	// "Design Creation NN": the work's position in the archive's own order
 	// (same numbering rule as Office). A `hidden` work is still reachable by
 	// direct URL — as on Office, `hidden` only drops it from listings — so
 	// it simply goes unnumbered, as does every work if this lookup fails.
@@ -43,7 +43,7 @@ export const load: PageServerLoad = async ({ params }) => {
 	return {
 		work: detail,
 		aside: {
-			eyebrow: index >= 0 ? `Creation Archive ${detail.number}` : 'Creation Archive',
+			eyebrow: index >= 0 ? `Design Creation ${detail.number}` : 'Design Creation',
 			title: work.title,
 			scope: detail.scope.join(' / ')
 		},
