@@ -243,11 +243,10 @@ h6 {
    Typography primitives
    --------------------------------------------------------------------- */
 
-/* Uppercase display text — eyebrows, menu, section heads.
+/* Uppercase display text — eyebrows, section heads.
    5% tracking + uppercase per the II type rule. */
 .t-eyebrow,
-.t-subtitle,
-.t-menu {
+.t-subtitle {
 	text-transform: uppercase;
 	letter-spacing: var(--tracking-title);
 	line-height: var(--lh-title);
@@ -271,7 +270,10 @@ h6 {
 	font-weight: var(--fw-medium);
 }
 
+/* Menu links: capitalized, not uppercase — so no uppercase tracking. */
 .t-menu {
+	text-transform: capitalize;
+	line-height: var(--lh-title);
 	font-size: var(--fs-menu);
 	font-weight: var(--fw-medium);
 }

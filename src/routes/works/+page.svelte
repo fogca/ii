@@ -104,13 +104,13 @@
 	}
 
 	/* Number + title over the bottom-left corner, in difference blend so it
-	   reads on any image. Always on SP; on hover on PC. */
+	   reads on any image. PC only, on hover (SP shows the images alone). */
 	.meta {
+		display: none;
 		position: absolute;
 		left: 10px;
 		right: 10px;
 		bottom: 8px;
-		display: flex;
 		gap: 8px;
 		color: #fff;
 		mix-blend-mode: difference;
@@ -146,6 +146,7 @@
 		}
 
 		.meta {
+			display: flex;
 			left: 12px;
 			bottom: 10px;
 			opacity: 0;
