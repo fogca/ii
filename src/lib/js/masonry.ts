@@ -6,9 +6,17 @@
 // Column choice (shortest first) is made once at a reference width; it stays
 // a sensible packing at others.
 
-export type Placement = { left: string; top: string; width: string; full: boolean };
+export type Placement = {
+	left: string;
+	top: string;
+	width: string;
+	full: boolean;
+	/** Set when the box is stretched (its own ratio is not kept) so its
+	    column ends level with the tallest one, ahead of a full-width box. */
+	height?: string;
+};
 
-type Column = { s: number; n: number; px: number };
+type Column = { s: number; n: number; px: number; last: number | null };
 
 export type MasonryOptions = {
 	cols: number;
@@ -23,9 +31,10 @@ export type MasonryOptions = {
 	/** A box that, once `afterSince` boxes have run since the last one, spans
 	    every column — only the ones this accepts (by ratio). It waits, the
 	    boxes after it filling the shorter columns, until the columns end
-	    within `maxSpread` px of each other (a full-width box under uneven
-	    columns would leave a hole in the shorter ones); if that takes more
-	    than `maxWait` boxes it stays an ordinary box. */
+	    within `maxSpread` px of each other; the last box of each shorter
+	    column is then stretched (cropped by `cover`) so every column ends
+	    level and the full-width box sits flush, with no hole above it. If
+	    that takes more than `maxWait` boxes it stays an ordinary box. */
 	full?: { afterSince: number; accepts: (ratio: number) => boolean; maxSpread: number; maxWait: number };
 };
 
@@ -34,7 +43,7 @@ const num = (v: number) => Number(v.toFixed(5));
 export const masonry = (ratios: number[], o: MasonryOptions) => {
 	const cw = `var(${o.cw})`;
 	const gap = `var(${o.gap})`;
-	const cols: Column[] = Array.from({ length: o.cols }, () => ({ s: 0, n: 0, px: 0 }));
+	const cols: Column[] = Array.from({ length: o.cols }, () => ({ s: 0, n: 0, px: 0, last: null }));
 	// Below a full-width box every column starts at the same height. That
 	// height is declared once on the container as a variable (`vars`, each
 	// one built on the previous), and the boxes under it refer to it — so
@@ -63,10 +72,17 @@ export const masonry = (ratios: number[], o: MasonryOptions) => {
 		c.s += 1 / ratio;
 		c.n += 1;
 		c.px += o.refCw / ratio + o.refGap;
+		c.last = i;
 	};
 
 	const placeFull = (i: number) => {
 		const ratio = ratios[i];
+		// Level the columns first: each column's last box takes up the
+		// difference to the tallest (zero for the tallest itself).
+		for (const c of cols) {
+			if (c.last === null) continue;
+			items[c.last].height = `calc(${cw} / ${num(ratios[c.last])} + max(${cols.map((x) => `calc(${local(x)})`).join(', ')}) - (${local(c)}))`;
+		}
 		const top = from(tallest());
 		items[i] = { left: '0px', top: `calc(${top})`, width: `calc${fullWidth}`, full: true };
 		const px = Math.max(...cols.map((c) => c.px)) + (o.cols * o.refCw + (o.cols - 1) * o.refGap) / ratio + o.refGap;
@@ -77,6 +93,7 @@ export const masonry = (ratios: number[], o: MasonryOptions) => {
 			c.s = 0;
 			c.n = 0;
 			c.px = px;
+			c.last = null;
 		}
 	};
 

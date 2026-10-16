@@ -6,7 +6,7 @@
 	let { data } = $props();
 
 	// /works: a masonry of every card at its own ratio — 4 columns on PC,
-	// 10px apart inside the page margins; 2 on SP, 3px apart and 3px from the
+	// 10px apart inside the page margins; 2 on SP, 5px apart and 3px from the
 	// edges, where now and then a landscape card runs the full width.
 	// Placement is pure CSS (see masonry.ts), so
 	// it is right from the first paint at every width.
@@ -16,8 +16,10 @@
 	const EAGER_COUNT = 4; // the first PC row
 	const SP_FULL_AFTER = 5; // at least this many 2-column cards between full-width ones…
 	const SP_FULL_MIN_RATIO = 1.25; // …and only a landscape card goes full width…
-	const SP_FULL_MAX_SPREAD = 8; // …once the two columns end within this many px of each other
-	const SP_FULL_MAX_WAIT = 14; // (it waits for at most this many cards)
+	// …once the two columns end within this many px of each other (the last
+	// card of the shorter one is then stretched level — cropped by `cover`)…
+	const SP_FULL_MAX_SPREAD = 45;
+	const SP_FULL_MAX_WAIT = 8; // (it waits for at most this many cards)
 
 	const pcRatio = (m: MediaItem) => (m.width && m.height ? m.width / m.height : 16 / 9);
 
@@ -36,8 +38,8 @@
 				name: 'sp',
 				cw: '--cw2',
 				gap: '--gap',
-				refCw: 192,
-				refGap: 3,
+				refCw: 191,
+				refGap: 5,
 				full: {
 					afterSince: SP_FULL_AFTER,
 					accepts: (ratio) => ratio >= SP_FULL_MIN_RATIO,
@@ -66,6 +68,8 @@
 				style:--l-pc={a.left}
 				style:--t-pc={a.top}
 				style:--w-pc={a.width}
+				style:--hh-pc={a.height}
+				style:--hh-sp={b.height}
 				style:--ar-pc={pcRatio(card.visual as MediaItem)}
 				style:--l-sp={b.left}
 				style:--t-sp={b.top}
@@ -87,9 +91,9 @@
 	   (cqw), so they hold for `top` too, where % would mean height. */
 	.Masonry {
 		container-type: inline-size;
-		/* SP: 3px from the edges, 3px apart. */
+		/* SP: 3px from the edges, 5px apart. */
 		padding: 0 3px 120px;
-		--gap: 3px;
+		--gap: 5px;
 	}
 
 	.grid {
@@ -104,6 +108,7 @@
 		left: var(--l-sp);
 		top: var(--t-sp);
 		width: var(--w-sp);
+		height: var(--hh-sp, auto);
 		aspect-ratio: var(--ar-sp);
 		overflow: clip;
 	}
@@ -156,6 +161,7 @@
 			left: var(--l-pc);
 			top: var(--t-pc);
 			width: var(--w-pc);
+			height: var(--hh-pc, auto);
 			aspect-ratio: var(--ar-pc);
 		}
 
