@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { TYPE_URL } from '$lib/js/site';
 
 	// /type, after studiosly.com.au/fonts: one screen per typeface — a row of
@@ -27,8 +28,26 @@
 		}
 	];
 
-	type State = { size: number; weight: number; spacing: number; leading: number; dark: boolean; info: boolean };
-	const SAMPLE = 'Hello :)'; // what the tester shows first
+	type State = {
+		size: number;
+		weight: number;
+		spacing: number;
+		leading: number;
+		dark: boolean;
+		info: boolean;
+		/** What the tester shows while it types itself, and whether its own
+		    caret is still up (until the visitor clicks in to type). */
+		typed: string;
+		caret: boolean;
+	};
+	// The tester types its greeting itself, as a person would: a caret
+	// blinking alone first, then uneven keystrokes, the caret lit while keys
+	// go down and blinking (hard on/off) once the hand rests. Clicking in
+	// hands it over to the visitor (the browser's own caret from then on).
+	const SAMPLE = 'Hello!';
+	const TYPE_START_MS = 900;
+	const KEY_MS = 90; // fastest keystroke…
+	const KEY_SPREAD_MS = 110; // …plus up to this much, at random
 	const SIZE = { min: 24, max: 320, value: 180 }; // px
 	const SPACING = { min: -0.08, max: 0.2, value: 0 }; // em
 	const LEADING = { min: 0.8, max: 1.6, value: 1 };
@@ -40,9 +59,39 @@
 			spacing: SPACING.value,
 			leading: LEADING.value,
 			dark: false,
-			info: false
+			info: false,
+			typed: '',
+			caret: true
 		}))
 	);
+	let typing = $state(false);
+
+	onMount(() => {
+		if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+			states.forEach((s) => (s.typed = SAMPLE));
+			return;
+		}
+		const timers: number[] = [];
+		let at = TYPE_START_MS;
+		for (let k = 1; k <= SAMPLE.length; k++) {
+			timers.push(
+				window.setTimeout(() => {
+					typing = true;
+					states.forEach((s) => s.caret && (s.typed = SAMPLE.slice(0, k)));
+				}, at)
+			);
+			at += KEY_MS + Math.random() * KEY_SPREAD_MS;
+		}
+		timers.push(window.setTimeout(() => (typing = false), at + 400));
+		return () => timers.forEach((t) => clearTimeout(t));
+	});
+
+	/** The visitor takes over: the whole greeting, the browser's caret. */
+	const handOver = (s: State) => {
+		if (!s.caret) return;
+		s.typed = SAMPLE;
+		s.caret = false;
+	};
 </script>
 
 <section class="Type" aria-label="Typefaces">
@@ -104,8 +153,9 @@
 				style:font-weight={s.weight}
 				style:letter-spacing="{s.spacing}em"
 				style:line-height={s.leading}
+				onfocus={() => handOver(s)}
 			>
-				{SAMPLE}
+				{s.typed}{#if s.caret}<span class="caret" class:is-typing={typing} contenteditable="false" aria-hidden="true"></span>{/if}
 			</div>
 			</div>
 		</article>
@@ -260,6 +310,32 @@
 		text-align: center;
 		overflow-wrap: anywhere;
 		cursor: text;
+	}
+
+	/* The tester's own caret while it types: a thin bar, about the text's
+	   height, lit while typing and blinking at rest. */
+	.caret {
+		display: inline-block;
+		width: max(2px, 0.03em);
+		height: 1em;
+		margin-left: 0.04em;
+		vertical-align: -0.12em;
+		background: currentColor;
+		animation: caret-blink 1.06s steps(1, end) infinite;
+	}
+
+	.caret.is-typing {
+		animation: none;
+	}
+
+	@keyframes caret-blink {
+		0%,
+		100% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0;
+		}
 	}
 
 	@media (min-width: 1024px) {
