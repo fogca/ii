@@ -6,12 +6,16 @@
 	let { data } = $props();
 	const work = $derived(data.work);
 
-	// After studiosly.com.au/project/…, on PC and SP alike: the page is one screen — a band
-	// across the top quarter (DESIGN CREATION NN over the name · Project
-	// Overview · scope · Back) over a strip of every image at the same height, each at its own
-	// ratio, that the wheel (or a drag, or a trackpad) runs sideways.
-	// Project Overview lays the work's text and colophon over the strip.
-	// (SP: the band holds the name and number, Back and Project Overview.)
+	// After studiosly.com.au/project/…
+	// PC: one screen — a band across the top quarter (DESIGN CREATION NN
+	// over the name · Project Overview · scope · Back) over a strip of every
+	// image at the same height, each at its own ratio, that the wheel (or a
+	// drag, or a trackpad) runs sideways. Project Overview lays the work's
+	// text and colophon over the strip.
+	// SP: a page that scrolls — the same band, the hero, then the text in
+	// the open (no toggle), the other images one under another, the
+	// colophon.
+	const PC_QUERY = '(min-width: 1024px)';
 	const EASE = 0.12; // share of the remaining distance per frame
 	const LINE_PX = 40; // wheel "lines" (Firefox) → px
 	const DRAG_THRESHOLD = 6; // px before a press becomes a drag
@@ -19,11 +23,12 @@
 	let strip = $state<HTMLDivElement>();
 	let summary = $state(false);
 
-	// Vertical wheel → horizontal travel, eased. Horizontal input (trackpad
-	// and touch swipes) is left native. The page itself never scrolls.
+	// PC: vertical wheel → horizontal travel, eased. Horizontal input
+	// (trackpad swipes) is left native. The page itself never scrolls.
 	$effect(() => {
 		const el = strip;
 		if (!el) return;
+		const mq = matchMedia(PC_QUERY);
 		let pos = el.scrollLeft;
 		let target = pos;
 		let raf = 0;
@@ -35,7 +40,7 @@
 			raf = pos === target ? 0 : requestAnimationFrame(step);
 		};
 		const onWheel = (e: WheelEvent) => {
-			if (summary) return;
+			if (!mq.matches || summary) return;
 			if (Math.abs(e.deltaX) >= Math.abs(e.deltaY)) {
 				cancelAnimationFrame(raf);
 				raf = 0;
@@ -53,7 +58,7 @@
 		let down: { x: number; left: number; id: number } | null = null;
 		let dragging = false;
 		const onDown = (e: PointerEvent) => {
-			if (e.pointerType !== 'mouse' || e.button !== 0) return;
+			if (e.pointerType !== 'mouse' || e.button !== 0 || !mq.matches) return;
 			cancelAnimationFrame(raf);
 			raf = 0;
 			down = { x: e.clientX, left: el.scrollLeft, id: e.pointerId };
@@ -106,11 +111,10 @@
 		summary = false;
 	});
 
-	// The strip is 75% of the screen tall: an image is that × its ratio wide.
+	// PC: the strip is 75% of the screen tall, so an image is that × its
+	// ratio wide. SP: the screen's width.
 	const STRIP_VH = 75;
-	// (The hero's SP image is the mobile thumbnail, at its own ratio.)
-	const sizesOf = (ar: number, arSp = ar) =>
-		`(min-width: 1024px) calc(${STRIP_VH}vh * ${ar.toFixed(3)}), calc(${STRIP_VH}vh * ${arSp.toFixed(3)})`;
+	const sizesOf = (ar: number) => `(min-width: 1024px) calc(${STRIP_VH}vh * ${ar.toFixed(3)}), 100vw`;
 	const HERO_WIDTHS = [640, 900, 1400, 2000, 2800];
 	const REST_WIDTHS = [640, 900, 1400, 2000, 2800];
 	// The work page is where the photographs are looked at closely: a higher
@@ -156,7 +160,7 @@
 						media={work.hero}
 						cover
 						eager
-						sizes={sizesOf(arOf(work.hero), spRatio(work.hero))}
+						sizes={sizesOf(arOf(work.hero))}
 						widths={HERO_WIDTHS}
 						quality={QUALITY}
 						alt={work.title}
@@ -178,6 +182,7 @@
 		<div class="summary" id="work-summary">
 			{#if work.lead || work.body}
 				<section class="text">
+					<p class="overview" aria-hidden="true">Project Overview</p>
 					<!-- Both languages are in the page; html[data-lang] picks one.
 					     A work missing one language shows the other in both
 					     (.is-only). -->
@@ -224,31 +229,16 @@
 {/key}
 
 <style>
-	/* After studiosly.com.au/project/forest — PC and SP alike. One screen:
-	   the band (25%) over the strip (75%) of every image at the strip's
-	   height and its own ratio, run sideways. Project Overview covers the
-	   strip with the text and colophon.
-	   PC band: DESIGN CREATION NN over the name · Project Overview · scope
-	   · Back, in columns at 0 / 40% / 81% / the right edge.
-	   SP band: the name at the left; Back over Project Overview at the
-	   right. */
-	.Work {
-		position: relative;
-		height: 100vh;
-		height: 100dvh;
-		overflow: hidden;
-	}
-
+	/* After studiosly.com.au/project/forest.
+	   Band: DESIGN CREATION NN over the name; PC adds Project Overview ·
+	   scope · Back in columns at 0 / 40% / 81% / the right edge; SP puts
+	   Back at the right and the scope under the name. */
 	.band {
 		display: grid;
 		grid-template-columns: 1fr auto;
-		grid-template-areas: 'name back' 'name summary';
+		grid-template-areas: 'name back' 'scope scope';
 		align-items: start;
-		align-content: start; /* the band is taller than its rows */
-		height: 25vh;
-		height: 25dvh;
-		/* the band's text 94px above the strip (Studio Sly) */
-		padding: max(84px, calc(25dvh - 94px)) var(--gutter) 0;
+		align-content: start;
 		font-size: 12.5px;
 		line-height: 15px;
 	}
@@ -263,7 +253,8 @@
 		letter-spacing: 0;
 	}
 
-	.b-number {
+	.b-number,
+	.overview {
 		color: var(--color-text-mute);
 		text-transform: uppercase;
 	}
@@ -271,8 +262,7 @@
 	.b-summary {
 		grid-area: summary;
 		display: flex;
-		flex-direction: row-reverse;
-		gap: 16px;
+		gap: 24px;
 	}
 
 	.b-summary button {
@@ -288,7 +278,7 @@
 	}
 
 	.b-scope {
-		display: none;
+		grid-area: scope;
 	}
 
 	.b-back {
@@ -302,78 +292,11 @@
 		opacity: 0.5;
 	}
 
-	.strip,
-	.summary {
-		position: absolute;
-		left: 0;
-		right: 0;
-		bottom: 0;
-		height: 75vh;
-		height: 75dvh;
-	}
-
-	.strip {
-		display: flex;
-		gap: 5px;
-		padding-inline: 5px;
-		overflow-x: auto;
-		overflow-y: hidden;
-		overscroll-behavior-x: contain;
-		scrollbar-width: none;
-		outline: none;
-		cursor: grab;
-	}
-
-	.strip::-webkit-scrollbar {
-		display: none;
-	}
-
-	.strip:global(.is-dragging) {
-		cursor: grabbing;
-		user-select: none;
-	}
-
-	.rest {
-		display: contents;
-	}
-
-	.hero,
-	.rest-item {
-		flex: none;
-		height: 100%;
-		aspect-ratio: var(--ar);
-	}
-
-	/* SP: the hero shows the mobile thumbnail, at its ratio. */
-	.hero {
-		aspect-ratio: var(--ar-sp);
-	}
-
 	.strip :global(img) {
 		-webkit-user-drag: none;
 	}
 
-	/* Over the strip: SP one column (lead, body, colophon); PC the lead at
-	   the left, the body and colophon from the Project Overview column. */
-	.summary {
-		z-index: 1;
-		padding: 0 var(--gutter) 80px;
-		background: var(--color-bg);
-		overflow-y: auto;
-		overscroll-behavior: contain;
-		opacity: 0;
-		visibility: hidden;
-		transition:
-			opacity 0.5s var(--ease-out),
-			visibility 0s linear 0.5s;
-	}
-
-	.is-summary .summary {
-		opacity: 1;
-		visibility: visible;
-		transition: opacity 0.5s var(--ease-out);
-	}
-
+	/* Text */
 	.lead {
 		white-space: pre-line;
 		font-weight: 480;
@@ -398,7 +321,6 @@
 	}
 
 	.body {
-		margin-top: 16px;
 		white-space: pre-line;
 	}
 
@@ -406,27 +328,6 @@
 	.lead:lang(ja) {
 		line-height: 1.4;
 		text-transform: none;
-	}
-
-	/* SP: the Japanese lead runs on as one paragraph; the body is set
-	   smaller and looser. */
-	@media (max-width: 1023.98px) {
-		.pc-br {
-			display: none;
-		}
-
-		.body:lang(ja) {
-			font-size: 13.5px;
-			line-height: 1.7;
-		}
-	}
-
-	.Colophon {
-		padding-top: 60px;
-	}
-
-	.Colophon dl {
-		margin-top: 20px;
 	}
 
 	/* Label · hairline leader · value (Figma: 0.5px black lines at the
@@ -473,40 +374,181 @@
 		text-decoration-thickness: 0.5px;
 	}
 
-	@media (min-width: 1024px) {
+	/* ── SP: a page that scrolls. The band, the hero, the text in the open,
+	   the other images one under another (5px apart and from the edges,
+	   as the archive), the colophon. The strip and the overview dissolve so
+	   their pieces fall into that order. */
+	@media (max-width: 1023.98px) {
+		.Work {
+			display: flex;
+			flex-direction: column;
+			padding-bottom: 80px;
+		}
+
 		.band {
-			grid-template-columns: 40% 41% 1fr auto;
-			grid-template-areas: 'name summary scope back';
-			padding-top: max(64px, calc(25dvh - 94px));
+			order: 0;
+			row-gap: 0;
+			padding: 120px var(--gutter) 40px;
 		}
 
 		.b-summary {
-			flex-direction: row;
-			gap: 24px;
+			display: none;
 		}
 
 		.b-scope {
-			display: block;
-			grid-area: scope;
+			display: flex;
+			flex-wrap: wrap;
+			margin-top: 12px;
 		}
 
-		.strip {
-			gap: 10px;
-			padding-inline: 0;
+		.b-scope li:not(:last-child)::after {
+			content: '/';
+			margin: 0 0.4em;
+			color: var(--color-text-mute);
+		}
+
+		.strip,
+		.summary,
+		.rest {
+			display: contents;
 		}
 
 		.hero {
+			order: 1;
+			margin: 0 5px;
+			aspect-ratio: var(--ar-sp); /* the mobile thumbnail's, if any */
+		}
+
+		.text {
+			order: 2;
+			padding: 48px var(--gutter) 56px;
+		}
+
+		.overview {
+			margin-bottom: 16px;
+			font-size: 12.5px;
+			line-height: 15px;
+		}
+
+		.body {
+			margin-top: 20px;
+		}
+
+		.body:lang(ja) {
+			font-size: 13.5px;
+			line-height: 1.7;
+		}
+
+		.pc-br {
+			display: none;
+		}
+
+		.rest-item {
+			order: 3;
+			margin: 5px 5px 0;
+			aspect-ratio: var(--ar);
+		}
+
+		.Colophon {
+			order: 4;
+			padding: 60px var(--gutter) 0;
+		}
+
+		.Colophon dl {
+			margin-top: 20px;
+		}
+	}
+
+	/* ── PC: one screen — the band (25%) over the strip (75%) of every image
+	   at the strip's height and its own ratio, 10px apart, run sideways.
+	   Project Overview covers the strip with the lead at the left and the
+	   body and colophon from its own column (40%). */
+	@media (min-width: 1024px) {
+		.Work {
+			position: relative;
+			height: 100vh;
+			height: 100dvh;
+			overflow: hidden;
+		}
+
+		.band {
+			grid-template-columns: 40% 41% 1fr auto;
+			grid-template-areas: 'name summary scope back';
+			height: 25vh;
+			height: 25dvh;
+			/* the band's text 94px above the strip (Studio Sly) */
+			padding: max(64px, calc(25dvh - 94px)) var(--gutter) 0;
+		}
+
+		.strip,
+		.summary {
+			position: absolute;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			height: 75vh;
+			height: 75dvh;
+		}
+
+		.strip {
+			display: flex;
+			gap: 10px;
+			overflow-x: auto;
+			overflow-y: hidden;
+			overscroll-behavior-x: contain;
+			scrollbar-width: none;
+			outline: none;
+			cursor: grab;
+		}
+
+		.strip::-webkit-scrollbar {
+			display: none;
+		}
+
+		.strip:global(.is-dragging) {
+			cursor: grabbing;
+			user-select: none;
+		}
+
+		.rest {
+			display: contents;
+		}
+
+		.hero,
+		.rest-item {
+			flex: none;
+			height: 100%;
 			aspect-ratio: var(--ar);
 		}
 
 		.summary {
+			z-index: 1;
 			display: grid;
 			grid-template-columns: 40% minmax(0, 600px);
 			align-content: start;
+			padding: 0 var(--gutter) 80px;
+			background: var(--color-bg);
+			overflow-y: auto;
+			overscroll-behavior: contain;
+			opacity: 0;
+			visibility: hidden;
+			transition:
+				opacity 0.5s var(--ease-out),
+				visibility 0s linear 0.5s;
+		}
+
+		.is-summary .summary {
+			opacity: 1;
+			visibility: visible;
+			transition: opacity 0.5s var(--ease-out);
 		}
 
 		.text {
 			display: contents;
+		}
+
+		.overview {
+			display: none;
 		}
 
 		.lead {
@@ -516,7 +558,6 @@
 
 		.body {
 			grid-column: 2;
-			margin-top: 0;
 		}
 
 		.body:lang(ja) {
@@ -525,6 +566,7 @@
 
 		.Colophon {
 			grid-column: 2;
+			padding-top: 60px;
 		}
 
 		.Colophon dl {

@@ -110,8 +110,7 @@
 
 	const seo = $derived(page.data.seo);
 	const aside = $derived(page.data.aside);
-	// A work page lays itself out (a band over a strip of images, one
-	// screen): no left panel, no footer.
+	// A work page carries its own title band: no left panel.
 	const isWork = $derived(page.route.id === '/works/[slug=slug]');
 	// One place for <title> — the error page included, so leaving it always
 	// changes the value and the head updates.
@@ -142,8 +141,8 @@
 	{@render children()}
 </main>
 
-<!-- The top page is the film alone, a work page one screen: no footer. -->
-{#if page.url.pathname !== '/' && !isWork}
+<!-- The top page is the film alone: no footer. -->
+{#if page.url.pathname !== '/'}
 	<SiteFooter inert={ui.menuOpen} />
 {/if}
 
