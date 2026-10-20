@@ -1,8 +1,7 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import { page } from '$app/state';
 	import Logo from './Logo.svelte';
-	import DomainMark from './DomainMark.svelte';
 	import { ui } from '$lib/state/ui.svelte';
 	import { NAV_LINKS } from '$lib/js/site';
 
@@ -45,6 +44,32 @@
 		return () => window.removeEventListener('scroll', onScroll);
 	});
 
+	// PC, once scrolled: ii-ii.co, set in the site's face (Ango), types
+	// itself out at the left as the links come in; cleared again once the
+	// header has faded back to the ii alone, so it types afresh each time.
+	const DOMAIN = 'ii-ii.co';
+	const DOMAIN_KEY_MS = 55;
+	const DOMAIN_DELAY_MS = 150;
+	const DOMAIN_CLEAR_MS = 500; // the links' fade-out
+	let domainTyped = $state('');
+
+	$effect(() => {
+		const on = !atTop && ui.entered;
+		const timers: number[] = [];
+		if (on) {
+			if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+				domainTyped = DOMAIN;
+			} else {
+				for (let k = untrack(() => domainTyped.length) + 1; k <= DOMAIN.length; k++) {
+					timers.push(window.setTimeout(() => (domainTyped = DOMAIN.slice(0, k)), DOMAIN_DELAY_MS + k * DOMAIN_KEY_MS));
+				}
+			}
+		} else {
+			timers.push(window.setTimeout(() => (domainTyped = ''), DOMAIN_CLEAR_MS));
+		}
+		return () => timers.forEach((t) => clearTimeout(t));
+	});
+
 	const toggleMenu = () => {
 		ui.menuOpen = !ui.menuOpen;
 	};
@@ -70,10 +95,19 @@
 		</span>
 	</button>
 
-	<!-- PC: the links themselves, no menu button — Works by the mark on the
-	     left, the rest on the right. -->
+	<!-- PC: the links themselves, no menu button — at the top of a page only
+	     the ii shows; once scrolled, ii-ii.co (typed) and Works at the left,
+	     the rest at the right. -->
 	{#each [{ side: 'left', links: LEFT_LINKS }, { side: 'right', links: RIGHT_LINKS }] as group (group.side)}
-		<nav class="links links--{group.side}" class:is-scrolled={!atTop} aria-label={group.side === 'left' ? 'Works' : 'Site'}>
+		<nav class="links links--{group.side}" class:is-on={!atTop} aria-label={group.side === 'left' ? 'Works' : 'Site'}>
+			{#if group.side === 'left'}
+				<!-- The full name reserves its width, so Works never shifts as it types. -->
+				<a class="domain" href="/" aria-label="II — Design Creation"
+					><span class="domain-ghost" aria-hidden="true">{DOMAIN}</span><span class="domain-typed" aria-hidden="true"
+						>{domainTyped}</span
+					></a
+				>
+			{/if}
 			{#each group.links as link (link.label)}
 				{#if link.external}
 					<a href={link.href} target="_blank" rel="noopener">{link.label}</a>
@@ -86,12 +120,6 @@
 
 	<a class="mark" class:is-away={!atTop} href="/" aria-label="II — Design Creation" aria-current={page.url.pathname === '/' ? 'page' : undefined}>
 		<Logo />
-	</a>
-
-	<!-- PC, once the page is scrolled: the centered ii gives way to the
-	     ii-ii.co wordmark at the left, Works stepping aside for it. -->
-	<a class="domain" class:is-on={!atTop} href="/" aria-label="II — Design Creation" tabindex={atTop ? -1 : undefined}>
-		<DomainMark />
 	</a>
 </header>
 
@@ -189,8 +217,7 @@
 	}
 
 	/* SP: the menu button instead (and the ii mark only). */
-	.links,
-	.domain {
+	.links {
 		display: none;
 	}
 
@@ -230,7 +257,6 @@
 			--mark-y: 21.22px;
 			--links-y: 18px;
 			--links-gap: 40px;
-			--domain-w: 56px; /* the ii-ii.co wordmark once scrolled */
 			--x-shift: 1px;
 		}
 
@@ -259,37 +285,9 @@
 			transform: translateX(-50%);
 		}
 
-		.domain {
-			display: block;
-			position: fixed;
-			top: calc(var(--links-y) - 1px + env(safe-area-inset-top, 0px));
-			left: var(--gutter);
-			z-index: var(--z-header);
-			width: var(--domain-w);
-			color: var(--color-text);
-			opacity: 0;
-			visibility: hidden;
-			transform: translateY(6px);
-			transition:
-				opacity 0.5s var(--ease-out),
-				transform 0.6s var(--ease-out),
-				visibility 0s linear 0.5s;
-		}
-
-		.domain.is-on {
-			opacity: 1;
-			visibility: visible;
-			transform: none;
-			transition-delay: 0.1s, 0.1s, 0s;
-		}
-
-		:global(html.is-top) .Header:not(.is-menu-open) .domain {
-			color: #fff;
-		}
-
-		/* PC: the links straight in the header (Works left by the mark;
-		   Type · Institute · Contact right); the button and its sheet are SP
-		   only. */
+		/* PC: the links straight in the header (ii-ii.co and Works left;
+		   Type · Institute · Contact right), only once the page is scrolled;
+		   the button and its sheet are SP only. */
 		.menu-btn {
 			display: none;
 		}
@@ -305,15 +303,35 @@
 			color: var(--color-text);
 		}
 
-		.links--left {
-			left: var(--gutter);
+		.links:not(.is-on),
+		.is-hidden .links:not(.is-on) {
+			opacity: 0;
+			visibility: hidden;
+			transform: translateY(-6px);
 			transition:
-				left 0.6s var(--ease-out),
-				opacity 0.8s var(--ease-out);
+				opacity 0.5s var(--ease-out),
+				transform 0.6s var(--ease-out),
+				visibility 0s linear 0.5s;
 		}
 
-		.links--left.is-scrolled {
-			left: calc(var(--gutter) + var(--domain-w) + var(--links-gap));
+		.links--left {
+			left: var(--gutter);
+		}
+
+		/* ii-ii.co: the typed letters over the full name, which (unseen) keeps
+		   the width. */
+		.domain {
+			position: relative;
+		}
+
+		.domain-ghost {
+			visibility: hidden;
+		}
+
+		.domain-typed {
+			position: absolute;
+			inset: 0 auto auto 0;
+			white-space: nowrap;
 		}
 
 		.links--right {
@@ -349,7 +367,6 @@
 		   difference blend, so it reads on light and dark alike. (Last in
 		   the block, so it wins over the colors set above.) */
 		.mark,
-		.domain,
 		.links {
 			color: #fff;
 			mix-blend-mode: difference;
