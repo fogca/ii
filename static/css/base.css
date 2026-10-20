@@ -369,6 +369,11 @@ html[data-vt-to='home'] .vt-panel {
 	background: #000;
 }
 
+/* Behind the shrinking page: black. */
+::view-transition {
+	background: #000;
+}
+
 ::view-transition-group(root),
 ::view-transition-group(vt-panel) {
 	animation-duration: 1.2s;
