@@ -18,8 +18,9 @@
 		     - data-op  → whether the opening (the climbing stack of works) plays:
 		       on every full load of the top page (a reload included), never
 		       under reduced motion. Landing anywhere else counts as having
-		       entered the site already; a client-side return to the top
-		       doesn't replay it (Opening.svelte flips this to 'skip'). -->
+		       entered the site already. (A client-side return to the top plays
+		       it too, out of the page transition's black panel —
+		       +layout.svelte sets it then.) -->
 		<script>
 			(function () {
 				var root = document.documentElement;
@@ -50,7 +51,7 @@
 		></script>
 		<link rel="preload" href="%sveltekit.assets%/fonts/Ango-VF28.woff2?v=28" as="font" type="font/woff2" crossorigin />
 		<!-- base.css cache-bust: bump ?v= on every base.css edit -->
-		<link rel="stylesheet" href="%sveltekit.assets%/css/base.css?v=20261016a" />
+		<link rel="stylesheet" href="%sveltekit.assets%/css/base.css?v=20261020b" />
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">

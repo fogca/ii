@@ -17,7 +17,8 @@
 	// itself out (as on About). Then the card opens to the whole screen and
 	// the overlay clears onto the film.
 	// It plays on every full load of the top page (app.html sets
-	// html[data-op]); a client-side return doesn't replay it.
+	// html[data-op]) and after the black page-transition panel on a return
+	// to it (+layout.svelte sets it then).
 	const FRAMES = 3; // stills, then the black frame
 	const START = 0.3;
 	const REVEAL = 1.2; // one frame's slide-up (Otic)
@@ -71,6 +72,9 @@
 		let cancelled = false;
 		const html = document.documentElement;
 		html.classList.add('is-op');
+		// Reached by a page transition (its black panel): the chrome waits for
+		// the opening again, which starts once the panel has cleared.
+		ui.entered = false;
 
 		// Once played, a later client-side return to the index must not
 		// replay it (the pre-paint decision only covers full page loads).
@@ -93,6 +97,9 @@
 				await tick();
 				// Two frames so bind:this targets are settled before reading them.
 				await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+				while (!cancelled && html.classList.contains('vt-running')) {
+					await new Promise((r) => setTimeout(r, 50));
+				}
 				const stills = frameEls.filter(Boolean);
 				const imgs = imgEls.filter(Boolean);
 				if (cancelled || !root || !stack || !blackEl) return;

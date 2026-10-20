@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { afterNavigate, onNavigate } from '$app/navigation';
+	import { afterNavigate, beforeNavigate, onNavigate } from '$app/navigation';
 	import { page } from '$app/state';
 	import Header from '$lib/components/Header.svelte';
 	import Menu from '$lib/components/Menu.svelte';
@@ -27,17 +27,61 @@
 		if (page.url.pathname !== '/') ui.entered = true;
 	});
 
-	// Page changes cross-fade through the View Transitions API where the
-	// browser has it; elsewhere navigation is simply instant.
-	onNavigate((navigation) => {
-		if (!document.startViewTransition) return;
+	// Page changes, as on Otic: the page shrinks toward the screen's middle
+	// and darkens while a panel slides up over it; under the panel the new
+	// page is put in place, and the panel then fades away onto it.
+	// It starts on the click (beforeNavigate), not once the next page's data
+	// has loaded, so there is no dead pause first; the shrink runs on a View
+	// Transitions snapshot of the page, so fixed parts (left panel, a work's
+	// text) shrink with it instead of jumping, as a transform on the live
+	// page would make them. The motion is CSS (base.css, "Page
+	// transitions"); the panel is .vt-panel below. Going to the top page the
+	// panel is black and the opening plays out of it (Opening waits for
+	// html.vt-running to clear). Without the API, navigation is instant.
+	const PANEL_FADE_MS = 700; // = the .vt-panel opacity transition in base.css
+	let covering: Promise<void> | null = null;
+
+	const endTransition = () => {
+		const html = document.documentElement;
+		html.classList.remove('vt-running', 'vt-panel-on', 'vt-panel-out');
+		delete html.dataset.vtTo;
+		covering = null;
+	};
+
+	beforeNavigate((nav) => {
+		if (!document.startViewTransition || !nav.to || nav.willUnload) return;
+		if (nav.to.url.origin !== location.origin) return;
+		if (nav.from?.url.pathname === nav.to.url.pathname) return;
 		if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-		if (navigation.from?.url.pathname === navigation.to?.url.pathname) return;
-		return new Promise((resolve) => {
-			document.startViewTransition(async () => {
-				resolve();
-				await navigation.complete;
-			});
+		const html = document.documentElement;
+		const home = nav.to.url.pathname === '/';
+		html.dataset.vtTo = home ? 'home' : 'page';
+		if (home) html.dataset.op = 'play';
+		html.classList.add('vt-running');
+		// The snapshot shrinks and darkens; the panel (shown in the new
+		// state) slides up and stays, covering the page.
+		covering = document.startViewTransition(() => html.classList.add('vt-panel-on')).finished.then(
+			() => {},
+			() => {}
+		);
+		// A navigation that is cancelled or fails takes the panel away again.
+		nav.complete.catch(() => {
+			html.classList.add('vt-panel-out');
+			setTimeout(endTransition, PANEL_FADE_MS);
+		});
+	});
+
+	// The new page is rendered only once the panel covers the old one.
+	onNavigate(async () => {
+		if (covering) await covering;
+	});
+
+	afterNavigate((nav) => {
+		const html = document.documentElement;
+		if (nav.type === 'enter' || !html.classList.contains('vt-panel-on')) return;
+		requestAnimationFrame(() => {
+			html.classList.add('vt-panel-out');
+			setTimeout(endTransition, PANEL_FADE_MS);
 		});
 	});
 
@@ -96,6 +140,9 @@
 </main>
 
 <SiteFooter inert={ui.menuOpen} />
+
+<!-- The page-transition panel (see onNavigate above). -->
+<div class="vt-panel" aria-hidden="true"></div>
 
 <style>
 	.Main {

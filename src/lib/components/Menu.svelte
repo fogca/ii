@@ -7,16 +7,12 @@
 	import LangSwitch from './LangSwitch.svelte';
 	import { ui } from '$lib/state/ui.svelte';
 	import { imgOpt, imgSrcset } from '$lib/js/img';
-	import { CONTACT_URL, COPYRIGHT, INSTAGRAM, LEGAL_LINKS } from '$lib/js/site';
+	import { COPYRIGHT, INSTAGRAM, LEGAL_LINKS, NAV_LINKS } from '$lib/js/site';
 
 	type Feature = { slug: string; title: string; image: { src: string; width: number; height: number } };
 	let { features = [] }: { features?: Feature[] } = $props();
 
-	const LINKS = [
-		{ label: 'Works', href: '/works', external: false },
-		{ label: 'Institute', href: '/about', external: false },
-		{ label: 'Contact', href: CONTACT_URL, external: true }
-	];
+	const LINKS = NAV_LINKS;
 	const FEATURE_WIDTHS = [480, 700, 940, 1400];
 
 	let sheet = $state<HTMLDivElement>();

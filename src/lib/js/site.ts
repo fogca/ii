@@ -14,6 +14,17 @@ export const INSTAGRAM = {
 // touch" points at Instagram until one exists.
 export const CONTACT_URL = INSTAGRAM.url;
 
+/** The type foundry (Apres Guerre, formerly August). */
+export const TYPE_URL = 'https://august.tf';
+
+/** Site navigation: PC header links and the menu sheet. */
+export const NAV_LINKS: { label: string; href: string; external: boolean }[] = [
+	{ label: 'Works', href: '/works', external: false },
+	{ label: 'Institute', href: '/about', external: false },
+	{ label: 'Type', href: TYPE_URL, external: true },
+	{ label: 'Contact', href: CONTACT_URL, external: true }
+];
+
 // TODO(launch): Legal / Company / Cookies pages aren't designed yet, so
 // these render as plain text. Give each an `href` once its page exists.
 export const LEGAL_LINKS: { label: string; href?: string }[] = [

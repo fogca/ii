@@ -3,6 +3,9 @@
 	import { page } from '$app/state';
 	import Logo from './Logo.svelte';
 	import { ui } from '$lib/state/ui.svelte';
+	import { NAV_LINKS } from '$lib/js/site';
+
+	const isCurrent = (href: string) => page.url.pathname === href || page.url.pathname.startsWith(`${href}/`);
 
 	// Tucks away while scrolling down, returns on the first scroll up — so
 	// the fixed mark never sits on top of text scrolling beneath it. SP: the
@@ -61,6 +64,17 @@
 		</span>
 	</button>
 
+	<!-- PC: the links themselves, no menu button. -->
+	<nav class="links" aria-label="Site">
+		{#each NAV_LINKS as link (link.label)}
+			{#if link.external}
+				<a href={link.href} target="_blank" rel="noopener">{link.label}</a>
+			{:else}
+				<a href={link.href} aria-current={isCurrent(link.href) ? 'page' : undefined}>{link.label}</a>
+			{/if}
+		{/each}
+	</nav>
+
 	<a class="mark" href="/" aria-label="II — Design Creation" aria-current={page.url.pathname === '/' ? 'page' : undefined}>
 		<Logo />
 	</a>
@@ -88,7 +102,8 @@
 	/* No background on either breakpoint — the controls sit straight on the
 	   page (SP tucks them away on scroll-down instead). */
 	.menu-btn,
-	.mark {
+	.mark,
+	.links {
 		position: fixed;
 		transition:
 			opacity 0.8s var(--ease-out),
@@ -98,7 +113,7 @@
 	/* Until the page enters (the opening plays over it) the controls are
 	   invisible AND unreachable — no invisible click/Tab targets under the
 	   overlay. JS only: without it they simply show. */
-	:global(html.js) .Header:not(.is-entered) :is(.menu-btn, .mark) {
+	:global(html.js) .Header:not(.is-entered) :is(.menu-btn, .mark, .links) {
 		opacity: 0;
 		visibility: hidden;
 	}
@@ -158,6 +173,11 @@
 		transform: translateY(calc(var(--x-shift) - var(--btn-gap))) rotate(var(--angle));
 	}
 
+	/* SP: the menu button instead. */
+	.links {
+		display: none;
+	}
+
 	.mark {
 		top: calc(var(--mark-y) + env(safe-area-inset-top, 0px));
 		left: 50%;
@@ -173,7 +193,7 @@
 	/* Top page (full-bleed photographs): white controls; the mark turns
 	   white too — the vector by color, the 3D render by inversion (keeps
 	   its modelling instead of swapping to the flat mark). */
-	:global(html.is-top) .Header:not(.is-menu-open) :is(.menu-btn, .mark) {
+	:global(html.is-top) .Header:not(.is-menu-open) :is(.menu-btn, .mark, .links) {
 		color: #fff;
 	}
 
@@ -210,8 +230,36 @@
 			opacity: 0;
 		}
 
-		.is-hidden .menu-btn {
-			transform: none;
+		/* PC: Works · Institute · Type · Contact, straight in the header
+		   where the menu button was; the button and its sheet are SP only. */
+		.menu-btn {
+			display: none;
+		}
+
+		.links {
+			display: flex;
+			gap: 20px;
+			top: calc(26px + env(safe-area-inset-top, 0px));
+			left: var(--gutter);
+			z-index: var(--z-header);
+			font-size: 14px;
+			font-weight: var(--fw-medium);
+			line-height: 1;
+			color: var(--color-text);
+		}
+
+		.links a {
+			transition: opacity 0.3s ease;
+		}
+
+		.links a:hover,
+		.links a[aria-current='page'] {
+			opacity: 0.5;
+		}
+
+		.is-hidden .links {
+			opacity: 0;
+			pointer-events: none;
 		}
 	}
 </style>
