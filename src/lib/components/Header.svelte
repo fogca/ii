@@ -255,7 +255,7 @@
 			gap: var(--links-gap);
 			top: calc(var(--links-y) + env(safe-area-inset-top, 0px));
 			z-index: var(--z-header);
-			font-size: 14px;
+			font-size: 12.5px;
 			font-weight: 450;
 			line-height: 1;
 			color: var(--color-text);
