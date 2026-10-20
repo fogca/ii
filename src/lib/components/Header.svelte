@@ -228,8 +228,8 @@
 			--btn-y: 18.5px;
 			--mark-w: 31.76px;
 			--mark-y: 21.22px;
-			--links-y: 20px;
-			--links-gap: 50px;
+			--links-y: 18px;
+			--links-gap: 40px;
 			--domain-w: 56px; /* the ii-ii.co wordmark once scrolled */
 			--x-shift: 1px;
 		}
@@ -336,10 +336,10 @@
 		.links a[aria-current='page']::before {
 			content: '';
 			position: absolute;
-			top: 50%;
-			right: calc(100% + 7px);
-			width: 5px;
-			height: 5px;
+			top: 52.5%;
+			right: calc(100% + 4px);
+			width: 4px;
+			height: 4px;
 			border-radius: 50%;
 			background: currentColor;
 			transform: translateY(-50%);

@@ -3,7 +3,7 @@
 	import { TYPE_URL } from '$lib/js/site';
 
 	// /type, after studiosly.com.au/fonts: one screen per typeface — a row of
-	// Info / Buy / Specimen, a row of controls (size, weight, spacing,
+	// Info / Buy (the one link out, to the foundry), a row of controls (size, weight, spacing,
 	// leading, background), and the name set large in the face itself, which
 	// can be typed over. Info opens the typeface's note in place.
 	type Font = {
@@ -13,7 +13,6 @@
 		weight: { min: number; max: number; value: number };
 		note: string[];
 		buy: string;
-		specimen: string;
 	};
 
 	// Copy from the foundry's own site (august.tf) — only what it states.
@@ -23,8 +22,7 @@
 			family: "'Ango', sans-serif",
 			weight: { min: 150, max: 950, value: 400 },
 			note: ['Reticent and Ravenous.', 'In development · 9 weights.', 'By Apres Guerre.'],
-			buy: `${TYPE_URL}/buy`,
-			specimen: `${TYPE_URL}/fonts/ango`
+			buy: `${TYPE_URL}/buy`
 		}
 	];
 
@@ -100,8 +98,9 @@
 		<article class="font" class:is-dark={s.dark} aria-label={font.name}>
 			<div class="bar t-meta">
 				<button type="button" class="btn" aria-expanded={s.info} onclick={() => (s.info = !s.info)}>Info</button>
-				<a class="btn" href={font.buy} target="_blank" rel="noopener">Buy</a>
-				<a class="btn" href={font.specimen} target="_blank" rel="noopener">Specimen</a>
+				<a class="btn buy" href={font.buy} target="_blank" rel="noopener"
+					>Buy<svg class="out" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 8 8 2M3 2h5v5" /></svg></a
+				>
 			</div>
 
 			{#if s.info}
@@ -186,23 +185,27 @@
 		color: #fff;
 	}
 
-	/* Info · Buy · Specimen */
+	/* Info · Buy, at the left. */
 	.bar {
-		display: grid;
-		grid-template-columns: repeat(3, 1fr);
+		display: flex;
+		gap: 40px;
 		font-size: 12.5px;
 	}
 
-	.bar .btn:nth-child(1) {
-		justify-self: start;
+	/* Buy leaves the site: a small arrow at its top right says so. */
+	.buy {
+		position: relative;
 	}
 
-	.bar .btn:nth-child(2) {
-		justify-self: center;
-	}
-
-	.bar .btn:nth-child(3) {
-		justify-self: end;
+	.out {
+		position: absolute;
+		top: -0.15em;
+		left: calc(100% + 2px);
+		width: 0.55em;
+		height: 0.55em;
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 1.2;
 	}
 
 	.btn {
