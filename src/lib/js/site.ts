@@ -10,9 +10,8 @@ export const INSTAGRAM = {
 	url: 'https://www.instagram.com/ii_ii.co/'
 };
 
-// TODO(launch): no contact page or address has been designed yet — "Get in
-// touch" points at Instagram until one exists.
-export const CONTACT_URL = INSTAGRAM.url;
+/** The contact form (src/routes/contact). */
+export const CONTACT_URL = '/contact';
 
 /** The type foundry (Apres Guerre, formerly August). */
 export const TYPE_URL = 'https://august.tf';
@@ -22,7 +21,7 @@ export const NAV_LINKS: { label: string; href: string; external: boolean }[] = [
 	{ label: 'Works', href: '/works', external: false },
 	{ label: 'Institute', href: '/about', external: false },
 	{ label: 'Type', href: '/type', external: false },
-	{ label: 'Contact', href: CONTACT_URL, external: true }
+	{ label: 'Contact', href: CONTACT_URL, external: false }
 ];
 
 // TODO(launch): Legal / Company / Cookies pages aren't designed yet, so
