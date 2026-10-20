@@ -43,5 +43,9 @@ export const LOGO_STYLE: 'ii' | 'render' | 'vector' = 'ii';
 
 export const COPYRIGHT = `©II All Rights Reserved,  ${new Date().getFullYear()}`;
 
-/** <title> suffix. */
-export const titleOf = (page?: string) => (page ? `${page} — ${SITE_NAME}` : `${SITE_NAME} — ${SITE_FULL_NAME}`);
+/** <title>: the page's name in capitals (a work keeps its own casing —
+    see workTitleOf). */
+export const titleOf = (page?: string) =>
+	page ? `${page.toUpperCase()} — ${SITE_NAME}` : `${SITE_NAME} — ${SITE_FULL_NAME.toUpperCase()}`;
+
+export const workTitleOf = (work: string) => `${work} — ${SITE_NAME}`;

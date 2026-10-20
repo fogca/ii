@@ -2,7 +2,7 @@ import { error } from '@sveltejs/kit';
 import { isMicroCMSRequestError } from 'microcms-js-sdk';
 import { getDetail, getVisibleWorks, type Work } from '$lib/js/microcms';
 import { toWorkDetail } from '$lib/js/works';
-import { titleOf } from '$lib/js/site';
+import { workTitleOf } from '$lib/js/site';
 import type { PageServerLoad } from './$types';
 
 // II_Works_Slug — one work.
@@ -48,7 +48,7 @@ export const load: PageServerLoad = async ({ params }) => {
 			scope: detail.scope.join(' / ')
 		},
 		seo: {
-			title: titleOf(work.title),
+			title: workTitleOf(work.title),
 			description: detail.lead?.en || undefined,
 			image: ogImage
 		}

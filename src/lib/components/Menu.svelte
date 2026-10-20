@@ -140,7 +140,7 @@
 		}
 	}
 
-	/* SP: the sheet drops to 90% of the screen over a light scrim (no SP
+	/* SP: the sheet drops over the whole screen (no SP
 	   menu frame exists in Figma — this follows the PC sheet's type and
 	   order). */
 	.sheet {
@@ -148,8 +148,8 @@
 		top: 0;
 		left: 0;
 		right: 0;
-		height: 90vh;
-		height: 90dvh;
+		height: 100vh;
+		height: 100dvh;
 		display: flex;
 		flex-direction: column;
 		padding: calc(var(--header-h) + 24px + env(safe-area-inset-top, 0px)) var(--gutter)
