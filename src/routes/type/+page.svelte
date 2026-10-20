@@ -84,6 +84,10 @@
 		return () => timers.forEach((t) => clearTimeout(t));
 	});
 
+	/** Spacing reads as a signed em value, e.g. -0.025 / 0.000 (a hyphen:
+	    Ango has no true minus). */
+	const fmtSpacing = (v: number) => (Math.abs(v) < 0.0005 ? 0 : v).toFixed(3);
+
 	/** The visitor takes over: the whole greeting, the browser's caret. */
 	const handOver = (s: State) => {
 		if (!s.caret) return;
@@ -111,21 +115,25 @@
 			{/if}
 
 			<div class="controls t-meta">
-				<label class="control">
+				<label class="control range">
 					<span>Size</span>
 					<input type="range" min={SIZE.min} max={SIZE.max} step="1" bind:value={s.size} />
+					<output class="value">{s.size}px</output>
 				</label>
-				<label class="control">
+				<label class="control range">
 					<span>Weight</span>
 					<input type="range" min={font.weight.min} max={font.weight.max} step="1" bind:value={s.weight} />
+					<output class="value">{s.weight}</output>
 				</label>
-				<label class="control">
+				<label class="control range">
 					<span>Spacing</span>
 					<input type="range" min={SPACING.min} max={SPACING.max} step="0.005" bind:value={s.spacing} />
+					<output class="value">{fmtSpacing(s.spacing)}em</output>
 				</label>
-				<label class="control">
+				<label class="control range">
 					<span>Leading</span>
 					<input type="range" min={LEADING.min} max={LEADING.max} step="0.01" bind:value={s.leading} />
+					<output class="value">{s.leading.toFixed(2)}</output>
 				</label>
 				<button
 					type="button"
@@ -250,6 +258,29 @@
 		min-width: 0;
 	}
 
+	/* A slider: its name with the value at the right, the track below. */
+	.range {
+		display: grid;
+		grid-template-columns: 1fr auto;
+		grid-template-areas: 'name value' 'track track';
+		align-items: center;
+		gap: 10px;
+	}
+
+	.range > span {
+		grid-area: name;
+	}
+
+	.range input {
+		grid-area: track;
+	}
+
+	.value {
+		grid-area: value;
+		font-variant-numeric: tabular-nums;
+		text-align: right;
+	}
+
 	.background {
 		align-items: flex-start;
 		padding: 0;
@@ -366,6 +397,18 @@
 
 		.control > span:first-child {
 			flex: none;
+		}
+
+		/* name · track · value, the value wide enough for its longest
+		   reading so the track never shifts as it changes. */
+		.range {
+			grid-template-columns: auto minmax(0, 1fr) 4.6em;
+			grid-template-areas: 'name track value';
+			gap: 14px;
+		}
+
+		.value {
+			text-align: left;
 		}
 
 		/* A small round handle. */
