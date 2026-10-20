@@ -44,17 +44,15 @@
 		return () => window.removeEventListener('scroll', onScroll);
 	});
 
-	// PC, once scrolled: ii-ii.co, set in the site's face (Ango), types
-	// itself out at the left as the links come in; cleared again once the
-	// header has faded back to the ii alone, so it types afresh each time.
+	// PC: ii-ii.co, set in the site's face (Ango), types itself out at the
+	// left once the page has entered (after the opening on the top page).
 	const DOMAIN = 'ii-ii.co';
 	const DOMAIN_KEY_MS = 55;
 	const DOMAIN_DELAY_MS = 150;
-	const DOMAIN_CLEAR_MS = 500; // the links' fade-out
 	let domainTyped = $state('');
 
 	$effect(() => {
-		const on = !atTop && ui.entered;
+		const on = ui.entered;
 		const timers: number[] = [];
 		if (on) {
 			if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -65,7 +63,7 @@
 				}
 			}
 		} else {
-			timers.push(window.setTimeout(() => (domainTyped = ''), DOMAIN_CLEAR_MS));
+			domainTyped = '';
 		}
 		return () => timers.forEach((t) => clearTimeout(t));
 	});
@@ -95,11 +93,10 @@
 		</span>
 	</button>
 
-	<!-- PC: the links themselves, no menu button — at the top of a page only
-	     the ii shows; once scrolled, ii-ii.co (typed) and Works at the left,
-	     the rest at the right. -->
+	<!-- PC: the links themselves, no menu button, always shown — ii-ii.co
+	     (typed) and Works at the left, the rest at the right; no ii mark. -->
 	{#each [{ side: 'left', links: LEFT_LINKS }, { side: 'right', links: RIGHT_LINKS }] as group (group.side)}
-		<nav class="links links--{group.side}" class:is-on={!atTop} aria-label={group.side === 'left' ? 'Works' : 'Site'}>
+		<nav class="links links--{group.side}" aria-label={group.side === 'left' ? 'Works' : 'Site'}>
 			{#if group.side === 'left'}
 				<!-- The full name reserves its width, so Works never shifts as it types. -->
 				<a class="domain" href="/" aria-label="II — Design Creation"
@@ -118,7 +115,7 @@
 		</nav>
 	{/each}
 
-	<a class="mark" class:is-away={!atTop} href="/" aria-label="II — Design Creation" aria-current={page.url.pathname === '/' ? 'page' : undefined}>
+	<a class="mark" href="/" aria-label="II — Design Creation" aria-current={page.url.pathname === '/' ? 'page' : undefined}>
 		<Logo />
 	</a>
 </header>
@@ -267,26 +264,13 @@
 			transition: visibility 0s linear 0.5s;
 		}
 
-		/* Before scrolling: the ii alone, centered. Once scrolled it gives way
-		   to the ii-ii.co wordmark at the left. The PC header stays put on
-		   scroll (it doesn't tuck away as on SP). */
+		/* PC: no ii mark — ii-ii.co at the left names the site. */
 		.mark {
-			z-index: var(--z-header);
-		}
-
-		.mark.is-away,
-		.is-hidden .mark.is-away {
-			opacity: 0;
-			visibility: hidden;
-			transform: translate(-50%, -6px);
-		}
-
-		.is-hidden .mark:not(.is-away) {
-			transform: translateX(-50%);
+			display: none;
 		}
 
 		/* PC: the links straight in the header (ii-ii.co and Works left;
-		   Type · Institute · Contact right), only once the page is scrolled;
+		   Type · Institute · Contact right), staying put as the page scrolls;
 		   the button and its sheet are SP only. */
 		.menu-btn {
 			display: none;
@@ -301,17 +285,6 @@
 			font-weight: 450;
 			line-height: 1;
 			color: var(--color-text);
-		}
-
-		.links:not(.is-on),
-		.is-hidden .links:not(.is-on) {
-			opacity: 0;
-			visibility: hidden;
-			transform: translateY(-6px);
-			transition:
-				opacity 0.5s var(--ease-out),
-				transform 0.6s var(--ease-out),
-				visibility 0s linear 0.5s;
 		}
 
 		.links--left {
