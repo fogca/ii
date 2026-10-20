@@ -28,6 +28,7 @@
 	];
 
 	type State = { size: number; weight: number; spacing: number; leading: number; dark: boolean; info: boolean };
+	const SAMPLE = 'Hello :)'; // what the tester shows first
 	const SIZE = { min: 24, max: 320, value: 180 }; // px
 	const SPACING = { min: -0.08, max: 0.2, value: 0 }; // em
 	const LEADING = { min: 0.8, max: 1.6, value: 1 };
@@ -89,7 +90,7 @@
 				</button>
 			</div>
 
-			<!-- The tester: the name in the face itself; type over it. -->
+			<!-- The tester: a greeting set in the face itself; type over it. -->
 			<div class="stage">
 			<div
 				class="tester"
@@ -104,7 +105,7 @@
 				style:letter-spacing="{s.spacing}em"
 				style:line-height={s.leading}
 			>
-				{font.name}
+				{SAMPLE}
 			</div>
 			</div>
 		</article>
