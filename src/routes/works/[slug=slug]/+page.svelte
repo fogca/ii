@@ -7,10 +7,10 @@
 	const work = $derived(data.work);
 
 	// PC, after studiosly.com.au/project/…: the page is one screen — a band
-	// across the top quarter (the work's name and number · Summary · scope ·
-	// Back) over a strip of every image at the same height, each at its own
+	// across the top quarter (DESIGN CREATION NN over the name · Project
+	// Overview · scope · Back) over a strip of every image at the same height, each at its own
 	// ratio, that the wheel (or a drag, or a trackpad) runs sideways.
-	// Summary lays the work's text and colophon over the strip.
+	// Project Overview lays the work's text and colophon over the strip.
 	// SP keeps the single column: scope, hero, text, images, colophon.
 	const PC_QUERY = '(min-width: 1024px)';
 	const EASE = 0.12; // share of the remaining distance per frame
@@ -142,13 +142,13 @@
 		<!-- PC: the band over the strip. -->
 		<div class="band">
 			<div class="b-name">
-				<h1>{work.title}</h1>
 				<p class="b-number">{data.aside.eyebrow}</p>
+				<h1>{work.title}</h1>
 			</div>
 			<div class="b-summary">
 				{#if hasSummary}
 					<button type="button" aria-expanded={summary} aria-controls="work-summary" onclick={() => (summary = !summary)}
-						>{summary ? 'Images' : 'Summary'}</button
+						>{summary ? 'Images' : 'Project Overview'}</button
 					>
 				{/if}
 				{#if summary}<LangSwitch />{/if}
@@ -466,6 +466,7 @@
 
 		.b-number {
 			color: var(--color-text-mute);
+			text-transform: uppercase;
 		}
 
 		.b-summary {
