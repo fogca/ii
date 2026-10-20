@@ -349,9 +349,33 @@
 		}
 
 		.controls {
-			grid-template-columns: repeat(4, minmax(0, 180px)) auto;
+			grid-template-columns: repeat(4, minmax(0, 240px)) auto;
 			justify-content: space-between;
 			gap: 24px;
+		}
+
+		/* PC: each label with its track to its right, on one line. */
+		.control {
+			flex-direction: row;
+			align-items: center;
+			gap: 14px;
+		}
+
+		.control > span:first-child {
+			flex: none;
+		}
+
+		/* A small round handle. */
+		input[type='range']::-webkit-slider-thumb {
+			width: 11px;
+			height: 11px;
+			border-radius: 50%;
+		}
+
+		input[type='range']::-moz-range-thumb {
+			width: 11px;
+			height: 11px;
+			border-radius: 50%;
 		}
 	}
 </style>
