@@ -33,16 +33,15 @@
 		leading: number;
 		dark: boolean;
 		info: boolean;
-		/** What the tester shows while it types itself, and whether its own
-		    caret is still up (until the visitor clicks in to type). */
-		typed: string;
-		caret: boolean;
 	};
-	// The tester types its greeting itself, as a person would: a caret
-	// blinking alone first, then uneven keystrokes, the caret lit while keys
-	// go down and blinking (hard on/off) once the hand rests. Clicking in
-	// hands it over to the visitor (the browser's own caret from then on).
-	const SAMPLE = 'Hello!';
+	// The tester types its greeting itself, as a person would — a pause,
+	// then uneven keystrokes — with the browser's own caret: it is focused
+	// from the start, so the visitor can go straight on typing once it
+	// stops. A key pressed (or a click) before it has finished completes
+	// the greeting at once and the visitor's typing follows it.
+	// The text is set by hand, never rendered by Svelte: the visitor edits
+	// these nodes, and Svelte must not own them.
+	const SAMPLE = 'Hello!\nWelcome:)';
 	const TYPE_START_MS = 900;
 	const KEY_MS = 90; // fastest keystroke…
 	const KEY_SPREAD_MS = 110; // …plus up to this much, at random
@@ -57,43 +56,82 @@
 			spacing: SPACING.value,
 			leading: LEADING.value,
 			dark: false,
-			info: false,
-			typed: '',
-			caret: true
+			info: false
 		}))
 	);
-	let typing = $state(false);
+	let testers = $state<HTMLDivElement[]>([]);
+
+	/** The caret to the end of the text. */
+	const caretToEnd = (el: HTMLElement) => {
+		const range = document.createRange();
+		range.selectNodeContents(el);
+		range.collapse(false);
+		const sel = getSelection();
+		sel?.removeAllRanges();
+		sel?.addRange(range);
+	};
 
 	onMount(() => {
-		if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
-			states.forEach((s) => (s.typed = SAMPLE));
-			return;
-		}
+		const els = testers.filter(Boolean);
+		const first = els[0];
+		if (!first) return;
 		const timers: number[] = [];
-		let at = TYPE_START_MS;
-		for (let k = 1; k <= SAMPLE.length; k++) {
-			timers.push(
-				window.setTimeout(() => {
-					typing = true;
-					states.forEach((s) => s.caret && (s.typed = SAMPLE.slice(0, k)));
-				}, at)
-			);
-			at += KEY_MS + Math.random() * KEY_SPREAD_MS;
+		let done = false;
+
+		// Focus can be lost as the page settles (a reload restores focus to
+		// the body after mount), so each keystroke takes it back — unless the
+		// visitor has put it somewhere else themselves.
+		const claimFocus = () => {
+			const a = document.activeElement;
+			if (!a || a === document.body) first.focus({ preventScroll: true });
+		};
+		const show = (n: number) => {
+			els.forEach((el) => (el.textContent = SAMPLE.slice(0, n)));
+			claimFocus();
+			if (document.activeElement === first) caretToEnd(first);
+		};
+		const finish = () => {
+			if (done) return;
+			done = true;
+			timers.forEach((t) => clearTimeout(t));
+			show(SAMPLE.length);
+		};
+		// Ahead of the visitor's own input: the greeting completes first.
+		const onEarly = (e: Event) => {
+			if (done) return;
+			finish();
+			caretToEnd(e.currentTarget as HTMLElement);
+		};
+
+		claimFocus();
+		if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+			finish();
+		} else {
+			show(0);
+			let at = TYPE_START_MS;
+			for (let k = 1; k <= SAMPLE.length; k++) {
+				const n = k;
+				timers.push(window.setTimeout(() => (n === SAMPLE.length ? finish() : show(n)), at));
+				at += KEY_MS + Math.random() * KEY_SPREAD_MS;
+			}
 		}
-		timers.push(window.setTimeout(() => (typing = false), at + 400));
-		return () => timers.forEach((t) => clearTimeout(t));
+		els.forEach((el) => {
+			el.addEventListener('keydown', onEarly);
+			el.addEventListener('pointerup', onEarly);
+		});
+		return () => {
+			timers.forEach((t) => clearTimeout(t));
+			els.forEach((el) => {
+				el.removeEventListener('keydown', onEarly);
+				el.removeEventListener('pointerup', onEarly);
+			});
+		};
 	});
 
 	/** Spacing reads as a signed em value, e.g. -0.025 / 0.000 (a hyphen:
 	    Ango has no true minus). */
 	const fmtSpacing = (v: number) => (Math.abs(v) < 0.0005 ? 0 : v).toFixed(3);
 
-	/** The visitor takes over: the whole greeting, the browser's caret. */
-	const handOver = (s: State) => {
-		if (!s.caret) return;
-		s.typed = SAMPLE;
-		s.caret = false;
-	};
 </script>
 
 <section class="Type" aria-label="Typefaces">
@@ -160,10 +198,8 @@
 				style:font-weight={s.weight}
 				style:letter-spacing="{s.spacing}em"
 				style:line-height={s.leading}
-				onfocus={() => handOver(s)}
-			>
-				{s.typed}{#if s.caret}<span class="caret" class:is-typing={typing} contenteditable="false" aria-hidden="true"></span>{/if}
-			</div>
+				bind:this={testers[i]}
+			></div>
 			</div>
 		</article>
 	{/each}
@@ -343,34 +379,11 @@
 		outline: none;
 		text-align: center;
 		overflow-wrap: anywhere;
+		white-space: pre-wrap; /* the greeting's line break, and the visitor's */
+		min-height: 1lh; /* the caret has a line to stand on while it's empty */
 		cursor: text;
 	}
 
-	/* The tester's own caret while it types: a thin bar, about the text's
-	   height, lit while typing and blinking at rest. */
-	.caret {
-		display: inline-block;
-		width: max(2px, 0.03em);
-		height: 1em;
-		margin-left: 0.04em;
-		vertical-align: -0.12em;
-		background: currentColor;
-		animation: caret-blink 1.06s steps(1, end) infinite;
-	}
-
-	.caret.is-typing {
-		animation: none;
-	}
-
-	@keyframes caret-blink {
-		0%,
-		100% {
-			opacity: 1;
-		}
-		50% {
-			opacity: 0;
-		}
-	}
 
 	@media (min-width: 1024px) {
 		.Type {
