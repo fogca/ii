@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 	import Logo from './Logo.svelte';
+	import DomainMark from './DomainMark.svelte';
 	import { ui } from '$lib/state/ui.svelte';
 	import { NAV_LINKS } from '$lib/js/site';
 
@@ -72,7 +73,7 @@
 	<!-- PC: the links themselves, no menu button — Works by the mark on the
 	     left, the rest on the right. -->
 	{#each [{ side: 'left', links: LEFT_LINKS }, { side: 'right', links: RIGHT_LINKS }] as group (group.side)}
-		<nav class="links links--{group.side}" aria-label={group.side === 'left' ? 'Works' : 'Site'}>
+		<nav class="links links--{group.side}" class:is-scrolled={!atTop} aria-label={group.side === 'left' ? 'Works' : 'Site'}>
 			{#each group.links as link (link.label)}
 				{#if link.external}
 					<a href={link.href} target="_blank" rel="noopener">{link.label}</a>
@@ -83,8 +84,14 @@
 		</nav>
 	{/each}
 
-	<a class="mark" href="/" aria-label="II — Design Creation" aria-current={page.url.pathname === '/' ? 'page' : undefined}>
+	<a class="mark" class:is-away={!atTop} href="/" aria-label="II — Design Creation" aria-current={page.url.pathname === '/' ? 'page' : undefined}>
 		<Logo />
+	</a>
+
+	<!-- PC, once the page is scrolled: the centered ii gives way to the
+	     ii-ii.co wordmark at the left, Works stepping aside for it. -->
+	<a class="domain" class:is-on={!atTop} href="/" aria-label="II — Design Creation" tabindex={atTop ? -1 : undefined}>
+		<DomainMark />
 	</a>
 </header>
 
@@ -181,8 +188,9 @@
 		transform: translateY(calc(var(--x-shift) - var(--btn-gap))) rotate(var(--angle));
 	}
 
-	/* SP: the menu button instead. */
-	.links {
+	/* SP: the menu button instead (and the ii mark only). */
+	.links,
+	.domain {
 		display: none;
 	}
 
@@ -218,10 +226,11 @@
 			--btn-w: 60px;
 			--btn-gap: 11px;
 			--btn-y: 18.5px;
-			--mark-w: 18px; /* small, at the left, in line with the links */
-			--mark-y: 17px;
+			--mark-w: 31.76px;
+			--mark-y: 21.22px;
 			--links-y: 20px;
 			--links-gap: 50px;
+			--domain-w: 56px; /* the ii-ii.co wordmark once scrolled */
 			--x-shift: 1px;
 		}
 
@@ -232,15 +241,50 @@
 			transition: visibility 0s linear 0.5s;
 		}
 
+		/* Before scrolling: the ii alone, centered. Once scrolled it gives way
+		   to the ii-ii.co wordmark at the left. The PC header stays put on
+		   scroll (it doesn't tuck away as on SP). */
 		.mark {
-			left: var(--gutter);
 			z-index: var(--z-header);
-			transform: none;
 		}
 
-		.is-hidden .mark {
+		.mark.is-away,
+		.is-hidden .mark.is-away {
 			opacity: 0;
+			visibility: hidden;
+			transform: translate(-50%, -6px);
+		}
+
+		.is-hidden .mark:not(.is-away) {
+			transform: translateX(-50%);
+		}
+
+		.domain {
+			display: block;
+			position: fixed;
+			top: calc(var(--links-y) - 1px + env(safe-area-inset-top, 0px));
+			left: var(--gutter);
+			z-index: var(--z-header);
+			width: var(--domain-w);
+			color: var(--color-text);
+			opacity: 0;
+			visibility: hidden;
+			transform: translateY(6px);
+			transition:
+				opacity 0.5s var(--ease-out),
+				transform 0.6s var(--ease-out),
+				visibility 0s linear 0.5s;
+		}
+
+		.domain.is-on {
+			opacity: 1;
+			visibility: visible;
 			transform: none;
+			transition-delay: 0.1s, 0.1s, 0s;
+		}
+
+		:global(html.is-top) .Header:not(.is-menu-open) .domain {
+			color: #fff;
 		}
 
 		/* PC: the links straight in the header (Works left by the mark;
@@ -262,7 +306,14 @@
 		}
 
 		.links--left {
-			left: calc(var(--gutter) + var(--mark-w) + var(--links-gap));
+			left: var(--gutter);
+			transition:
+				left 0.6s var(--ease-out),
+				opacity 0.8s var(--ease-out);
+		}
+
+		.links--left.is-scrolled {
+			left: calc(var(--gutter) + var(--domain-w) + var(--links-gap));
 		}
 
 		.links--right {
@@ -273,14 +324,35 @@
 			transition: opacity 0.3s ease;
 		}
 
-		.links a:hover,
-		.links a[aria-current='page'] {
+		.links a:hover {
 			opacity: 0.5;
 		}
 
-		.is-hidden .links {
-			opacity: 0;
-			pointer-events: none;
+		/* The page you're on: a 5px dot to the left of its link. */
+		.links a[aria-current='page'] {
+			position: relative;
+		}
+
+		.links a[aria-current='page']::before {
+			content: '';
+			position: absolute;
+			top: 50%;
+			right: calc(100% + 7px);
+			width: 5px;
+			height: 5px;
+			border-radius: 50%;
+			background: currentColor;
+			transform: translateY(-50%);
+		}
+
+		/* The PC header stays over the page as it scrolls: white in
+		   difference blend, so it reads on light and dark alike. (Last in
+		   the block, so it wins over the colors set above.) */
+		.mark,
+		.domain,
+		.links {
+			color: #fff;
+			mix-blend-mode: difference;
 		}
 	}
 </style>

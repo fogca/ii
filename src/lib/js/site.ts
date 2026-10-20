@@ -21,7 +21,7 @@ export const TYPE_URL = 'https://august.tf';
 export const NAV_LINKS: { label: string; href: string; external: boolean }[] = [
 	{ label: 'Works', href: '/works', external: false },
 	{ label: 'Institute', href: '/about', external: false },
-	{ label: 'Type', href: TYPE_URL, external: true },
+	{ label: 'Type', href: '/type', external: false },
 	{ label: 'Contact', href: CONTACT_URL, external: true }
 ];
 
