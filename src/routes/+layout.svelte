@@ -110,8 +110,8 @@
 
 	const seo = $derived(page.data.seo);
 	const aside = $derived(page.data.aside);
-	// A work page lays itself out on PC (a band over a strip of images) —
-	// no left panel there.
+	// A work page lays itself out (a band over a strip of images, one
+	// screen): no left panel, no footer.
 	const isWork = $derived(page.route.id === '/works/[slug=slug]');
 	// One place for <title> — the error page included, so leaving it always
 	// changes the value and the head updates.
@@ -134,16 +134,16 @@
 
 <!-- While the menu is open everything but the menu and its toggle is inert,
      which is what makes the sheet modal (see Menu.svelte). -->
-{#if aside}
-	<Aside eyebrow={aside.eyebrow} title={aside.title} spOnly={isWork} inert={ui.menuOpen} />
+{#if aside && !isWork}
+	<Aside eyebrow={aside.eyebrow} title={aside.title} inert={ui.menuOpen} />
 {/if}
 
 <main class="Main" class:has-aside={!!aside && !isWork} inert={ui.menuOpen}>
 	{@render children()}
 </main>
 
-<!-- The top page is the film alone: no footer. -->
-{#if page.url.pathname !== '/'}
+<!-- The top page is the film alone, a work page one screen: no footer. -->
+{#if page.url.pathname !== '/' && !isWork}
 	<SiteFooter inert={ui.menuOpen} />
 {/if}
 

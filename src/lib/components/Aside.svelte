@@ -6,13 +6,10 @@
 	let {
 		eyebrow = '',
 		title = '',
-		spOnly = false,
 		inert = false
 	}: {
 		eyebrow?: string;
 		title?: string;
-		/** SP only — a work page shows its own band on PC instead. */
-		spOnly?: boolean;
 		inert?: boolean;
 	} = $props();
 
@@ -22,7 +19,7 @@
      the legal line. SP: the same title block, in flow at the top of the page.
      A plain div, not <aside>: it holds the page's h1, which must not sit in a
      complementary landmark. -->
-<div class="Aside" class:is-entered={ui.entered} class:sp-only={spOnly} {inert}>
+<div class="Aside" class:is-entered={ui.entered} {inert}>
 	{#key title}
 		<div class="head">
 			{#if eyebrow}<p class="eyebrow t-eyebrow">{eyebrow}</p>{/if}
@@ -106,10 +103,6 @@
 
 		:global(html.js) .Aside:not(.is-entered) .head {
 			transform: translateY(calc(-50% + 8px));
-		}
-
-		.Aside.sp-only {
-			display: none;
 		}
 
 		.eyebrow {
