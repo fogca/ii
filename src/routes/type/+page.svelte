@@ -20,7 +20,7 @@
 		{
 			name: 'Ango',
 			family: "'Ango', sans-serif",
-			weight: { min: 150, max: 950, value: 400 },
+			weight: { min: 150, max: 950, value: 450 },
 			note: ['Reticent and Ravenous.', 'In development · 9 weights.', 'By Apres Guerre.'],
 			buy: `${TYPE_URL}/buy`
 		}
@@ -46,7 +46,7 @@
 	const TYPE_START_MS = 900;
 	const KEY_MS = 90; // fastest keystroke…
 	const KEY_SPREAD_MS = 110; // …plus up to this much, at random
-	const SIZE = { min: 24, max: 320, value: 180 }; // px
+	const SIZE = { min: 24, max: 320, value: 120 }; // px
 	const SPACING = { min: -0.08, max: 0.2, value: 0 }; // em
 	const LEADING = { min: 0.8, max: 1.6, value: 1 };
 
