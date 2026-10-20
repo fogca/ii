@@ -7,6 +7,11 @@
 
 	const isCurrent = (href: string) => page.url.pathname === href || page.url.pathname.startsWith(`${href}/`);
 
+	// PC: Works sits by the mark on the left; Type, Institute, Contact on the right.
+	const byLabel = (label: string) => NAV_LINKS.find((l) => l.label === label)!;
+	const LEFT_LINKS = [byLabel('Works')];
+	const RIGHT_LINKS = [byLabel('Type'), byLabel('Institute'), byLabel('Contact')];
+
 	// Tucks away while scrolling down, returns on the first scroll up — so
 	// the fixed mark never sits on top of text scrolling beneath it. SP: the
 	// menu button + mark; PC: only the center mark (the button sits over the
@@ -64,16 +69,19 @@
 		</span>
 	</button>
 
-	<!-- PC: the links themselves, no menu button. -->
-	<nav class="links" aria-label="Site">
-		{#each NAV_LINKS as link (link.label)}
-			{#if link.external}
-				<a href={link.href} target="_blank" rel="noopener">{link.label}</a>
-			{:else}
-				<a href={link.href} aria-current={isCurrent(link.href) ? 'page' : undefined}>{link.label}</a>
-			{/if}
-		{/each}
-	</nav>
+	<!-- PC: the links themselves, no menu button — Works by the mark on the
+	     left, the rest on the right. -->
+	{#each [{ side: 'left', links: LEFT_LINKS }, { side: 'right', links: RIGHT_LINKS }] as group (group.side)}
+		<nav class="links links--{group.side}" aria-label={group.side === 'left' ? 'Works' : 'Site'}>
+			{#each group.links as link (link.label)}
+				{#if link.external}
+					<a href={link.href} target="_blank" rel="noopener">{link.label}</a>
+				{:else}
+					<a href={link.href} aria-current={isCurrent(link.href) ? 'page' : undefined}>{link.label}</a>
+				{/if}
+			{/each}
+		</nav>
+	{/each}
 
 	<a class="mark" href="/" aria-label="II — Design Creation" aria-current={page.url.pathname === '/' ? 'page' : undefined}>
 		<Logo />
@@ -210,8 +218,10 @@
 			--btn-w: 60px;
 			--btn-gap: 11px;
 			--btn-y: 18.5px;
-			--mark-w: 31.76px;
-			--mark-y: 21.22px;
+			--mark-w: 18px; /* small, at the left, in line with the links */
+			--mark-y: 17px;
+			--links-y: 20px;
+			--links-gap: 50px;
 			--x-shift: 1px;
 		}
 
@@ -223,29 +233,40 @@
 		}
 
 		.mark {
+			left: var(--gutter);
 			z-index: var(--z-header);
+			transform: none;
 		}
 
 		.is-hidden .mark {
 			opacity: 0;
+			transform: none;
 		}
 
-		/* PC: Works · Institute · Type · Contact, straight in the header
-		   where the menu button was; the button and its sheet are SP only. */
+		/* PC: the links straight in the header (Works left by the mark;
+		   Type · Institute · Contact right); the button and its sheet are SP
+		   only. */
 		.menu-btn {
 			display: none;
 		}
 
 		.links {
 			display: flex;
-			gap: 20px;
-			top: calc(26px + env(safe-area-inset-top, 0px));
-			left: var(--gutter);
+			gap: var(--links-gap);
+			top: calc(var(--links-y) + env(safe-area-inset-top, 0px));
 			z-index: var(--z-header);
 			font-size: 14px;
-			font-weight: var(--fw-medium);
+			font-weight: 450;
 			line-height: 1;
 			color: var(--color-text);
+		}
+
+		.links--left {
+			left: calc(var(--gutter) + var(--mark-w) + var(--links-gap));
+		}
+
+		.links--right {
+			right: var(--gutter);
 		}
 
 		.links a {
