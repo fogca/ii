@@ -110,6 +110,9 @@
 
 	const seo = $derived(page.data.seo);
 	const aside = $derived(page.data.aside);
+	// A work page lays itself out on PC (a band over a strip of images) —
+	// no left panel there.
+	const isWork = $derived(page.route.id === '/works/[slug=slug]');
 	// One place for <title> — the error page included, so leaving it always
 	// changes the value and the head updates.
 	const pageTitle = $derived(page.error ? `${page.status} — II` : (seo?.title ?? titleOf()));
@@ -132,10 +135,10 @@
 <!-- While the menu is open everything but the menu and its toggle is inert,
      which is what makes the sheet modal (see Menu.svelte). -->
 {#if aside}
-	<Aside eyebrow={aside.eyebrow} title={aside.title} scope={aside.scope} inert={ui.menuOpen} />
+	<Aside eyebrow={aside.eyebrow} title={aside.title} spOnly={isWork} inert={ui.menuOpen} />
 {/if}
 
-<main class="Main" class:has-aside={!!aside} inert={ui.menuOpen}>
+<main class="Main" class:has-aside={!!aside && !isWork} inert={ui.menuOpen}>
 	{@render children()}
 </main>
 

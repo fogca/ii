@@ -1,169 +1,111 @@
 <script lang="ts">
 	import Media from '$lib/components/Media.svelte';
+	import LangSwitch from '$lib/components/LangSwitch.svelte';
 	import { spRatio } from '$lib/js/works';
 
 	let { data } = $props();
 	const work = $derived(data.work);
 
-	// PC: once the page is scrolled, the left panel's title block (Aside.svelte)
-	// is reset at the panel's top left — eyebrow, "PJ: title", "Scope: …"
-	// stacked small — and the work's text (lead + body) fades in below. The
-	// change is a letter cascade, not a move: the letters drop away one after
-	// another, the layout switches, and they drop in again at the new place.
-	// It plays on a throwaway layer of single letters placed over the real
-	// heading's glyphs (see overlayOf), which is hidden meanwhile and never
-	// re-written — Svelte's DOM and the type's kerning stay intact. SP keeps the text in the flow. Works
-	// without text keep the title where it is.
-	const SWAP_AFTER = 80; // px of scroll
-	const DROP = '0.12em'; // how far each letter travels
-	const OUT_MS = 380;
-	const IN_MS = 620;
-	const STEP_MS = 18; // stagger per letter…
-	const STAGGER_MAX_MS = 420; // …squeezed so a long title stays brisk
-	const TEXT_OUT_MS = 400; // = the .text fade-out below; going back, the text leaves first
+	// PC, after studiosly.com.au/project/…: the page is one screen — a band
+	// across the top quarter (the work's name and number · Summary · scope ·
+	// Back) over a strip of every image at the same height, each at its own
+	// ratio, that the wheel (or a drag, or a trackpad) runs sideways.
+	// Summary lays the work's text and colophon over the strip.
+	// SP keeps the single column: scope, hero, text, images, colophon.
 	const PC_QUERY = '(min-width: 1024px)';
+	const EASE = 0.12; // share of the remaining distance per frame
+	const LINE_PX = 40; // wheel "lines" (Firefox) → px
+	const DRAG_THRESHOLD = 6; // px before a press becomes a drag
 
-	/** Letters laid exactly over `head`'s rendered glyphs, in its current
-	    layout: each character's box is measured on the real heading (a Range
-	    per character — so kerning, tracking and line breaks are the type's
-	    own) and a lone glyph is placed there in a fixed layer above it.
-	    Splitting the heading into spans instead lost kerning pairs (AT, PA…),
-	    and the letters shuffled sideways when the real heading came back. */
-	const overlayOf = (head: HTMLElement) => {
-		// The layer copies the head's own box AND transform (the centered
-		// block sits at a fractional translateY(-50%)), so the glyphs snap
-		// to the pixel grid exactly as the real ones do; letters are placed
-		// relative to it.
-		const layer = document.createElement('div');
-		layer.setAttribute('aria-hidden', 'true');
-		layer.className = 'aside-letters';
-		const hs = getComputedStyle(head);
-		Object.assign(layer.style, {
-			position: 'absolute',
-			left: `${head.offsetLeft}px`,
-			top: `${head.offsetTop}px`,
-			width: `${head.offsetWidth}px`,
-			height: `${head.offsetHeight}px`,
-			transform: hs.transform,
-			transformOrigin: hs.transformOrigin,
-			pointerEvents: 'none'
-		});
-		const box = head.getBoundingClientRect();
-		const letters: HTMLElement[] = [];
-		const range = document.createRange();
-		const walker = document.createTreeWalker(head, NodeFilter.SHOW_TEXT);
-		while (walker.nextNode()) {
-			const node = walker.currentNode as Text;
-			const parent = node.parentElement;
-			if (!parent || !parent.getClientRects().length) continue; // display: none
-			const cs = getComputedStyle(parent);
-			let opacity = 1;
-			for (let el: HTMLElement | null = parent; el && el !== head.parentElement; el = el.parentElement) {
-				opacity *= parseFloat(getComputedStyle(el).opacity);
-			}
-			const upper = cs.textTransform === 'uppercase';
-			for (let i = 0; i < node.data.length; i++) {
-				const char = node.data[i];
-				if (/\s/.test(char)) continue;
-				range.setStart(node, i);
-				range.setEnd(node, i + 1);
-				const r = range.getBoundingClientRect();
-				if (!r.width && !r.height) continue;
-				const letter = document.createElement('span');
-				letter.textContent = upper ? char.toUpperCase() : char;
-				Object.assign(letter.style, {
-					position: 'absolute',
-					left: `${r.left - box.left}px`,
-					top: `${r.top - box.top}px`,
-					height: `${r.height}px`,
-					lineHeight: `${r.height}px`,
-					whiteSpace: 'pre',
-					fontFamily: cs.fontFamily,
-					fontSize: cs.fontSize,
-					fontWeight: cs.fontWeight,
-					fontStyle: cs.fontStyle,
-					fontVariationSettings: cs.fontVariationSettings,
-					fontFeatureSettings: cs.fontFeatureSettings,
-					color: cs.color,
-					opacity: String(opacity)
-				});
-				layer.append(letter);
-				letters.push(letter);
-			}
-		}
-		head.after(layer);
-		return { layer, letters };
-	};
+	let strip = $state<HTMLDivElement>();
+	let summary = $state(false);
 
-	const cascade = (letters: HTMLElement[], keyframes: Keyframe[], duration: number, easing: string) => {
-		const step = Math.min(STEP_MS, STAGGER_MAX_MS / Math.max(letters.length, 1));
-		return Promise.all(
-			letters.map(
-				(l, i) => l.animate(keyframes, { duration, delay: i * step, easing, fill: 'both' }).finished
-			)
-		);
-	};
-
-	let busy = false;
-
-	const setSwapped = async (html: HTMLElement, on: boolean) => {
-		if (busy || html.classList.contains('is-aside-swapped') === on) return;
-		const head = document.querySelector<HTMLElement>('.Aside .head');
-		const animate =
-			!!head && matchMedia(PC_QUERY).matches && !matchMedia('(prefers-reduced-motion: reduce)').matches;
-		if (!animate) {
-			html.classList.toggle('is-aside-swapped', on);
-			html.classList.toggle('is-aside-text', on);
-			return;
-		}
-		busy = true;
-		// Going back: the text fades out first, then the title block changes.
-		if (!on) {
-			html.classList.remove('is-aside-text');
-			await new Promise((r) => setTimeout(r, TEXT_OUT_MS));
-		}
-		head.style.transition = 'none';
-		const out = overlayOf(head);
-		head.style.visibility = 'hidden';
-		await cascade(
-			out.letters,
-			[{ transform: 'none', opacity: 1 }, { transform: `translateY(${DROP})`, opacity: 0 }],
-			OUT_MS,
-			'linear'
-		);
-		out.layer.remove();
-		html.classList.toggle('is-aside-swapped', on);
-		// Going in: the text fades in under the new block (its CSS delay).
-		if (on) html.classList.add('is-aside-text');
-		const inn = overlayOf(head);
-		await cascade(
-			inn.letters,
-			[{ transform: `translateY(-${DROP})`, opacity: 0 }, { transform: 'none', opacity: 1 }],
-			IN_MS,
-			'linear'
-		);
-		head.style.visibility = '';
-		inn.layer.remove();
-		requestAnimationFrame(() => (head.style.transition = ''));
-		busy = false;
-		// The scroll may have crossed back while this played.
-		setSwapped(html, window.scrollY > SWAP_AFTER);
-	};
-
+	// Vertical wheel → horizontal travel, eased. Horizontal input (trackpad
+	// swipes) is left native. The page itself never scrolls on PC.
 	$effect(() => {
-		if (!work.lead && !work.body) return;
-		const html = document.documentElement;
-		const update = () => setSwapped(html, window.scrollY > SWAP_AFTER);
-		update();
-		window.addEventListener('scroll', update, { passive: true });
-		return () => {
-			window.removeEventListener('scroll', update);
-			html.classList.remove('is-aside-swapped', 'is-aside-text');
-			// Leaving mid-cascade: drop the copies, show the real heading.
-			document.querySelectorAll('.aside-letters').forEach((c) => c.remove());
-			document.querySelector<HTMLElement>('.Aside .head')?.style.removeProperty('visibility');
-			busy = false;
+		const el = strip;
+		if (!el) return;
+		const mq = matchMedia(PC_QUERY);
+		let pos = el.scrollLeft;
+		let target = pos;
+		let raf = 0;
+		const max = () => el.scrollWidth - el.clientWidth;
+		const step = () => {
+			pos += (target - pos) * EASE;
+			if (Math.abs(target - pos) < 0.5) pos = target;
+			el.scrollLeft = pos;
+			raf = pos === target ? 0 : requestAnimationFrame(step);
 		};
+		const onWheel = (e: WheelEvent) => {
+			if (!mq.matches || summary) return;
+			if (Math.abs(e.deltaX) >= Math.abs(e.deltaY)) {
+				cancelAnimationFrame(raf);
+				raf = 0;
+				return;
+			}
+			e.preventDefault();
+			if (!raf) pos = target = el.scrollLeft;
+			const dy = e.deltaMode === 1 ? e.deltaY * LINE_PX : e.deltaY;
+			target = Math.min(max(), Math.max(0, target + dy));
+			if (!raf) raf = requestAnimationFrame(step);
+		};
+
+		// Mouse drag (touch and pen scroll natively). The pointer is captured
+		// only once it has moved, so a plain click stays a click.
+		let down: { x: number; left: number; id: number } | null = null;
+		let dragging = false;
+		const onDown = (e: PointerEvent) => {
+			if (e.pointerType !== 'mouse' || e.button !== 0 || !mq.matches) return;
+			cancelAnimationFrame(raf);
+			raf = 0;
+			down = { x: e.clientX, left: el.scrollLeft, id: e.pointerId };
+		};
+		const onMove = (e: PointerEvent) => {
+			if (!down) return;
+			const dx = e.clientX - down.x;
+			if (!dragging && Math.abs(dx) > DRAG_THRESHOLD) {
+				dragging = true;
+				el.setPointerCapture(down.id);
+				el.classList.add('is-dragging');
+			}
+			if (dragging) el.scrollLeft = down.left - dx;
+		};
+		const onUp = () => {
+			down = null;
+			dragging = false;
+			el.classList.remove('is-dragging');
+		};
+		const noNativeDrag = (e: DragEvent) => e.preventDefault();
+
+		window.addEventListener('wheel', onWheel, { passive: false });
+		el.addEventListener('pointerdown', onDown);
+		el.addEventListener('pointermove', onMove);
+		el.addEventListener('pointerup', onUp);
+		el.addEventListener('pointercancel', onUp);
+		el.addEventListener('dragstart', noNativeDrag);
+		return () => {
+			cancelAnimationFrame(raf);
+			window.removeEventListener('wheel', onWheel);
+			el.removeEventListener('pointerdown', onDown);
+			el.removeEventListener('pointermove', onMove);
+			el.removeEventListener('pointerup', onUp);
+			el.removeEventListener('pointercancel', onUp);
+			el.removeEventListener('dragstart', noNativeDrag);
+		};
+	});
+
+	// Esc closes the summary.
+	$effect(() => {
+		if (!summary) return;
+		const onKey = (e: KeyboardEvent) => e.key === 'Escape' && (summary = false);
+		window.addEventListener('keydown', onKey);
+		return () => window.removeEventListener('keydown', onKey);
+	});
+
+	// A new work starts on its images.
+	$effect(() => {
+		void work.slug;
+		summary = false;
 	});
 
 	// Flags the work page on <html> so its SP title block (the shared
@@ -173,88 +115,124 @@
 		return () => document.documentElement.classList.remove('is-work');
 	});
 
-	// Panel width on PC = viewport minus the 455/1440 left panel.
-	const PANEL = 'calc(100vw - 455 / 1440 * 100vw)';
-	const HERO_SIZES = `(min-width: 1024px) ${PANEL}, 100vw`;
-	const REST_SIZES = `(min-width: 1024px) ${PANEL}, calc(100vw - 40px)`;
+	// The strip is 75% of the screen tall: an image is that × its ratio wide.
+	const STRIP_VH = 75;
+	const sizesOf = (m: { width?: number; height?: number }, sp: string) =>
+		`(min-width: 1024px) calc(${STRIP_VH}vh * ${arOf(m).toFixed(3)}), ${sp}`;
 	const HERO_WIDTHS = [640, 900, 1400, 2000, 2800];
 	const REST_WIDTHS = [640, 900, 1400, 2000, 2800];
 	// The work page is where the photographs are looked at closely: a higher
 	// encode than the site default (72) — about +30% bytes.
 	const QUALITY = 85;
 
-	/** w/h of the hero's box (videos: 16:9 until known). */
+	/** w/h of a media's box (videos: 16:9 until known). */
 	const arOf = (m: { width?: number; height?: number }) =>
 		m.width && m.height ? m.width / m.height : 16 / 9;
+
+	const hasSummary = $derived(!!(work.lead || work.body || work.colophon.length));
 </script>
 
 {#key work.slug}
-	<article class="Work" class:has-text={!!(work.lead || work.body)}>
-		<!-- Scope (CMS select): SP above the hero; PC pinned at the bottom of
-		     the left panel, above the legal line. -->
+	<article class="Work" class:has-text={!!(work.lead || work.body)} class:is-summary={summary}>
+		<!-- SP: the scope above the hero (PC: in the band). -->
 		{#if work.scope.length}
 			<p class="scope t-eyebrow" aria-label="Scope">{work.scope.join(' / ')}</p>
 		{/if}
 
-		{#if work.hero}
-			<div class="hero" style="--ar: {arOf(work.hero)}; --ar-sp: {spRatio(work.hero)}">
-				<Media media={work.hero} cover eager sizes={HERO_SIZES} widths={HERO_WIDTHS} quality={QUALITY} alt={work.title} />
+		<!-- PC: the band over the strip. -->
+		<div class="band">
+			<div class="b-name">
+				<h1>{work.title}</h1>
+				<p class="b-number">{data.aside.eyebrow}</p>
 			</div>
-		{/if}
-
-		{#if work.lead || work.body}
-			<section class="text">
-				<!-- Both languages are in the page; html[data-lang] picks one.
-				     A work missing one language shows the other in both
-				     (.is-only). -->
-				{#if work.lead}
-					{#if work.lead.en}
-						<h2 class="lead t-subtitle x-en" class:is-only={!work.lead.ja} lang="en">{work.lead.en}</h2>
-					{/if}
-					{#if work.lead.ja}
-						<!-- Its "?" line breaks apply on PC only (SP runs it on). -->
-						<h2 class="lead t-subtitle x-ja" class:is-only={!work.lead.en} lang="ja">
-							{#each work.lead.ja.split('\n') as line, i (i)}{#if i}<br class="pc-br" />{/if}{line}{/each}
-						</h2>
-					{/if}
+			<div class="b-summary">
+				{#if hasSummary}
+					<button type="button" aria-expanded={summary} aria-controls="work-summary" onclick={() => (summary = !summary)}
+						>{summary ? 'Images' : 'Summary'}</button
+					>
 				{/if}
-				{#if work.body}
-					{#if work.body.en}
-						<p class="body t-body x-en" class:is-only={!work.body.ja} lang="en">{work.body.en}</p>
-					{/if}
-					{#if work.body.ja}
-						<p class="body t-body x-ja" class:is-only={!work.body.en} lang="ja">{work.body.ja}</p>
-					{/if}
-				{/if}
-			</section>
-		{/if}
-
-		{#if work.rest.length}
-			<div class="rest">
-				{#each work.rest as media, i (i)}
-					<div class="rest-item">
-						<Media {media} sizes={REST_SIZES} widths={REST_WIDTHS} quality={QUALITY} />
-					</div>
-				{/each}
+				{#if summary}<LangSwitch />{/if}
 			</div>
-		{/if}
+			{#if work.scope.length}
+				<ul class="b-scope" aria-label="Scope">
+					{#each work.scope as tag (tag)}<li>{tag}</li>{/each}
+				</ul>
+			{/if}
+			<a class="b-back" href="/works">Back <span aria-hidden="true">×</span></a>
+		</div>
 
-		{#if work.colophon.length}
-			<section class="Colophon" aria-labelledby="colophon-heading">
-				<h2 class="t-subtitle" id="colophon-heading">Colophon</h2>
-				<dl>
-					{#each work.colophon as row, i (i)}
-						<div class="row">
-							<dt>{row.label}</dt>
-							<span class="leader" aria-hidden="true"></span>
-							<!-- colophon_text is editor-authored HTML from our own CMS;
-							     only <a> survives the parser (lib/js/works.ts). -->
-							<dd>{#if row.html}{@html row.value}{:else}{row.value}{/if}</dd>
+		<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+		<div class="strip" bind:this={strip} tabindex="0" aria-label="Images">
+			{#if work.hero}
+				<div class="hero" style="--ar: {arOf(work.hero)}; --ar-sp: {spRatio(work.hero)}">
+					<Media
+						media={work.hero}
+						cover
+						eager
+						sizes={sizesOf(work.hero, '100vw')}
+						widths={HERO_WIDTHS}
+						quality={QUALITY}
+						alt={work.title}
+					/>
+				</div>
+			{/if}
+
+			{#if work.rest.length}
+				<div class="rest">
+					{#each work.rest as media, i (i)}
+						<div class="rest-item" style="--ar: {arOf(media)}">
+							<Media {media} cover sizes={sizesOf(media, 'calc(100vw - 40px)')} widths={REST_WIDTHS} quality={QUALITY} />
 						</div>
 					{/each}
-				</dl>
-			</section>
-		{/if}
+				</div>
+			{/if}
+		</div>
+
+		<div class="summary" id="work-summary">
+			{#if work.lead || work.body}
+				<section class="text">
+					<!-- Both languages are in the page; html[data-lang] picks one.
+					     A work missing one language shows the other in both
+					     (.is-only). -->
+					{#if work.lead}
+						{#if work.lead.en}
+							<h2 class="lead t-subtitle x-en" class:is-only={!work.lead.ja} lang="en">{work.lead.en}</h2>
+						{/if}
+						{#if work.lead.ja}
+							<!-- Its "?" line breaks apply on PC only (SP runs it on). -->
+							<h2 class="lead t-subtitle x-ja" class:is-only={!work.lead.en} lang="ja">
+								{#each work.lead.ja.split('\n') as line, i (i)}{#if i}<br class="pc-br" />{/if}{line}{/each}
+							</h2>
+						{/if}
+					{/if}
+					{#if work.body}
+						{#if work.body.en}
+							<p class="body t-body x-en" class:is-only={!work.body.ja} lang="en">{work.body.en}</p>
+						{/if}
+						{#if work.body.ja}
+							<p class="body t-body x-ja" class:is-only={!work.body.en} lang="ja">{work.body.ja}</p>
+						{/if}
+					{/if}
+				</section>
+			{/if}
+
+			{#if work.colophon.length}
+				<section class="Colophon" aria-labelledby="colophon-heading">
+					<h2 class="t-subtitle" id="colophon-heading">Colophon</h2>
+					<dl>
+						{#each work.colophon as row, i (i)}
+							<div class="row">
+								<dt>{row.label}</dt>
+								<span class="leader" aria-hidden="true"></span>
+								<!-- colophon_text is editor-authored HTML from our own CMS;
+								     only <a> survives the parser (lib/js/works.ts). -->
+								<dd>{#if row.html}{@html row.value}{:else}{row.value}{/if}</dd>
+							</div>
+						{/each}
+					</dl>
+				</section>
+			{/if}
+		</div>
 	</article>
 {/key}
 
@@ -408,75 +386,197 @@
 		text-decoration-thickness: 0.5px;
 	}
 
-	/* ── PC (Figma 79:229) ──────────────────────────────────────────────
-	   The panel right of the left column scrolls with the page: the hero,
-	   then every other image full width, one under the other, 2px apart;
-	   the text moves into the left panel. */
-	@media (min-width: 1024px) {
-		.hero {
-			aspect-ratio: var(--ar);
-			min-height: 100vh;
-			min-height: 100dvh;
+	/* SP: one column — the band is PC only; the strip and the summary
+	   dissolve so their pieces fall into the column in reading order. */
+	@media (max-width: 1023.98px) {
+		.Work {
+			display: flex;
+			flex-direction: column;
 		}
 
-		.scope {
-			position: fixed;
-			left: var(--gutter);
-			bottom: calc(44px + env(safe-area-inset-bottom, 0px));
-			z-index: var(--z-content);
-			width: calc(var(--aside-w) - 2 * var(--gutter));
-			padding: 0;
-			opacity: 1;
-			text-align: left;
-		}
-
-		/* A work with text shows its scope in the left panel's moved title
-		   block instead (Aside.svelte); one without keeps it down here. */
-		.has-text .scope {
+		.band {
 			display: none;
 		}
 
-		.rest {
-			gap: var(--tile-gap);
-			margin-top: var(--tile-gap);
-			padding: 0;
+		.strip,
+		.summary {
+			display: contents;
 		}
 
-		/* The text lives in the left panel, shown once the page scrolls
-		   (html.is-aside-text, set above) under the moved title block. It
-		   leaves quickly and arrives late, after the block's letters. */
+		.scope {
+			order: 1;
+		}
+
+		.hero {
+			order: 2;
+		}
+
 		.text {
-			position: fixed;
-			top: 0;
+			order: 3;
+		}
+
+		.rest {
+			order: 4;
+		}
+
+		.Colophon {
+			order: 5;
+		}
+
+		/* `cover` keeps the box's ratio: the images' own on SP. */
+		.rest-item {
+			aspect-ratio: var(--ar);
+		}
+	}
+
+	/* ── PC (after studiosly.com.au/project/forest) ─────────────────────
+	   One screen: the band (25%) — name and number · Summary · scope ·
+	   Back, in columns at 0 / 40% / 81% / the right edge — over the strip
+	   (75%): every image at the strip's height and its own ratio, 10px
+	   apart, run sideways. The summary covers the strip. */
+	@media (min-width: 1024px) {
+		.Work {
+			position: relative;
+			height: 100vh;
+			height: 100dvh;
+			overflow: hidden;
+		}
+
+		.scope {
+			display: none;
+		}
+
+		.band {
+			display: grid;
+			grid-template-columns: 40% 41% 1fr auto;
+			align-items: start;
+			height: 25vh;
+			height: 25dvh;
+			/* the band's text 94px above the strip (Studio Sly) */
+			padding: max(64px, calc(25dvh - 94px)) var(--gutter) 0;
+			font-size: 12.5px;
+			line-height: 15px;
+		}
+
+		.band h1 {
+			font: inherit;
+			text-transform: none;
+			letter-spacing: 0;
+		}
+
+		.b-number {
+			color: var(--color-text-mute);
+		}
+
+		.b-summary {
+			display: flex;
+			gap: 24px;
+		}
+
+		.b-summary button {
+			padding: 0;
+			border: 0;
+			background: none;
+			color: inherit;
+			font: inherit;
+			text-decoration: underline;
+			text-underline-offset: 0.2em;
+			text-decoration-thickness: 1px;
+			cursor: pointer;
+		}
+
+		.b-back {
+			transition: opacity 0.3s ease;
+		}
+
+		.b-back:hover,
+		.b-summary button:hover {
+			opacity: 0.5;
+		}
+
+		.strip,
+		.summary {
+			position: absolute;
 			left: 0;
-			bottom: 48px; /* clear of the legal line */
-			z-index: var(--z-content);
-			width: var(--aside-w);
-			padding: 160px var(--gutter) 24px; /* under the moved title block */
-			/* Not a scroll container: the wheel over the panel scrolls the
-			   page, like anywhere else. */
-			overflow: clip;
+			right: 0;
+			bottom: 0;
+			height: 75vh;
+			height: 75dvh;
+		}
+
+		.strip {
+			display: flex;
+			gap: 10px;
+			overflow-x: auto;
+			overflow-y: hidden;
+			overscroll-behavior-x: contain;
+			scrollbar-width: none;
+			outline: none;
+			cursor: grab;
+		}
+
+		.strip::-webkit-scrollbar {
+			display: none;
+		}
+
+		.strip:global(.is-dragging) {
+			cursor: grabbing;
+			user-select: none;
+		}
+
+		.rest {
+			display: contents;
+		}
+
+		.hero,
+		.rest-item {
+			flex: none;
+			width: auto;
+			height: 100%;
+			aspect-ratio: var(--ar);
+		}
+
+		.strip :global(img) {
+			-webkit-user-drag: none;
+		}
+
+		/* Over the strip: the lead at the left, the body and the colophon
+		   from the Summary column (40%). */
+		.summary {
+			z-index: 1;
+			display: grid;
+			grid-template-columns: 40% minmax(0, 600px);
+			align-content: start;
+			column-gap: 0;
+			padding: 0 var(--gutter) 80px;
+			background: var(--color-bg);
+			overflow-y: auto;
+			overscroll-behavior: contain;
 			opacity: 0;
 			visibility: hidden;
-			transform: translateY(10px);
 			transition:
-				opacity 0.4s var(--ease-out),
-				transform 0.4s var(--ease-out),
-				visibility 0s linear 0.4s;
+				opacity 0.5s var(--ease-out),
+				visibility 0s linear 0.5s;
 		}
 
-		:global(html.is-aside-text) .text {
+		.is-summary .summary {
 			opacity: 1;
 			visibility: visible;
-			transform: none;
-			transition:
-				opacity 0.9s var(--ease-out) 0.8s,
-				transform 1.1s var(--ease-out) 0.8s,
-				visibility 0s;
+			transition: opacity 0.5s var(--ease-out);
+		}
+
+		.text {
+			display: contents;
+		}
+
+		.lead {
+			grid-column: 1;
+			padding-right: 40px;
 		}
 
 		.body {
-			margin-top: 10px;
+			grid-column: 2;
+			margin-top: 0;
 			max-width: none;
 		}
 
@@ -485,10 +585,10 @@
 		}
 
 		.Colophon {
-			padding: 120px var(--gutter) 160px 0;
+			grid-column: 2;
+			padding: 60px 0 0;
 		}
 
-		/* The rows run the full width of the panel, to the right gutter. */
 		.Colophon dl {
 			max-width: none;
 			margin-top: 28px;

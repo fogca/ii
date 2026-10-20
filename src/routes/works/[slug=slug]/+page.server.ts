@@ -3,6 +3,7 @@ import { isMicroCMSRequestError } from 'microcms-js-sdk';
 import { getDetail, getVisibleWorks, type Work } from '$lib/js/microcms';
 import { toWorkDetail } from '$lib/js/works';
 import { workTitleOf } from '$lib/js/site';
+import { videoSize } from '$lib/server/videoSize';
 import type { PageServerLoad } from './$types';
 
 // II_Works_Slug — one work.
@@ -33,6 +34,17 @@ export const load: PageServerLoad = async ({ params }) => {
 	}
 	const detail = toWorkDetail(work, Math.max(index, 0));
 
+	// PC lays the images out in one row at a common height, so each box
+	// needs its true ratio up front — read the videos' from the files.
+	await Promise.all(
+		[detail.hero, ...detail.rest]
+			.filter((m) => !!m?.isVideo && !m.width)
+			.map(async (m) => {
+				const size = await videoSize(m!.src);
+				if (size) Object.assign(m!, size);
+			})
+	);
+
 	// JPEG, cropped to the OG box — some link-preview crawlers still skip
 	// WebP (imgOpt forces fm=webp for on-page images).
 	const ogImage =
@@ -44,8 +56,7 @@ export const load: PageServerLoad = async ({ params }) => {
 		work: detail,
 		aside: {
 			eyebrow: index >= 0 ? `Design Creation ${detail.number}` : 'Design Creation',
-			title: work.title,
-			scope: detail.scope.join(' / ')
+			title: work.title
 		},
 		seo: {
 			title: workTitleOf(work.title),
