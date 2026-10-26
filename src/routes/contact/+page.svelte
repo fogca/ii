@@ -6,9 +6,11 @@
 
 	let { form }: { form: ActionData } = $props();
 
-	// /contact: one column at the left, as /type — the kind of inquiry, then
-	// the fields, each label above a hairline input. Both languages are in
-	// the page; html[data-lang] picks one (as on About and the works).
+	// /contact: the kind of inquiry, then the fields — each a hairline row
+	// with its label at the left and the input on the same line, so the two
+	// read (and click) as one. PC: name to phone in the left column, the
+	// message in the right, as tall as they are. Both languages are in the
+	// page; html[data-lang] picks one (as on About and the works).
 	const FIELD_ERRORS: Record<FieldError, { en: string; ja: string }> = {
 		type: { en: 'Please choose a type of inquiry.', ja: 'お問い合わせの種別をお選びください。' },
 		name: { en: 'Please enter your name.', ja: 'お名前をご入力ください。' },
@@ -89,28 +91,30 @@
 				{@render error('type')}
 			</fieldset>
 
-			{#each FIELDS as f (f.name)}
-				<label class="field">
-					<span class="label">
-						<span class="x-en" lang="en">{f.en}</span><span class="x-ja" lang="ja">{f.ja}</span>
-						{#if !f.required}<span class="optional"
-								><span class="x-en" lang="en">(optional)</span><span class="x-ja" lang="ja">（任意）</span></span
-							>{/if}
-					</span>
-					<input
-						class="input"
-						type={f.type}
-						name={f.name}
-						autocomplete={f.auto}
-						required={f.required}
-						value={values[f.name] ?? ''}
-						aria-invalid={errors.includes(f.name) || undefined}
-					/>
-					{@render error(f.name)}
-				</label>
-			{/each}
+			<div class="fields">
+				{#each FIELDS as f (f.name)}
+					<label class="field line">
+						<span class="label">
+							<span class="x-en" lang="en">{f.en}</span><span class="x-ja" lang="ja">{f.ja}</span>
+							{#if !f.required}<span class="optional"
+									><span class="x-en" lang="en">(optional)</span><span class="x-ja" lang="ja">（任意）</span></span
+								>{/if}
+						</span>
+						<input
+							class="input"
+							type={f.type}
+							name={f.name}
+							autocomplete={f.auto}
+							required={f.required}
+							value={values[f.name] ?? ''}
+							aria-invalid={errors.includes(f.name) || undefined}
+						/>
+						{@render error(f.name)}
+					</label>
+				{/each}
+			</div>
 
-			<label class="field">
+			<label class="field line message-field">
 				<span class="label"><span class="x-en" lang="en">Message</span><span class="x-ja" lang="ja">メッセージ</span></span>
 				<textarea
 					class="input message"
@@ -165,7 +169,6 @@
 		display: none;
 	}
 
-	form,
 	.done {
 		max-width: 560px;
 	}
@@ -189,6 +192,39 @@
 		padding: 0;
 		font-size: 12.5px;
 		line-height: 1.2;
+	}
+
+	/* A field row: the label at the left, the input on the same line, one
+	   hairline under both. The whole row is the label, so clicking
+	   anywhere on it focuses the input. */
+	.line {
+		display: grid;
+		grid-template-columns: 10em minmax(0, 1fr);
+		align-items: center;
+		column-gap: 16px;
+		row-gap: 0;
+		margin: 0;
+		border-bottom: 1px solid currentColor;
+		cursor: text;
+	}
+
+	.line:focus-within {
+		box-shadow: inset 0 -1px 0 currentColor; /* 2px, without moving */
+	}
+
+	.line .error {
+		grid-column: 2;
+		padding-bottom: 8px;
+	}
+
+	/* The message: its label at the top of the row. */
+	.message-field {
+		align-items: start;
+		margin-top: 0;
+	}
+
+	.message-field .label {
+		padding-top: 15px; /* level with the textarea's first line */
 	}
 
 	.optional {
@@ -232,12 +268,11 @@
 		outline-offset: 3px;
 	}
 
-	/* A hairline underline; 16px so iOS doesn't zoom on focus. */
+	/* 16px so iOS doesn't zoom on focus; the row draws the line. */
 	.input {
 		width: 100%;
-		padding: 6px 0 8px;
+		padding: 12px 0;
 		border: 0;
-		border-bottom: 1px solid currentColor;
 		border-radius: 0;
 		background: none;
 		color: inherit;
@@ -247,14 +282,13 @@
 		outline: none;
 	}
 
-	.input:focus {
-		border-bottom-width: 2px;
-		padding-bottom: 7px;
-	}
-
 	.message {
 		resize: vertical;
-		min-height: 160px;
+		min-height: 200px;
+	}
+
+	.fields + .message-field {
+		margin-top: 32px;
 	}
 
 	.error,
@@ -265,7 +299,7 @@
 	}
 
 	.form-error {
-		margin: 0 0 24px;
+		margin: 24px 0 0;
 	}
 
 	.form-error a {
@@ -281,9 +315,11 @@
 	}
 
 	.submit {
+		justify-self: start;
+		margin-top: 40px;
 		padding: 12px 28px;
 		border: 1px solid currentColor;
-		border-radius: 999px;
+		border-radius: 0;
 		background: none;
 		color: inherit;
 		font: inherit;
@@ -307,6 +343,38 @@
 	@media (min-width: 1024px) {
 		.Contact {
 			padding-top: 120px;
+		}
+
+		/* The kind of inquiry across the top; name to phone at the left and
+		   the message at the right, the same height; then the send. */
+		form {
+			display: grid;
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			column-gap: 40px;
+			max-width: 1200px;
+		}
+
+		form > :not(.fields, .message-field) {
+			grid-column: 1 / -1;
+		}
+
+		.fields + .message-field {
+			margin-top: 0;
+		}
+
+		.message-field {
+			display: grid;
+			grid-template-rows: 1fr auto;
+		}
+
+		.message-field .label {
+			grid-row: 1 / -1;
+		}
+
+		.message {
+			height: 100%;
+			min-height: 0;
+			resize: none;
 		}
 	}
 </style>
