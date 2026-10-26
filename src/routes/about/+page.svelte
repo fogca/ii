@@ -6,16 +6,34 @@
 	// Flip back to true to show /images/about.jpg again.
 	const SHOW_PHOTO = false;
 
-	// The black background covers the whole page (body), not just this
-	// article — flag <html> while About is shown.
+	// The first screen is a film: the wordmark typing itself in white on
+	// black, the full screen. Below it the page is white and the text comes
+	// in, section by section, as it scrolls into view. <html> is flagged
+	// so the SP header can read over the black.
 	$effect(() => {
 		document.documentElement.classList.add('is-about');
 		return () => document.documentElement.classList.remove('is-about');
 	});
+
+	const REVEAL_MARGIN = '0px 0px -12% 0px'; // a little way into the screen
+
+	/** Fades a section in the first time it enters the screen. */
+	function reveal(node: HTMLElement) {
+		const io = new IntersectionObserver(
+			([e]) => {
+				if (!e.isIntersecting) return;
+				node.classList.add('is-in');
+				io.disconnect();
+			},
+			{ rootMargin: REVEAL_MARGIN }
+		);
+		io.observe(node);
+		return { destroy: () => io.disconnect() };
+	}
 </script>
 
 <article class="About">
-	<h1 class="mark"><InstituteMark typewriter /></h1>
+	<h1 class="film"><InstituteMark typewriter /></h1>
 
 	{#if SHOW_PHOTO}
 		<figure class="photo">
@@ -27,7 +45,7 @@
 		<!-- Both languages are in the page; html[data-lang] picks one. The
 		     numbered section titles stay English. -->
 		{#each ABOUT as section (section.title)}
-			<section>
+			<section class="reveal" use:reveal>
 				<h2 class="title" lang="en">{section.title}</h2>
 				<!-- One block per language: heading, then (line break) the lead,
 				     then (line break) the numbered items run on — "1. Name (bold)
@@ -51,20 +69,45 @@
 	/* Plain single column (no left panel, no two-column layout, both
 	   breakpoints). */
 	.About {
-		padding: 0 var(--gutter) 120px;
+		padding-bottom: 120px;
 	}
 
-	/* The first screen: the wordmark at the full column width, centered
-	   both ways in the viewport; the text starts below it. */
-	.mark {
+	/* The first screen, as a film: black, full bleed, the wordmark (white,
+	   at the column width) centered both ways. */
+	.film {
 		display: grid;
 		place-items: center;
 		min-height: 100vh;
 		min-height: 100dvh;
+		padding: 0 var(--gutter);
+		background: #000;
+		color: #fff;
 	}
 
 	.text {
-		padding-top: 40px;
+		padding: 120px var(--gutter) 0;
+	}
+
+	/* Each section fades up as it comes into view (JS only — without it
+	   the text simply shows). */
+	:global(html.js) .reveal {
+		opacity: 0;
+		transform: translateY(16px);
+		transition:
+			opacity 1.2s var(--ease-out),
+			transform 1.2s var(--ease-out);
+	}
+
+	:global(html.js) .reveal:global(.is-in) {
+		opacity: 1;
+		transform: none;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		:global(html.js) .reveal {
+			opacity: 1;
+			transform: none;
+		}
 	}
 
 	.photo {
@@ -78,23 +121,13 @@
 		object-fit: cover;
 	}
 
-	/* The whole page goes black with white text while About is shown (both
-	   breakpoints): the color tokens are swapped on <html>, so the header,
-	   footer and menu follow; the statement body is --fs-about
-	   (SP 16px / PC 20px), section heads keep the body size. */
-	:global(html.is-about) {
-		--color-bg: #000000;
-		--color-text: #ffffff;
-		--color-text-mute: rgba(255, 255, 255, 0.3);
-		color-scheme: dark;
-	}
-
 	/* PC: the text is 65% of the width (centered), so the lines stay
 	   readable. */
 	@media (min-width: 1024px) {
 		.text {
 			width: 65%;
 			margin-inline: auto;
+			padding-inline: 0;
 		}
 	}
 

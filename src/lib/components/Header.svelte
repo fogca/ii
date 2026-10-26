@@ -237,6 +237,13 @@
 		color: #fff;
 	}
 
+	/* About opens on a black film over a white page: SP controls in
+	   difference, white over the black and black over the white. */
+	:global(html.is-about) .Header:not(.is-menu-open) :is(.menu-btn, .mark) {
+		color: #fff;
+		mix-blend-mode: difference;
+	}
+
 	:global(html.is-top) .Header:not(.is-menu-open) .mark :global(img.Logo) {
 		filter: invert(1);
 	}
