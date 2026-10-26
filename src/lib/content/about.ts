@@ -25,7 +25,7 @@ export const ABOUT: AboutSection[] = [
 		title: 'I. Introduction',
 		body: {
 			en: 'II is a creative institute based in Tokyo discovering across crafts and design engineering — experience, brand, product, type, furniture, and digital communication. By blending culture and philosophy with design, we pursue creation that speaks to what makes us human — our physicality, our emotion.',
-			ja: 'IIは東京を拠点に、デザインエンジニアリング——体験、ブランド、プロダクト、タイプ、家具、デジタルコミュニケーションを横断するクリエイティブインスティチュートです。文化と哲学にデザインを掛け合わせることで生まれる、わたしたちを人間たらしめる——身体性と情緒に語りかけるクリエイションを追求します。'
+			ja: 'i instituteは東京を拠点に、デザインエンジニアリング——体験、ブランド、プロダクト、タイプ、家具、デジタルコミュニケーションを横断するクリエイティブインスティチュートです。文化と哲学にデザインを掛け合わせることで生まれる、わたしたちを人間たらしめる——身体性と情緒に語りかけるクリエイションを追求します。'
 		}
 	},
 	{
