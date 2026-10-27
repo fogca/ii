@@ -9,7 +9,7 @@
 
 	let { data } = $props();
 
-	// Top, from the top down: "Hello! ii :)" typing itself, large, black on
+	// Top, from the top down: the greeting typing itself, large, black on
 	// white (the whole first screen) · the works' film (TopReel), a screen
 	// tall, moving a little slower than the page (parallax) · the
 	// statement, large · the first six works as a grid, each at its own
@@ -19,13 +19,18 @@
 	const [INTRO, SERVICES] = ABOUT;
 	const PARALLAX = 0.1; // the film travels ±10% of its height against the page
 
-	// The greeting types itself as a person would: the caret blinking alone
-	// first, then uneven keystrokes (the caret lit while keys go down),
-	// then blinking again once the hand rests.
-	const GREETING = 'Hello! ii :)';
+	// The greeting types itself as a person would: "Hello! ii", a pause,
+	// the "ii" taken back and spelt out — "isobe institute :)". Uneven
+	// keystrokes; the caret lit while keys go down, blinking (hard on/off)
+	// whenever the hand rests.
+	const FIRST = 'Hello! ii';
+	const GREETING = 'Hello! isobe institute :)';
 	const TYPE_START_MS = 700;
 	const KEY_MS = 80; // fastest keystroke…
 	const KEY_SPREAD_MS = 110; // …plus up to this much, at random
+	const PAUSE_MS = 1000; // looking at "ii" before taking it back
+	const BACKSPACE_MS = 90;
+	const IDLE_AFTER_MS = 300; // no key for this long: the caret blinks
 	let typed = $state('');
 	let typing = $state(false);
 
@@ -34,19 +39,41 @@
 			typed = GREETING;
 			return;
 		}
-		const timers: number[] = [];
+		// The script: every keystroke's time and the text after it.
+		const steps: { at: number; text: string }[] = [];
 		let at = TYPE_START_MS;
-		for (let k = 1; k <= GREETING.length; k++) {
+		const typeOn = (from: string, to: string) => {
+			for (let k = from.length + 1; k <= to.length; k++) {
+				steps.push({ at, text: to.slice(0, k) });
+				at += KEY_MS + Math.random() * KEY_SPREAD_MS;
+			}
+		};
+		typeOn('', FIRST);
+		at += PAUSE_MS;
+		const kept = 'Hello! ';
+		for (let k = FIRST.length - 1; k >= kept.length; k--) {
+			steps.push({ at, text: FIRST.slice(0, k) });
+			at += BACKSPACE_MS;
+		}
+		at += KEY_MS * 2;
+		typeOn(kept, GREETING);
+
+		const timers: number[] = [];
+		let idle = 0;
+		for (const step of steps) {
 			timers.push(
 				window.setTimeout(() => {
 					typing = true;
-					typed = GREETING.slice(0, k);
-				}, at)
+					typed = step.text;
+					clearTimeout(idle);
+					idle = window.setTimeout(() => (typing = false), IDLE_AFTER_MS);
+				}, step.at)
 			);
-			at += KEY_MS + Math.random() * KEY_SPREAD_MS;
 		}
-		timers.push(window.setTimeout(() => (typing = false), at + 300));
-		return () => timers.forEach((t) => clearTimeout(t));
+		return () => {
+			timers.forEach((t) => clearTimeout(t));
+			clearTimeout(idle);
+		};
 	});
 
 	// <html> flag: the SP header reads in difference over white and film.
@@ -182,7 +209,9 @@
 		min-height: 100vh;
 		min-height: 100dvh;
 		padding: 0 var(--gutter);
-		font-size: 19vw; /* the greeting near the full width */
+		/* the full greeting near the full width (the content's, on large
+		   desktops) */
+		font-size: min(8.6vw, calc(0.086 * var(--content-max, 100vw)));
 		font-weight: 450;
 		line-height: 1;
 		letter-spacing: 0;

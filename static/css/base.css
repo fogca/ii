@@ -136,6 +136,18 @@
 	}
 }
 
+/* Desktops of 20" and up: the content stops widening at --content-max and
+   the gutters take the rest, so everything laid out on the gutter (header,
+   text, grids) keeps its proportions. Full-bleed media — sized on the
+   viewport, not the gutter — still run edge to edge. Notebooks (up to
+   1728px wide) never reach it: the gutter only grows past 1800px. */
+@media (min-width: 1800px) {
+	:root {
+		--content-max: 1760px;
+		--gutter: calc((100vw - var(--content-max)) / 2);
+	}
+}
+
 /* ---------------------------------------------------------------------
    Reset
    --------------------------------------------------------------------- */

@@ -110,7 +110,7 @@
 	   readable. */
 	@media (min-width: 1024px) {
 		.text {
-			width: 65%;
+			width: min(65%, calc(0.65 * var(--content-max, 100vw)));
 			margin-inline: auto;
 			padding-inline: 0;
 		}
