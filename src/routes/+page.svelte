@@ -364,7 +364,7 @@
 
 	@media (min-width: 1024px) {
 		.statement {
-			padding: 40px var(--gutter) 240px;
+			padding: 80px var(--gutter) 240px;
 		}
 
 		.statement p {
