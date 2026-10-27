@@ -485,6 +485,11 @@
 			line-height: 1.7;
 		}
 
+		.works .head {
+			font-size: 36px;
+			line-height: 1.2;
+		}
+
 		.grid {
 			grid-template-columns: repeat(3, minmax(0, 1fr));
 			gap: 48px 10px;
