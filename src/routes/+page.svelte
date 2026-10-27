@@ -1,15 +1,15 @@
 <script lang="ts">
 	import Opening from '$lib/components/Opening.svelte';
 	import TopReel from '$lib/components/TopReel.svelte';
-	import InstituteMark from '$lib/components/InstituteMark.svelte';
 	import Media from '$lib/components/Media.svelte';
+	import { onMount } from 'svelte';
 	import { reveal } from '$lib/actions/reveal';
 	import { ABOUT } from '$lib/content/about';
 	import { OPENING } from '$lib/js/site';
 
 	let { data } = $props();
 
-	// Top, from the top down: the wordmark typing itself, large, black on
+	// Top, from the top down: "Hello! ii :)" typing itself, large, black on
 	// white (the whole first screen) · the works' film (TopReel), a screen
 	// tall, moving a little slower than the page (parallax) · the
 	// statement, large · the first six works as a grid, each at its own
@@ -18,6 +18,36 @@
 	// The opening is off for now (OPENING in lib/js/site).
 	const [INTRO, SERVICES] = ABOUT;
 	const PARALLAX = 0.1; // the film travels ±10% of its height against the page
+
+	// The greeting types itself as a person would: the caret blinking alone
+	// first, then uneven keystrokes (the caret lit while keys go down),
+	// then blinking again once the hand rests.
+	const GREETING = 'Hello! ii :)';
+	const TYPE_START_MS = 700;
+	const KEY_MS = 80; // fastest keystroke…
+	const KEY_SPREAD_MS = 110; // …plus up to this much, at random
+	let typed = $state('');
+	let typing = $state(false);
+
+	onMount(() => {
+		if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+			typed = GREETING;
+			return;
+		}
+		const timers: number[] = [];
+		let at = TYPE_START_MS;
+		for (let k = 1; k <= GREETING.length; k++) {
+			timers.push(
+				window.setTimeout(() => {
+					typing = true;
+					typed = GREETING.slice(0, k);
+				}, at)
+			);
+			at += KEY_MS + Math.random() * KEY_SPREAD_MS;
+		}
+		timers.push(window.setTimeout(() => (typing = false), at + 300));
+		return () => timers.forEach((t) => clearTimeout(t));
+	});
 
 	// <html> flag: the SP header reads in difference over white and film.
 	$effect(() => {
@@ -58,7 +88,9 @@
 	<Opening slides={data.slides} />
 {/if}
 
-<h1 class="hero"><InstituteMark typewriter /></h1>
+<h1 class="hero" aria-label={GREETING}>
+	<span class="greeting" aria-hidden="true">{typed}<span class="caret" class:is-typing={typing}></span></span>
+</h1>
 
 <section class="film" aria-label="Works film" use:parallax>
 	<TopReel slides={data.slides} />
@@ -143,13 +175,45 @@
 		}
 	}
 
-	/* The first screen: the wordmark across the page, black on white. */
+	/* The first screen: the greeting across the page, black on white. */
 	.hero {
 		display: grid;
 		place-items: center;
 		min-height: 100vh;
 		min-height: 100dvh;
 		padding: 0 var(--gutter);
+		font-size: 19vw; /* the greeting near the full width */
+		font-weight: 450;
+		line-height: 1;
+		letter-spacing: 0;
+		text-transform: none;
+		white-space: pre;
+	}
+
+	/* A thin bar the height of the capitals: lit while typing, blinking
+	   (hard on/off) at rest. */
+	.caret {
+		display: inline-block;
+		width: max(2px, 0.025em);
+		height: 0.8em;
+		margin-left: 0.04em;
+		vertical-align: -0.06em;
+		background: currentColor;
+		animation: caret-blink 1.06s steps(1, end) infinite;
+	}
+
+	.caret.is-typing {
+		animation: none;
+	}
+
+	@keyframes caret-blink {
+		0%,
+		100% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0;
+		}
 	}
 
 	/* The film, a screen tall; its picture is taller than the frame by the

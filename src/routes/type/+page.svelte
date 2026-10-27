@@ -41,7 +41,7 @@
 	// the greeting at once and the visitor's typing follows it.
 	// The text is set by hand, never rendered by Svelte: the visitor edits
 	// these nodes, and Svelte must not own them.
-	const SAMPLE = 'Hello! ii :)';
+	const SAMPLE = 'Hello!\nWelcome:)';
 	const TYPE_START_MS = 900;
 	const KEY_MS = 90; // fastest keystroke…
 	const KEY_SPREAD_MS = 110; // …plus up to this much, at random
