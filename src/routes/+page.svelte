@@ -23,6 +23,9 @@
 	// The greeting, in the logo's type: "Hello! ii", then the "ii" spelt
 	// out (GreetingMark).
 	const GREETING = 'Hello! isobe institute :)';
+	// Once it has been typed, the first screen (PC) eases up to half a
+	// screen, bringing the film's top half into view.
+	let greeted = $state(false);
 
 	// <html> flag: the SP header reads in difference over white and film.
 	$effect(() => {
@@ -47,9 +50,14 @@
 		update();
 		window.addEventListener('scroll', onScroll, { passive: true });
 		window.addEventListener('resize', onScroll);
+		// The page above can change height without a scroll (the first
+		// screen easing to half): follow it frame by frame.
+		const ro = new ResizeObserver(onScroll);
+		ro.observe(document.body);
 		return {
 			destroy() {
 				cancelAnimationFrame(raf);
+				ro.disconnect();
 				window.removeEventListener('scroll', onScroll);
 				window.removeEventListener('resize', onScroll);
 			}
@@ -63,8 +71,8 @@
 	<Opening slides={data.slides} />
 {/if}
 
-<h1 class="hero" aria-label={GREETING}>
-	<GreetingMark />
+<h1 class="hero" class:is-greeted={greeted} aria-label={GREETING}>
+	<GreetingMark onDone={() => (greeted = true)} />
 </h1>
 
 <section class="film" aria-label="Works film" use:parallax>
@@ -362,7 +370,18 @@
 			transform 1.2s var(--ease-out);
 	}
 
+	@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+		.hero {
+			transition: min-height 1.6s var(--ease-out);
+		}
+	}
+
 	@media (min-width: 1024px) {
+		.hero.is-greeted {
+			min-height: 50vh;
+			min-height: 50dvh;
+		}
+
 		.statement {
 			padding: 80px var(--gutter) 240px;
 		}

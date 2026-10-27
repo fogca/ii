@@ -24,6 +24,7 @@
 	const PAUSE = 1000; // looking at "ii" before taking it back
 	const BACKSPACE = 90;
 	const REST_AFTER = 300; // no key for this long: the caret blinks
+	const DONE_AFTER = 600; // after the last key, the greeting counts as read
 
 	// Caret, in viewBox units (the glyphs run 0 → 8.71 baseline).
 	const CARET_TOP = -0.9;
@@ -31,6 +32,8 @@
 	const CARET_GAP = 0.28;
 	const CARET_MIN_PX = 2;
 	const CARET_EM = 0.16;
+
+	let { onDone }: { /** Called a beat after the last key. */ onDone?: () => void } = $props();
 
 	let svg = $state<SVGSVGElement>();
 	let group = $state<SVGGElement>();
@@ -133,6 +136,7 @@
 			steps.forEach((s) => s.act());
 			draw();
 			phase = 'rest';
+			onDone?.();
 			return;
 		}
 
@@ -151,6 +155,7 @@
 			const next = steps[i + 1]?.wait ?? Infinity;
 			if (next > REST_AFTER) timers.push(window.setTimeout(() => (phase = 'rest'), t + REST_AFTER));
 		});
+		timers.push(window.setTimeout(() => onDone?.(), t + DONE_AFTER));
 		return () => timers.forEach((id) => clearTimeout(id));
 	});
 </script>
