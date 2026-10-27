@@ -3,12 +3,20 @@
 	import LangSwitch from './LangSwitch.svelte';
 	import { COPYRIGHT, INSTAGRAM, LEGAL_LINKS } from '$lib/js/site';
 
-	let { inert = false }: { inert?: boolean } = $props();
+	let {
+		pc = false,
+		inert = false
+	}: {
+		/** Shown on PC too (a page without the left panel). */
+		pc?: boolean;
+		inert?: boolean;
+	} = $props();
 </script>
 
-<!-- SP only — the shared footer from the bottom of Figma's SP About frame
-     (123:115). On PC the legal line lives in the left panel instead. -->
-<footer class="SiteFooter sp" {inert}>
+<!-- The shared footer from the bottom of Figma's SP About frame (123:115).
+     SP only, except where `pc` asks for it — on PC the legal line otherwise
+     lives in the left panel. -->
+<footer class="SiteFooter" class:sp={!pc} {inert}>
 	<DomainMark />
 
 	<div class="bottom t-meta">

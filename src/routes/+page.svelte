@@ -12,7 +12,8 @@
 	// Top, from the top down: the wordmark typing itself, large, black on
 	// white (the whole first screen) · the works' film (TopReel), a screen
 	// tall, moving a little slower than the page (parallax) · the
-	// statement, large · the first works as a grid · the services.
+	// statement, large · the first six works as a grid, each at its own
+	// ratio · the services.
 	// The statement and services are About's own copy (lib/content/about).
 	// The opening is off for now (OPENING in lib/js/site).
 	const [INTRO, SERVICES] = ABOUT;
@@ -78,7 +79,7 @@
 			<li class="reveal" use:reveal>
 				<a class="card" href="/works/{w.slug}">
 					<div class="thumb">
-						<Media media={w.visual} cover sizes={CARD_SIZES} alt={w.title} />
+						<Media media={w.visual} sizes={CARD_SIZES} alt={w.title} />
 					</div>
 					<p class="caption">
 						<span class="num">{w.number}</span>
@@ -217,9 +218,11 @@
 		padding: 0 var(--gutter) 160px;
 	}
 
+	/* Each visual at its own ratio; a row's cards hang from its top. */
 	.grid {
 		display: grid;
 		grid-template-columns: repeat(2, minmax(0, 1fr));
+		align-items: start;
 		gap: 32px 5px;
 	}
 
@@ -228,12 +231,10 @@
 	}
 
 	.thumb {
-		aspect-ratio: 4 / 5;
 		overflow: clip;
 	}
 
 	.thumb :global(.Media) {
-		height: 100%;
 		transition: transform 1.2s var(--ease-out);
 	}
 

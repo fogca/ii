@@ -143,10 +143,8 @@
 	{@render children()}
 </main>
 
-<!-- The top page is the film alone: no footer. -->
-{#if page.url.pathname !== '/'}
-	<SiteFooter inert={ui.menuOpen} />
-{/if}
+<!-- The top page has no left panel: its footer shows on PC too. -->
+<SiteFooter pc={page.url.pathname === '/'} inert={ui.menuOpen} />
 
 <!-- The page-transition panel (see onNavigate above). -->
 <div class="vt-panel" aria-hidden="true"></div>
