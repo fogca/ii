@@ -20,9 +20,9 @@
 	const [INTRO, SERVICES] = ABOUT;
 	const PARALLAX = 0.1; // the film travels ±10% of its height against the page
 
-	// The greeting, in the logo's type: "Hello! ii", then the "ii" spelt
-	// out (GreetingMark).
-	const GREETING = 'Hello! isobe institute :)';
+	// The greeting, in the logo's type: "ii! Hello :)", then the "ii"
+	// spelt out (GreetingMark).
+	const GREETING = 'isobe institute';
 	// Once it has been typed, the first screen (PC) eases up to half a
 	// screen, bringing the film's top half into view.
 	let greeted = $state(false);

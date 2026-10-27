@@ -2,18 +2,20 @@
 	import { onMount } from 'svelte';
 	import { HELLO, HELLO_SCALE, INSTITUTE, SMILE } from '$lib/js/greeting-glyphs';
 
-	/** The top page's greeting, typed in the logo's own outlines: "Hello!
-	    ii", a pause, the "ii" taken back and spelt out — "Hello! isobe
-	    institute :)". The same typing as InstituteMark (About): each
+	/** The top page's greeting, typed in the logo's own outlines: "ii!
+	    Hello :)", a pause, then edited back to "ii" and spelt out — "sobe "
+	    typed between the two i's, End, "nstitute": "isobe institute".
+	    The same typing as InstituteMark (About): each
 	    keystroke snaps the re-centered line and the caret; uneven keys; a
 	    real text caret, lit while keys go down, blinking at rest. Letter
 	    gaps are the artworks' own. Plays once on mount; with reduced motion
 	    the whole greeting just shows. */
 
-	const VB_W = 116.25; // viewBox width = the full greeting
+	const VB_W = 73.66; // viewBox width = "isobe institute", the widest the line gets
 	const SMILE_DY = 0.75; // ":)" sits this much lower (InstituteMark EXTRA_DY)
 	const SPACE_GAP_AFTER = 0.35; // the gap a word's first letter keeps after the space
 	const II_GAP = 0.33; // "i" to "i", as the ii-ii.co artwork sets it
+	const BANG_AFTER = 'o'; // "i!" takes the artwork's "o!" gap
 	const COLON_PAREN_GAP = 0.3; // ":" to ")"
 	const FALLBACK_GAP = 0.45;
 
@@ -21,8 +23,10 @@
 	const START = 700;
 	const KEY = 80; // fastest keystroke…
 	const KEY_SPREAD = 110; // …plus up to this much, at random
-	const PAUSE = 1000; // looking at "ii" before taking it back
-	const BACKSPACE = 90;
+	const PAUSE = 1000; // reading "ii! Hello :)" before editing it
+	const BACKSPACE = 70; // …plus up to this much, at random
+	const BACKSPACE_SPREAD = 50;
+	const BEAT = 380; // small decisions: a caret move, the next edit
 	const REST_AFTER = 300; // no key for this long: the caret blinks
 	const DONE_AFTER = 600; // after the last key, the greeting counts as read
 
@@ -40,9 +44,6 @@
 	let cursor = $state<SVGRectElement>();
 	let phase = $state<'idle' | 'typing' | 'rest'>('idle');
 
-	// "ii" (typed, then taken back) are institute "i"s of their own.
-	const II = [INSTITUTE[0], INSTITUTE[5]];
-
 	onMount(() => {
 		if (!svg || !group || !cursor) return;
 		const root = svg;
@@ -56,10 +57,9 @@
 				return { el, ch: el.dataset.ch ?? '', left: b.x * scale, width: b.width * scale, dy, scale };
 			});
 		const hello = glyphsOf('hello', 0, HELLO_SCALE);
-		const ii = glyphsOf('ii');
 		const word = glyphsOf('institute');
 		const smile = glyphsOf('smile', SMILE_DY);
-		const all = [...hello, ...ii, ...word, ...smile];
+		const all = [...hello, ...word, ...smile];
 
 		// Letter-to-letter gaps (ink to ink) as the artworks set them.
 		const gaps = new Map<string, number>();
@@ -69,11 +69,13 @@
 		learn(word.slice(0, 5)); // isobe
 		learn(word.slice(5)); // institute
 		gaps.set('ii', II_GAP);
+		gaps.set('i!', gaps.get(BANG_AFTER + '!') ?? FALLBACK_GAP);
 		gaps.set(':)', COLON_PAREN_GAP);
 		const spaceW = word[5].left - (word[4].left + word[4].width) - SPACE_GAP_AFTER;
 
 		type Token = { glyph: Glyph } | { space: true };
 		const line: Token[] = [];
+		let at = 0; // the caret's index in the line
 
 		const layout = () => {
 			const xs: number[] = [];
@@ -103,7 +105,7 @@
 		caret.setAttribute('width', String(caretW));
 
 		// Shown glyphs at their places, the line centered, the caret at its
-		// end. No transitions — every change snaps.
+		// index. No transitions — every change snaps.
 		const draw = () => {
 			const { xs, end } = layout();
 			all.forEach((g) => (g.el.style.opacity = '0'));
@@ -115,22 +117,40 @@
 			});
 			track.setAttribute('transform', `translate(${(VB_W - end) / 2} 0)`);
 			const last = line[line.length - 1];
-			caret.setAttribute('x', String(!last ? -caretW / 2 : end + ('space' in last ? 0 : CARET_GAP)));
+			let cx: number;
+			if (!last) cx = -caretW / 2;
+			else if (at >= line.length) cx = end + ('space' in last ? 0 : CARET_GAP);
+			else cx = xs[at] - CARET_GAP - caretW;
+			caret.setAttribute('x', String(cx));
 		};
-
-		const type = (...tokens: Token[]) => tokens.forEach((t) => steps.push({ wait: human(), act: () => line.push(t) }));
-		const glyphs = (gs: Glyph[]) => gs.map((glyph) => ({ glyph }));
-		const SPACE: Token = { space: true };
 
 		// The keystrokes, each with the wait before it.
 		const steps: { wait: number; act: () => void }[] = [];
 		const human = () => KEY + Math.random() * KEY_SPREAD;
-		type(...glyphs(hello), SPACE, ...glyphs(ii));
-		steps[0].wait = START;
-		steps.push({ wait: PAUSE, act: () => line.pop() }, { wait: BACKSPACE, act: () => line.pop() });
-		const newWord = steps.length;
-		type(...glyphs(word.slice(0, 5)), SPACE, ...glyphs(word.slice(5)), SPACE, ...glyphs(smile));
-		steps[newWord].wait += KEY; // a beat before spelling it out
+		const SPACE: Token = { space: true };
+		const glyphs = (gs: Glyph[]) => gs.map((glyph) => ({ glyph }));
+		/** Types at the caret; the first key waits `first`. */
+		const type = (tokens: Token[], first = human()) =>
+			tokens.forEach((t, i) => steps.push({ wait: i ? human() : first, act: () => (line.splice(at, 0, t), at++) }));
+		const backspace = (n: number, first: number) => {
+			for (let i = 0; i < n; i++)
+				steps.push({
+					wait: i ? BACKSPACE + Math.random() * BACKSPACE_SPREAD : first,
+					act: () => (line.splice(at - 1, 1), at--)
+				});
+		};
+		const helloWord = hello.slice(0, 5);
+		const bang = hello[5];
+		// 1. ii! Hello :)
+		type([...glyphs([word[0], word[5], bang]), SPACE, ...glyphs(helloWord), SPACE, ...glyphs(smile)], START);
+		// 2. back to "ii"
+		backspace(10, PAUSE);
+		// 3. one step left, between the i's: "sobe "
+		steps.push({ wait: BEAT, act: () => at-- });
+		type([...glyphs(word.slice(1, 5)), SPACE], BEAT);
+		// 4. End, then "nstitute"
+		steps.push({ wait: BEAT, act: () => (at = line.length) });
+		type(glyphs(word.slice(6)), BEAT);
 
 		if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
 			steps.forEach((s) => s.act());
@@ -166,7 +186,6 @@
 <svg bind:this={svg} class="GreetingMark" data-state={phase} viewBox="0 -0.15 {VB_W} 9.15" aria-hidden="true">
 	<g bind:this={group}>
 		{#each HELLO as g, i (i)}<path data-set="hello" data-ch={g.ch} d={g.d} />{/each}
-		{#each II as g, i (i)}<path data-set="ii" data-ch={g.ch} d={g.d} />{/each}
 		{#each INSTITUTE as g, i (i)}<path data-set="institute" data-ch={g.ch} d={g.d} />{/each}
 		{#each SMILE as g, i (i)}<path data-set="smile" data-ch={g.ch} d={g.d} />{/each}
 		<rect bind:this={cursor} class="cursor" x="0" y="0" width="0" height="0" />
