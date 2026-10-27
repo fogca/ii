@@ -26,6 +26,95 @@
 	// Once it has been typed, the first screen (PC) eases up to half a
 	// screen, bringing the film's top half into view.
 	let greeted = $state(false);
+	let film = $state<HTMLElement>();
+
+	// PC, once greeted: between the top and the film's top the page moves
+	// in one step — a scroll down there glides the film up to the top of
+	// the screen, a scroll up glides back to the greeting. Past the film's
+	// top, the page scrolls as usual.
+	const PC = '(min-width: 1024px)';
+	const SNAP_MS = 1000;
+	const SNAP_QUIET_MS = 160; // a trackpad's coasting wheel is swallowed until it stops
+	const SNAP_EDGE = 2; // px of slack at the stops
+	const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
+
+	$effect(() => {
+		if (!greeted || !film || !matchMedia(PC).matches) return;
+		const el = film;
+		const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+		let raf = 0;
+		let gliding = false;
+		let quietTimer = 0;
+		const filmTop = () => el.getBoundingClientRect().top + scrollY;
+
+		/** The direction to glide in, if this scroll starts one. */
+		const snapFor = (down: boolean): 'film' | 'top' | null => {
+			const y = scrollY;
+			const top = filmTop();
+			if (down) return y < top - SNAP_EDGE ? 'film' : null;
+			return y > 0 && y <= top + SNAP_EDGE ? 'top' : null;
+		};
+
+		const glide = (to: 'film' | 'top') => {
+			const from = scrollY;
+			// The film's top is read every frame: it may still be moving
+			// (the greeting easing to half a screen).
+			const target = () => (to === 'film' ? filmTop() : 0);
+			if (reduced) return scrollTo({ top: target(), behavior: 'instant' });
+			gliding = true;
+			const start = performance.now();
+			const step = (now: number) => {
+				const t = Math.min(1, (now - start) / SNAP_MS);
+				scrollTo({ top: from + (target() - from) * easeInOut(t), behavior: 'instant' });
+				if (t < 1) raf = requestAnimationFrame(step);
+				else gliding = false;
+			};
+			raf = requestAnimationFrame(step);
+		};
+
+		const swallowUntilQuiet = () => {
+			clearTimeout(quietTimer);
+			quietTimer = window.setTimeout(() => (quietTimer = 0), SNAP_QUIET_MS);
+		};
+
+		const onWheel = (e: WheelEvent) => {
+			if (e.ctrlKey || Math.abs(e.deltaY) < Math.abs(e.deltaX)) return; // pinch, sideways
+			if (gliding || quietTimer) {
+				e.preventDefault();
+				swallowUntilQuiet();
+				return;
+			}
+			const to = snapFor(e.deltaY > 0);
+			if (!to) return;
+			e.preventDefault();
+			swallowUntilQuiet();
+			glide(to);
+		};
+
+		const KEYS_DOWN = ['ArrowDown', 'PageDown', ' '];
+		const KEYS_UP = ['ArrowUp', 'PageUp'];
+		const onKey = (e: KeyboardEvent) => {
+			const t = e.target as HTMLElement;
+			if (t.closest('input, textarea, select, [contenteditable]') || e.metaKey || e.altKey || e.ctrlKey) return;
+			const down = KEYS_DOWN.includes(e.key) && !e.shiftKey;
+			const up = KEYS_UP.includes(e.key) || (e.key === ' ' && e.shiftKey);
+			if (!down && !up) return;
+			if (gliding) return e.preventDefault();
+			const to = snapFor(down);
+			if (!to) return;
+			e.preventDefault();
+			glide(to);
+		};
+
+		window.addEventListener('wheel', onWheel, { passive: false });
+		window.addEventListener('keydown', onKey);
+		return () => {
+			cancelAnimationFrame(raf);
+			clearTimeout(quietTimer);
+			window.removeEventListener('wheel', onWheel);
+			window.removeEventListener('keydown', onKey);
+		};
+	});
 
 	// <html> flag: the SP header reads in difference over white and film.
 	$effect(() => {
@@ -75,7 +164,7 @@
 	<GreetingMark onDone={() => (greeted = true)} />
 </h1>
 
-<section class="film" aria-label="Works film" use:parallax>
+<section class="film" aria-label="Works film" bind:this={film} use:parallax>
 	<TopReel slides={data.slides} />
 </section>
 
