@@ -500,6 +500,10 @@
 			gap: 24px;
 		}
 
+		.item-name {
+			font-size: 24px;
+		}
+
 		.contact {
 			padding: 160px var(--gutter) 240px;
 		}
