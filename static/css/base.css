@@ -126,6 +126,8 @@
 		--fs-colophon-value: 16px;
 		--fs-about: 20px; /* About statement */
 
+		--gutter: 40px;
+
 		--lh-body: 1.4;
 		--lh-colophon: 36px;
 		--tracking-body: 0;

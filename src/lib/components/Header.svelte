@@ -250,7 +250,6 @@
 			--mark-y: 21.22px;
 			--links-y: 18px;
 			--links-gap: 40px;
-			--links-x: 40px; /* in from the sides (the gutter, where wider) */
 			--x-shift: 1px;
 		}
 
@@ -279,13 +278,13 @@
 			top: calc(var(--links-y) + env(safe-area-inset-top, 0px));
 			z-index: var(--z-header);
 			font-size: 16px;
-			font-weight: 450;
+			font-weight: 500;
 			line-height: 1;
 			color: var(--color-text);
 		}
 
 		.links--left {
-			left: max(var(--links-x), var(--gutter));
+			left: var(--gutter);
 		}
 
 		/* ii-ii.co: the typed letters over the full name, which (unseen) keeps
@@ -305,7 +304,7 @@
 		}
 
 		.links--right {
-			right: max(var(--links-x), var(--gutter));
+			right: var(--gutter);
 		}
 
 		.links a {
