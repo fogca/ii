@@ -230,22 +230,11 @@
 		color: var(--color-text);
 	}
 
-	/* Top page (full-bleed photographs): white controls; the mark turns
-	   white too — the vector by color, the 3D render by inversion (keeps
-	   its modelling instead of swapping to the flat mark). */
-	:global(html.is-top) .Header:not(.is-menu-open) :is(.menu-btn, .mark, .links) {
-		color: #fff;
-	}
-
-	/* About opens on a black film over a white page: SP controls in
-	   difference, white over the black and black over the white. */
-	:global(html.is-about) .Header:not(.is-menu-open) :is(.menu-btn, .mark) {
+	/* The top page and About mix white pages with films: SP controls in
+	   difference, white over the dark and black over the white. */
+	:global(html:is(.is-top, .is-about)) .Header:not(.is-menu-open) :is(.menu-btn, .mark) {
 		color: #fff;
 		mix-blend-mode: difference;
-	}
-
-	:global(html.is-top) .Header:not(.is-menu-open) .mark :global(img.Logo) {
-		filter: invert(1);
 	}
 
 	/* PC geometry (Figma 79:154): lines 60 × 1.5px, 11px apart, top stroke's

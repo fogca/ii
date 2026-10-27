@@ -17,7 +17,8 @@
 		       lib/state/lang.svelte.ts's restore() — keep the two in sync.
 		     - data-op  → whether the opening (the climbing stack of works) plays:
 		       on every full load of the top page (a reload included), never
-		       under reduced motion. Landing anywhere else counts as having
+		       under reduced motion — and only while OPENING is on (mirrors
+		       OPENING in lib/js/site.ts). Landing anywhere else counts as having
 		       entered the site already. (A client-side return to the top plays
 		       it too, out of the page transition's black panel —
 		       +layout.svelte sets it then.) -->
@@ -30,10 +31,11 @@
 					var displayLang = savedLang === 'en' ? 'en' : 'ja';
 					root.dataset.lang = displayLang;
 				} catch (e) {}
+				var OPENING = false;
 				var play = false;
 				try {
 					var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-					play = !reduce && location.pathname === '/';
+					play = OPENING && !reduce && location.pathname === '/';
 				} catch (e) {}
 				root.dataset.op = play ? 'play' : 'skip';
 			})();

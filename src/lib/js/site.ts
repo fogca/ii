@@ -13,6 +13,11 @@ export const INSTAGRAM = {
 /** The contact form (src/routes/contact). */
 export const CONTACT_URL = '/contact';
 
+/** The top page's opening (Opening.svelte: the climbing stack of works).
+    Off since 2026-10-27, kept to bring back: set this AND `OPENING` in
+    src/app.html to true. */
+export const OPENING = false;
+
 /** The type foundry (Apres Guerre, formerly August). */
 export const TYPE_URL = 'https://august.tf';
 

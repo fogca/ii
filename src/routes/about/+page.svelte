@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { ABOUT } from '$lib/content/about';
 	import InstituteMark from '$lib/components/InstituteMark.svelte';
+	import { reveal } from '$lib/actions/reveal';
 
 	// Photo hidden for now (2026-09-30) — a new image will be added later.
 	// Flip back to true to show /images/about.jpg again.
@@ -14,22 +15,6 @@
 		document.documentElement.classList.add('is-about');
 		return () => document.documentElement.classList.remove('is-about');
 	});
-
-	const REVEAL_MARGIN = '0px 0px -12% 0px'; // a little way into the screen
-
-	/** Fades a section in the first time it enters the screen. */
-	function reveal(node: HTMLElement) {
-		const io = new IntersectionObserver(
-			([e]) => {
-				if (!e.isIntersecting) return;
-				node.classList.add('is-in');
-				io.disconnect();
-			},
-			{ rootMargin: REVEAL_MARGIN }
-		);
-		io.observe(node);
-		return { destroy: () => io.disconnect() };
-	}
 </script>
 
 <article class="About">

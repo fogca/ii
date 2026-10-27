@@ -9,7 +9,7 @@
 	import { ui } from '$lib/state/ui.svelte';
 	import { lang } from '$lib/state/lang.svelte';
 	import { browser } from '$app/environment';
-	import { SITE_DESCRIPTION, titleOf } from '$lib/js/site';
+	import { OPENING, SITE_DESCRIPTION, titleOf } from '$lib/js/site';
 
 	let { children, data } = $props();
 
@@ -21,10 +21,10 @@
 		document.documentElement.dataset.lang = lang.current;
 	});
 
-	// Only the archive index has an opening (Opening.svelte flips
+	// Only the top page has an opening, when it is on (Opening.svelte flips
 	// ui.entered itself there); every other page enters at once.
 	onMount(() => {
-		if (page.url.pathname !== '/') ui.entered = true;
+		if (!OPENING || page.url.pathname !== '/') ui.entered = true;
 	});
 
 	// Page changes, as on Otic: the page shrinks toward the screen's middle
@@ -54,7 +54,9 @@
 		if (nav.from?.url.pathname === nav.to.url.pathname) return;
 		if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 		const html = document.documentElement;
-		const home = nav.to.url.pathname === '/';
+		// To the top page with its opening on: the black panel, the opening
+		// playing out of it.
+		const home = OPENING && nav.to.url.pathname === '/';
 		html.dataset.vtTo = home ? 'home' : 'page';
 		if (home) html.dataset.op = 'play';
 		html.classList.add('vt-running');
