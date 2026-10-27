@@ -35,6 +35,10 @@
 	/* The ii-ii.co wordmark across the full width, then 40px down the
 	   Instagram handle and the legal + © row. */
 	.SiteFooter {
+		--color-text: #fff;
+		--color-text-mute: rgba(255, 255, 255, 0.5);
+		background: #333;
+		color: var(--color-text);
 		padding: 120px var(--gutter) calc(18px + env(safe-area-inset-bottom, 0px));
 		text-align: center;
 	}

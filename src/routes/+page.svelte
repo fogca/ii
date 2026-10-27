@@ -5,7 +5,7 @@
 	import { onMount } from 'svelte';
 	import { reveal } from '$lib/actions/reveal';
 	import { ABOUT } from '$lib/content/about';
-	import { OPENING } from '$lib/js/site';
+	import { CONTACT_URL, OPENING } from '$lib/js/site';
 
 	let { data } = $props();
 
@@ -13,7 +13,8 @@
 	// white (the whole first screen) · the works' film (TopReel), a screen
 	// tall, moving a little slower than the page (parallax) · the
 	// statement, large · the first six works as a grid, each at its own
-	// ratio · the services.
+	// ratio · the services · an invitation to get in touch, black, full
+	// bleed.
 	// The statement and services are About's own copy (lib/content/about).
 	// The opening is off for now (OPENING in lib/js/site).
 	const [INTRO, SERVICES] = ABOUT;
@@ -173,6 +174,21 @@
 			</li>
 		{/each}
 	</ol>
+</section>
+
+<section class="contact" aria-labelledby="home-contact">
+	<div class="head">
+		<h2 id="home-contact">Contact</h2>
+	</div>
+	<p class="contact-lead reveal" use:reveal>
+		<span class="x-en" lang="en">For new projects, collaborations and any other enquiries.</span><span
+			class="x-ja"
+			lang="ja">新しいプロジェクトのご相談、協業、その他のお問い合わせはこちらから。</span
+		>
+	</p>
+	<a class="contact-link reveal" href={CONTACT_URL} use:reveal>
+		<span class="x-en" lang="en">Get in touch</span><span class="x-ja" lang="ja">お問い合わせ</span>
+	</a>
 </section>
 
 <style>
@@ -389,6 +405,45 @@
 		line-height: 1.7;
 	}
 
+	/* Black, the full width (the gutter keeps its text in the column). */
+	.contact {
+		padding: 120px var(--gutter) 160px;
+		background: #000;
+		color: #fff;
+		--color-text-mute: rgba(255, 255, 255, 0.5);
+	}
+
+	.contact-lead {
+		max-width: 1100px;
+		font-size: 24px;
+		line-height: 1.45;
+	}
+
+	.contact-lead :lang(ja) {
+		font-size: 20px;
+		line-height: 1.8;
+	}
+
+	.contact-link {
+		display: inline-block;
+		margin-top: 40px;
+		font-size: 24px;
+		line-height: 1.2;
+		text-decoration: underline;
+		text-decoration-thickness: 1px;
+		text-underline-offset: 0.2em;
+	}
+
+	.contact-link:hover {
+		opacity: 0.5;
+	}
+
+	:global(html.js) .contact-link.reveal {
+		transition:
+			opacity 1.2s var(--ease-out),
+			transform 1.2s var(--ease-out);
+	}
+
 	@media (min-width: 1024px) {
 		.statement {
 			padding: 40px var(--gutter) 240px;
@@ -417,6 +472,25 @@
 		.items {
 			grid-template-columns: repeat(4, minmax(0, 1fr));
 			gap: 24px;
+		}
+
+		.contact {
+			padding: 160px var(--gutter) 240px;
+		}
+
+		.contact-lead,
+		.contact-link {
+			font-size: 40px;
+			line-height: 1.35;
+		}
+
+		.contact-lead :lang(ja) {
+			font-size: 32px;
+			line-height: 1.7;
+		}
+
+		.contact-link {
+			margin-top: 56px;
 		}
 	}
 </style>
