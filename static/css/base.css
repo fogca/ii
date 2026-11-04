@@ -34,13 +34,13 @@
    --------------------------------------------------------------------- */
 /* Maxica (APGR Maxica; adopted 2026-11-04) — II's primary Latin face, ahead of
    Ango. Variable wght 50–950, so the 450 / 550 tokens below work as before.
-   It only carries what is drawn in BOTH its masters (VF17: A–Z, a–y, space — no
+   It only carries what is drawn in BOTH its masters (VF18: A–Z, a–y, space — no
    figures, punctuation, accents or "z" yet); every other character falls through
    to Ango, then Norma, per glyph. When Maxica grows, update the file here AND the
    preload in app.html (bump ?v= in both). */
 @font-face {
 	font-family: 'Maxica';
-	src: url('/fonts/Maxica-VF17.woff2?v=17') format('woff2-variations');
+	src: url('/fonts/Maxica-VF18.woff2?v=18') format('woff2-variations');
 	font-weight: 50 950;
 	font-style: normal;
 	font-display: swap;
