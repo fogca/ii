@@ -299,7 +299,7 @@
 	/* Text */
 	.lead {
 		white-space: pre-line;
-		font-weight: 480;
+		font-weight: var(--fw-regular);
 	}
 
 	/* English text block: a quieter lead (capitalized, not uppercase) and a

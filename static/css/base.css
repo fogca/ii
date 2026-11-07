@@ -71,10 +71,11 @@
 		'TazuganeGothicStdN-Book', 'Tazugane Gothic StdN', 'Tazugane Gothic', 'Hiragino Sans',
 		'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Meiryo', sans-serif;
 
-	/* Weights — Regular 450 / Medium 550 (on Ango's wght axis).
+	/* Weights — one weight site-wide, 400 (2026-11-08); Medium is kept as
+	   a token (it was 550) so emphasis can come back in one place.
 	   Single source of truth: components never hardcode a wght. */
-	--fw-regular: 450;
-	--fw-medium: 550;
+	--fw-regular: 400;
+	--fw-medium: 400;
 	--fw-eyebrow: var(--fw-regular); /* Figma SP: Ango Regular 10px */
 
 	/* Tracking */

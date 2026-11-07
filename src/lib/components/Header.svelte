@@ -278,7 +278,7 @@
 			top: calc(var(--links-y) + env(safe-area-inset-top, 0px));
 			z-index: var(--z-header);
 			font-size: 16px;
-			font-weight: 500;
+			font-weight: var(--fw-regular);
 			line-height: 1;
 			color: var(--color-text);
 		}
