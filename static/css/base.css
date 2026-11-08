@@ -30,14 +30,14 @@
    every stack below.
    Japanese matches Office: 石井ゴシック M (TypeSquare) ahead of Tazugane
    (FONTPLUS), both loaded from app.html.
-   VF41 (2026-11-08) is Humorist's latest, as shipped on the foundry
+   VF42 (2026-11-08) is Humorist's latest, as shipped on the foundry
    site (Dev/august): 234 characters, wght 50–950. Maxica (adopted
    2026-11-04) was taken back out the same week — Ango leads again.
    Bump ?v= here AND in app.html's preload when a font file changes.
    --------------------------------------------------------------------- */
 @font-face {
 	font-family: 'Ango';
-	src: url('/fonts/Ango-VF41.woff2?v=41') format('woff2-variations');
+	src: url('/fonts/Ango-VF42.woff2?v=42') format('woff2-variations');
 	font-weight: 50 950;
 	font-style: normal;
 	font-display: swap;
