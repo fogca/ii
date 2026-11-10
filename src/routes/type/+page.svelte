@@ -15,13 +15,13 @@
 		buy: string;
 	};
 
-	// Copy from the foundry's own site (august.tf) — only what it states.
+	// Copy from the foundry's own site (timetokyo.pages.dev) — only what it states.
 	const FONTS: Font[] = [
 		{
 			name: 'Ango',
 			family: "'Ango', sans-serif",
 			weight: { min: 150, max: 950, value: 450 },
-			note: ['Reticent and Ravenous.', 'In development · 9 weights.', 'By Apres Guerre.'],
+			note: ['Reticent and Ravenous.', 'In development · 9 weights.', 'By Time Type Tokyo.'],
 			buy: `${TYPE_URL}/buy`
 		}
 	];
