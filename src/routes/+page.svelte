@@ -33,10 +33,15 @@
 	// the screen, a scroll up glides back to the greeting. Past the film's
 	// top, the page scrolls as usual.
 	const PC = '(min-width: 1024px)';
-	const SNAP_MS = 1000;
-	const SNAP_QUIET_MS = 160; // a trackpad's coasting wheel is swallowed until it stops
+	const SNAP_MS = 700;
+	// After a glide, the trackpad's coasting wheel (deltas dying away) is
+	// swallowed, but never for longer than this — and a fresh swipe (a delta
+	// growing again) goes straight through, so the page below is one more
+	// scroll away, not a wait.
+	const SNAP_HOLD_MS = 350;
+	const SNAP_QUIET_MS = 120; // no wheel for this long: the coasting has stopped
 	const SNAP_EDGE = 2; // px of slack at the stops
-	const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
+	const easeOut = (t: number) => 1 - (1 - t) ** 4; // moves at once, settles softly
 
 	$effect(() => {
 		if (!greeted || !film || !matchMedia(PC).matches) return;
@@ -45,6 +50,8 @@
 		let raf = 0;
 		let gliding = false;
 		let quietTimer = 0;
+		let holdUntil = 0; // swallow coasting wheel until then at the latest
+		let lastDelta = 0;
 		const filmTop = () => el.getBoundingClientRect().top + scrollY;
 
 		/** The direction to glide in, if this scroll starts one. */
@@ -65,9 +72,12 @@
 			const start = performance.now();
 			const step = (now: number) => {
 				const t = Math.min(1, (now - start) / SNAP_MS);
-				scrollTo({ top: from + (target() - from) * easeInOut(t), behavior: 'instant' });
+				scrollTo({ top: from + (target() - from) * easeOut(t), behavior: 'instant' });
 				if (t < 1) raf = requestAnimationFrame(step);
-				else gliding = false;
+				else {
+					gliding = false;
+					holdUntil = performance.now() + SNAP_HOLD_MS;
+				}
 			};
 			raf = requestAnimationFrame(step);
 		};
@@ -79,7 +89,10 @@
 
 		const onWheel = (e: WheelEvent) => {
 			if (e.ctrlKey || Math.abs(e.deltaY) < Math.abs(e.deltaX)) return; // pinch, sideways
-			if (gliding || quietTimer) {
+			const d = Math.abs(e.deltaY);
+			const coasting = quietTimer && performance.now() < holdUntil && d <= lastDelta;
+			lastDelta = d;
+			if (gliding || coasting) {
 				e.preventDefault();
 				swallowUntilQuiet();
 				return;
@@ -88,6 +101,7 @@
 			if (!to) return;
 			e.preventDefault();
 			swallowUntilQuiet();
+			holdUntil = Infinity; // until the glide ends
 			glide(to);
 		};
 
