@@ -18,7 +18,7 @@ export const CONTACT_URL = '/contact';
     src/app.html to true. */
 export const OPENING = false;
 
-/** The type foundry (Time Type Tokyo, formerly Apres Guerre / August). */
+/** The type foundry (Time Type Tokyo). */
 export const TYPE_URL = 'https://timetokyo.pages.dev';
 
 /** Site navigation: PC header links and the menu sheet. */

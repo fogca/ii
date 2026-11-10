@@ -191,7 +191,7 @@
 	}
 
 	/* ii-ii.co: each glyph rises out of the wordmark's own box (the svg
-	   clips to its viewBox), left to right — as the Apres Guerre opening
+	   clips to its viewBox), left to right — as the foundry site's opening
 	   logo. translateY is in viewBox units: 8.5 clears the box. */
 	.domain :global(.DomainMark path) {
 		transform: translateY(8.5px);

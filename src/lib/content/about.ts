@@ -55,16 +55,16 @@ export const ABOUT: AboutSection[] = [
 				name: 'V.I. & Typeface',
 				nameJa: 'ビジュアルアイデンティティと書体の開発',
 				body: {
-					en: 'We shape identities through logo, graphic and package design, carrying the precision of our partner type foundry, Ōgast — which reinterprets history to draw new typefaces — into every brand.',
-					ja: 'ロゴ、グラフィック、パッケージを通してブランドの造形言語をつくります。歴史を紐解き新たな書体を生み出すパートナーのタイプファウンダリ、Ōgastで培ったディテールへの眼差しを、すべてのアイデンティティに通わせます。'
+					en: 'We shape identities through logo, graphic and package design, carrying the precision of our partner type foundry, Time Type Tokyo — which reinterprets history to draw new typefaces — into every brand.',
+					ja: 'ロゴ、グラフィック、パッケージを通してブランドの造形言語をつくります。歴史を紐解き新たな書体を生み出すパートナーのタイプファウンダリ、Time Type Tokyoで培ったディテールへの眼差しを、すべてのアイデンティティに通わせます。'
 				}
 			},
 			{
 				name: 'Digital Infrastructure',
 				nameJa: 'UXとデジタルコミュニケーションの設計',
 				body: {
-					en: 'With our partner engineering studio, Post Script, we design and build brand sites, e-commerce, reservation systems, web apps and AI / DX integration — giving a brand its form in the digital world.',
-					ja: 'パートナーのエンジニアリングスタジオ、Post Scriptとともに、ブランドサイト、Eコマース、予約システム、Webアプリ、AI/DXインテグレーションまでを設計・実装し、ブランドのデジタル体験を形にします。'
+					en: 'With our partner engineering studio, we design and build brand sites, e-commerce, reservation systems, web apps and AI / DX integration — giving a brand its form in the digital world.',
+					ja: 'パートナーのエンジニアリングスタジオとともに、ブランドサイト、Eコマース、予約システム、Webアプリ、AI/DXインテグレーションまでを設計・実装し、ブランドのデジタル体験を形にします。'
 				}
 			}
 		]
@@ -113,8 +113,8 @@ export const ABOUT: AboutSection[] = [
 			ja: '磯部タクミ'
 		},
 		body: {
-			en: 'Born in Japan in 2001.\nWhile attending the University of Westminster in the UK, exposed to a wide range of cultures and arts, I developed a strong interest in visual expression and entered the creative design industry. After returning to Japan during COVID-19 and working at several design studios in Tokyo, I established my own practice. Today, as creative director at Mirai Service Co., Ltd., I run a design office at the core of my work, alongside AUGUST — a type foundry designing original typefaces — and an image-making studio.',
-			ja: '2001年日本生まれ。\n英国University of Westminster在学時、多様な文化と芸術に触れる中で、視覚表現に強く興味を抱きクリエイティブ・デザイン業界へ。COVID19の中で帰国し東京都内のデザインオフィス数社を経て、独立。現在は株式会社みらいサービスのクリエイティブ事業部ディレクターとして、デザインオフィスを基軸に独自の書体を開発設計するAUGUSTタイプファウンダリやイメージメークスタジオの運営を行っている。'
+			en: 'Born in Japan in 2001.\nWhile attending the University of Westminster in the UK, exposed to a wide range of cultures and arts, I developed a strong interest in visual expression and entered the creative design industry. After returning to Japan during COVID-19 and working at several design studios in Tokyo, I established my own practice. Today, as creative director at Mirai Service Co., Ltd., I run a design office at the core of my work, alongside Time Type Tokyo — a type foundry designing original typefaces — and an image-making studio.',
+			ja: '2001年日本生まれ。\n英国University of Westminster在学時、多様な文化と芸術に触れる中で、視覚表現に強く興味を抱きクリエイティブ・デザイン業界へ。COVID19の中で帰国し東京都内のデザインオフィス数社を経て、独立。現在は株式会社みらいサービスのクリエイティブ事業部ディレクターとして、デザインオフィスを基軸に独自の書体を開発設計するタイプファウンダリTime Type Tokyoやイメージメークスタジオの運営を行っている。'
 		}
 	}
 ];
