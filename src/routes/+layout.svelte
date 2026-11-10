@@ -126,7 +126,7 @@
 	<meta property="og:site_name" content="II — Isobe Institute" />
 	<meta property="og:title" content={pageTitle} />
 	<meta property="og:description" content={seo?.description ?? SITE_DESCRIPTION} />
-	<meta property="og:image" content={seo?.image ?? `${page.url.origin}/images/op-landscape.jpg`} />
+	<meta property="og:image" content={seo?.image ?? `${page.url.origin}/images/og.png`} />
 	<meta name="twitter:card" content="summary_large_image" />
 </svelte:head>
 
