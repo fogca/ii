@@ -247,10 +247,20 @@
 		grid-area: name;
 	}
 
+	/* The work's name, large (the top page's Works head on PC). */
 	.band h1 {
 		font: inherit;
+		margin-top: 6px;
+		font-size: 24px;
+		line-height: 1.2;
 		text-transform: none;
 		letter-spacing: 0;
+	}
+
+	@media (min-width: 1024px) {
+		.band h1 {
+			font-size: 36px;
+		}
 	}
 
 	.b-number,
@@ -476,8 +486,10 @@
 			grid-template-areas: 'name summary scope back';
 			height: 25vh;
 			height: 25dvh;
-			/* the band's text 94px above the strip (Studio Sly) */
-			padding: max(64px, calc(25dvh - 94px)) var(--gutter) 0;
+			/* The band's text sits on the strip, 24px above it, so a name
+			   that runs to two lines grows upward, not into the images. */
+			align-content: end;
+			padding: 64px var(--gutter) 24px;
 		}
 
 		.strip,

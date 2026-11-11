@@ -6,6 +6,7 @@
 	import { reveal } from '$lib/actions/reveal';
 	import { ABOUT } from '$lib/content/about';
 	import { CONTACT_URL, OPENING } from '$lib/js/site';
+	import { PROCESS, PROCESS_HEADING, PROCESS_LEAD } from '$lib/content/process';
 
 	let { data } = $props();
 
@@ -234,6 +235,41 @@
 	</ol>
 </section>
 
+<!-- How we work: a loop of four phases, each with the work it holds —
+     numbered rows between hairlines (et cetera's About Services). -->
+<section class="process" aria-labelledby="home-process">
+	<div class="head">
+		<h2 id="home-process">Process</h2>
+	</div>
+	<p class="services-heading reveal" use:reveal>
+		<span class="x-en" lang="en">{PROCESS_HEADING.en}</span><span class="x-ja" lang="ja">{PROCESS_HEADING.ja}</span>
+	</p>
+	<p class="process-lead x-en reveal" lang="en" use:reveal>{PROCESS_LEAD.en}</p>
+	<p class="process-lead x-ja reveal" lang="ja" use:reveal>{PROCESS_LEAD.ja}</p>
+	<ol class="phases">
+		{#each PROCESS as phase, i (phase.name)}
+			<li class="phase reveal" use:reveal>
+				<p class="phase-num">{String(i + 1).padStart(2, '0')}</p>
+				<div class="phase-title">
+					<h3 class="phase-name" lang="en">{phase.name}</h3>
+					<p class="phase-label">
+						<span class="x-en" lang="en">{phase.label.en}</span><span class="x-ja" lang="ja">{phase.label.ja}</span>
+					</p>
+				</div>
+				<div class="phase-text">
+					<p class="phase-body x-en" lang="en">{phase.body.en}</p>
+					<p class="phase-body x-ja" lang="ja">{phase.body.ja}</p>
+					<ul class="tasks">
+						{#each phase.tasks as task (task.en)}
+							<li><span class="x-en" lang="en">{task.en}</span><span class="x-ja" lang="ja">{task.ja}</span></li>
+						{/each}
+					</ul>
+				</div>
+			</li>
+		{/each}
+	</ol>
+</section>
+
 <section class="contact" aria-labelledby="home-contact">
 	<div class="head">
 		<h2 id="home-contact">Contact</h2>
@@ -434,6 +470,77 @@
 		line-height: 1.7;
 	}
 
+	.process {
+		padding: 0 var(--gutter) 200px;
+	}
+
+	.process-lead {
+		max-width: 760px;
+		margin-top: -32px;
+		margin-bottom: 56px;
+		font-size: 13.5px;
+		line-height: 1.7;
+	}
+
+	/* Numbered rows between hairlines: the number in its own column, the
+	   phase and its line, then the text and the work it holds. */
+	.phase {
+		display: grid;
+		grid-template-columns: 40px minmax(0, 1fr);
+		column-gap: 0;
+		padding: 24px 0 32px;
+		border-top: 0.5px solid var(--color-line, rgba(0, 0, 0, 0.25));
+	}
+
+	.phase:last-child {
+		border-bottom: 0.5px solid var(--color-line, rgba(0, 0, 0, 0.25));
+	}
+
+	.phase-num,
+	.phase-label,
+	.tasks {
+		color: var(--color-text-mute);
+	}
+
+	.phase-num {
+		font-size: 12.5px;
+		line-height: 1.4;
+	}
+
+	.phase-title,
+	.phase-text {
+		grid-column: 2;
+	}
+
+	.phase-name {
+		font-size: 16px;
+		font-weight: var(--fw-regular);
+		line-height: 1.4;
+		text-transform: none;
+		letter-spacing: 0;
+	}
+
+	.phase-label {
+		margin-top: 2px;
+		font-size: 12.5px;
+		line-height: 1.4;
+	}
+
+	.phase-text {
+		margin-top: 16px;
+	}
+
+	.phase-body {
+		font-size: 13.5px;
+		line-height: 1.7;
+	}
+
+	.tasks {
+		margin-top: 16px;
+		font-size: 12.5px;
+		line-height: 1.7;
+	}
+
 	/* Black, the full width (the gutter keeps its text in the column). */
 	.contact {
 		padding: 120px var(--gutter) 160px;
@@ -521,6 +628,52 @@
 
 		.item-name {
 			font-size: 24px;
+		}
+
+		.process-lead {
+			margin-top: -24px;
+			margin-bottom: 80px;
+			font-size: 16px;
+		}
+
+		/* number · phase · text, side by side */
+		.phase {
+			grid-template-columns: 1fr 4fr 7fr;
+			column-gap: 24px;
+			padding: 32px 0 48px;
+		}
+
+		.phase-title {
+			grid-column: 2;
+		}
+
+		.phase-text {
+			grid-column: 3;
+			margin-top: 0;
+		}
+
+		.phase-num,
+		.phase-name {
+			font-size: 24px;
+			line-height: 1.3;
+		}
+
+		.phase-label {
+			margin-top: 4px;
+			font-size: 16px;
+		}
+
+		.phase-body {
+			max-width: 640px;
+			font-size: 16px;
+		}
+
+		.tasks {
+			display: grid;
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			column-gap: 24px;
+			margin-top: 24px;
+			font-size: 14px;
 		}
 
 		.contact {
