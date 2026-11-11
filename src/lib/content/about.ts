@@ -17,6 +17,8 @@ export type AboutItem = {
 	body: Bilingual;
 	/** A 16:9 film shown above the item on the top page (Services). */
 	film?: string;
+	/** …or stills, crossfading one after another in the same frame. */
+	stills?: { src: string; width: number; height: number }[];
 };
 
 export type AboutSection = {
@@ -39,7 +41,7 @@ export const ABOUT: AboutSection[] = [
 		title: 'II. Services & Partners',
 		heading: {
 			en: 'Four practices and a network of partner studios',
-			ja: '4つの領域とパートナーシップ'
+			ja: 'わたしたちの創作領域'
 		},
 		items: [
 			{
@@ -76,7 +78,15 @@ export const ABOUT: AboutSection[] = [
 					en: 'We direct how a brand is seen — through photography, CG, film and motion — and picture its world as one image that reaches people.',
 					ja: '撮影、CG、映像、モーションを通して、ブランドがどう見られるかをディレクションし、その世界観をひとつのイメージとして人々へ届けます。'
 				},
-				film: 'https://cdn.takumiisobe.com/OTIC_Thalassic_Fluid_02.mp4'
+				// SSAN's photographs, JDS and Ondo's product images.
+				stills: [
+					{ src: 'https://images.microcms-assets.io/assets/8d1f89ccf24c440abf8ed5bd9d072473/ae573bfc9a90423e858912af4ebd4752/SSAN_Product0327%201.jpg', width: 3974, height: 4836 },
+					{ src: 'https://images.microcms-assets.io/assets/8d1f89ccf24c440abf8ed5bd9d072473/82a1660300014da08701574b223bbf85/OTIC_JDS_02.png', width: 3200, height: 1800 },
+					{ src: 'https://images.microcms-assets.io/assets/8d1f89ccf24c440abf8ed5bd9d072473/bad8327879a34c65b1e5c8ae7a4f76ca/Canon-0325.jpg', width: 3724, height: 2483 },
+					{ src: 'https://images.microcms-assets.io/assets/8d1f89ccf24c440abf8ed5bd9d072473/07e93a50d18e4ba699caa4b266f2d1f7/TIC_Ondo_03.jpg', width: 3200, height: 1800 },
+					{ src: 'https://images.microcms-assets.io/assets/8d1f89ccf24c440abf8ed5bd9d072473/6a609f07566642a08761f7e69e9d761f/image-1786540320894.jpg', width: 5310, height: 6810 },
+					{ src: 'https://images.microcms-assets.io/assets/8d1f89ccf24c440abf8ed5bd9d072473/dd531bc3ed6e4d9f8ef76846643ad44f/%40Ondo_003_KV%40.jpg', width: 2400, height: 1800 }
+				]
 			}
 		]
 	},

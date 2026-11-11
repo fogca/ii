@@ -170,6 +170,16 @@
 
 	const CARD_SIZES = '(min-width: 1024px) 33vw, 50vw';
 	const FILM_SIZES = '(min-width: 1024px) 25vw, 100vw';
+
+	// A service shown by stills rather than a film: they crossfade, one
+	// every STILL_MS (held on the first with reduced motion).
+	const STILL_MS = 2600;
+	let stillAt = $state(0);
+	$effect(() => {
+		if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+		const id = setInterval(() => stillAt++, STILL_MS);
+		return () => clearInterval(id);
+	});
 </script>
 
 {#if OPENING}
@@ -225,7 +235,15 @@
 	<ol class="items">
 		{#each SERVICES.items ?? [] as item, i (item.name)}
 			<li class="item reveal" use:reveal>
-				{#if item.film}
+				{#if item.stills}
+					<div class="item-film">
+						{#each item.stills as still, j (still.src)}
+							<div class="still" class:is-on={j === stillAt % item.stills.length}>
+								<Media media={{ ...still, isVideo: false }} sizes={FILM_SIZES} cover />
+							</div>
+						{/each}
+					</div>
+				{:else if item.film}
 					<div class="item-film">
 						<Media media={{ src: item.film, isVideo: true }} sizes={FILM_SIZES} cover />
 					</div>
@@ -463,9 +481,24 @@
 		background: #f4f4f4;
 	}
 
+	.item-film {
+		position: relative;
+	}
+
 	.item-film :global(.Media) {
 		width: 100%;
 		height: 100%;
+	}
+
+	.still {
+		position: absolute;
+		inset: 0;
+		opacity: 0;
+		transition: opacity 1.2s var(--ease-out);
+	}
+
+	.still.is-on {
+		opacity: 1;
 	}
 
 	.item-num {

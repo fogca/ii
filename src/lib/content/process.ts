@@ -60,7 +60,7 @@ export const PROCESS: ProcessPhase[] = [
 		label: { en: 'Choosing by letting go', ja: '選び取る' },
 		body: {
 			en: 'To decide is also to let go. From the countless possibilities pursued without constraint, we choose only what can be called necessary — in its purpose, use, structure and message — and design it.',
-			ja: '決めることは、捨てることでもあります。何事にも囚われず追求した無数の可能性のなかから、目的・用途構造・メッセージなどの関係において必然と呼べるものを選び取り、デザインしていきます。'
+			ja: '決めることは、捨てることでもあります。何事にも囚われず追求した無数の可能性のなかから、目的・用途・構造・メッセージなどの関係において必然と呼べるものを選び取り、デザインしていきます。'
 		},
 		tasks: [
 			{ en: 'Visual identity and logo', ja: 'VI・ロゴ' },
