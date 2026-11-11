@@ -60,7 +60,7 @@ export const ABOUT: AboutSection[] = [
 					en: 'We shape identities through logo, graphic and package design, carrying the precision of our partner type foundry, Time Type Tokyo — which reinterprets history to draw new typefaces — into every brand.',
 					ja: 'ロゴ、グラフィック、パッケージを通してブランドの造形言語をつくります。歴史を紐解き新たな書体を生み出すパートナーのタイプファウンダリ、Time Type Tokyoで培ったディテールへの眼差しを、すべてのアイデンティティに通わせます。'
 				},
-				film: 'https://cdn.takumiisobe.com/13_miles158_brand_animation.mp4'
+				film: 'https://cdn.takumiisobe.com/TIC-JDS_VIScroll_Inverted.mp4'
 			},
 			{
 				name: 'Design & Engineering',
