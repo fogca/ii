@@ -2,15 +2,22 @@
 // Numbered section titles stay English in both languages; everything else
 // is EN/JA and follows the display-language switch. Services and the Ethos
 // lead derive from the Office site's copy (Dev/OTIF/src/routes/office/
-// +page.svelte), summarised; Office's "Image Visualisation" is replaced by
-// Research & Strategy. IV. Director is Office's director profile as is.
+// +page.svelte), summarised. Services were regrouped 2026-11-11 (Research
+// & Strategy / Identity / Design & Engineering / Art Direction &
+// Visualisation). IV. Director is Office's director profile as is.
 // A "\n" in a body is a line break. Static content: not in the CMS.
 
 export type Bilingual = { en: string; ja: string };
 
 /** A numbered item (Services / Ethos parts): its name in each language
     and a bilingual body; rendered run-in, one paragraph per section. */
-export type AboutItem = { name: string; nameJa: string; body: Bilingual };
+export type AboutItem = {
+	name: string;
+	nameJa: string;
+	body: Bilingual;
+	/** A 16:9 film shown above the item on the top page (Services). */
+	film?: string;
+};
 
 export type AboutSection = {
 	/** e.g. "I. Introduction" — English in both languages. */
@@ -41,31 +48,35 @@ export const ABOUT: AboutSection[] = [
 				body: {
 					en: 'We begin by reading the age and where a brand stands in it — through research, dialogue and study — and translate what we find into a strategy and direction that every later decision can return to.',
 					ja: '時代とブランドの立ち位置を、リサーチと対話、学びを通して読み解き、その後のあらゆる判断が立ち返ることのできる戦略とディレクションへと翻訳します。'
-				}
+				},
+				film: 'https://cdn.takumiisobe.com/13_typography_statements_bk.mp4'
 			},
 			{
-				name: 'Product Engineering',
-				nameJa: 'プロダクトと家具の設計・開発',
-				body: {
-					en: 'Returning to the materiality that meets the body, we design and develop products and furniture whose forms arise from material, structure and presence — objects that bring use and quiet joy to daily life.',
-					ja: '身体に触れる物質性に立ち返り、素材・構造・佇まいの関係から必然のかたちを導き、日々の所作に添う用と喜びのあるプロダクトと家具を企画・開発します。'
-				}
-			},
-			{
-				name: 'V.I. & Typeface',
-				nameJa: 'ビジュアルアイデンティティと書体の開発',
+				name: 'Identity',
+				nameJa: 'アイデンティティの策定',
 				body: {
 					en: 'We shape identities through logo, graphic and package design, carrying the precision of our partner type foundry, Time Type Tokyo — which reinterprets history to draw new typefaces — into every brand.',
 					ja: 'ロゴ、グラフィック、パッケージを通してブランドの造形言語をつくります。歴史を紐解き新たな書体を生み出すパートナーのタイプファウンダリ、Time Type Tokyoで培ったディテールへの眼差しを、すべてのアイデンティティに通わせます。'
-				}
+				},
+				film: 'https://cdn.takumiisobe.com/13_miles158_brand_animation.mp4'
 			},
 			{
-				name: 'Digital Infrastructure',
-				nameJa: 'UXとデジタルコミュニケーションの設計',
+				name: 'Design & Engineering',
+				nameJa: 'デザインと設計',
 				body: {
-					en: 'With our partner engineering studio, we design and build brand sites, e-commerce, reservation systems, web apps and AI / DX integration — giving a brand its form in the digital world.',
-					ja: 'パートナーのエンジニアリングスタジオとともに、ブランドサイト、Eコマース、予約システム、Webアプリ、AI/DXインテグレーションまでを設計・実装し、ブランドのデジタル体験を形にします。'
-				}
+					en: 'Returning to the materiality that meets the body, we design and develop products and furniture; with our partner engineering studio, we design and build brand sites, e-commerce, reservation systems, web apps and AI / DX integration — giving a brand its form, in hand and on screen.',
+					ja: '身体に触れる物質性に立ち返り、素材・構造・佇まいの関係から導いたプロダクトと家具を企画・開発します。パートナーのエンジニアリングスタジオとともに、ブランドサイト、Eコマース、予約システム、Webアプリ、AI/DXインテグレーションまでを設計・実装し、ブランドを手に触れるかたちとデジタルの体験にします。'
+				},
+				film: 'https://cdn.takumiisobe.com/12_one_pv_slider.mp4'
+			},
+			{
+				name: 'Art Direction & Visualisation',
+				nameJa: 'アートディレクションとビジュアライズ',
+				body: {
+					en: 'We direct how a brand is seen — through photography, CG, film and motion — and picture its world as one image that reaches people.',
+					ja: '撮影、CG、映像、モーションを通して、ブランドがどう見られるかをディレクションし、その世界観をひとつのイメージとして人々へ届けます。'
+				},
+				film: 'https://cdn.takumiisobe.com/OTIC_Thalassic_Fluid_02.mp4'
 			}
 		]
 	},
