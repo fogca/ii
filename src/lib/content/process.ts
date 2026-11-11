@@ -1,24 +1,26 @@
 // Top — Process: how we work, as a loop (after Boyd's OODA loop:
-// observe, orient, decide, act), then under each phase the work it holds,
-// drawn from the works' scopes. Laid out like the Services list on
-// et cetera's About page: numbered rows between hairlines.
-// DRAFT copy (2026-11-11), not agreed yet.
+// observe, orient, decide, act — one phase each), then under each phase
+// the work it holds, drawn from the works' scopes, with a 16:9 film above
+// it. Laid out like the Services list on et cetera's About page: numbered
+// rows between hairlines.
+// Copy agreed 2026-11-11; the films are stand-ins from the works for now.
 
 import type { Bilingual } from './about';
 
 export type ProcessPhase = {
-	/** The phase's name, English in both languages (Observe …). */
-	name: string;
-	/** A short line under the name. */
+	name: Bilingual;
+	/** The OODA phase it stands for (Observe …). */
 	label: Bilingual;
 	body: Bilingual;
 	/** The work this phase holds. */
 	tasks: Bilingual[];
+	/** A 16:9 film shown above the phase (cropped to fill). */
+	film: string;
 };
 
 export const PROCESS_HEADING: Bilingual = {
 	en: 'A loop, not a line',
-	ja: '直線ではなく、循環として'
+	ja: '直線ではない循環的創作'
 };
 
 export const PROCESS_LEAD: Bilingual = {
@@ -28,62 +30,65 @@ export const PROCESS_LEAD: Bilingual = {
 
 export const PROCESS: ProcessPhase[] = [
 	{
-		name: 'Observe',
-		label: { en: 'Looking before knowing', ja: '観る' },
+		name: { en: 'Research & Strategy', ja: 'リサーチと戦略' },
+		label: { en: 'Observe', ja: '観る' },
 		body: {
-			en: 'Before knowing, we look. Setting assumptions aside, we observe not only markets and competitors but the air of a place, the gestures of those who use things, the feel of a material — taking in what is there before hurrying to an answer.',
-			ja: '知る前に、まず観る。先入観をいったん脇に置き、市場や競合だけでなく、場の空気、使い手の所作、素材の手触りまでを観察します。答えを急がず、そこにあるものをそのまま受け取ることから始めます。'
+			en: 'Before knowing, we look. Setting assumptions aside, we observe not only markets and competitors but the air of a place, the gestures of those who use things, the feel of a material — taking in what is there before hurrying to an answer, and drawing a strategy from it.',
+			ja: '知る前に、まず観る。先入観をいったん脇に置き、市場や競合だけでなく、場の空気、使い手の所作、素材の手触りまでを観察します。答えを急がず、そこにあるものをそのまま受け取ることから、戦略を導きます。'
 		},
 		tasks: [
 			{ en: 'Market and competitor research', ja: '市場・競合リサーチ' },
 			{ en: 'Interviews and workshops', ja: 'ヒアリング・ワークショップ' },
 			{ en: 'Fieldwork', ja: 'フィールドワーク' },
-			{ en: 'Brand audit', ja: '既存ブランドの棚卸し' }
-		]
+			{ en: 'Brand audit', ja: '既存ブランドの棚卸し' },
+			{ en: 'Brand strategy and positioning', ja: 'ブランド戦略・ポジショニング' }
+		],
+		film: 'https://cdn.takumiisobe.com/13_typography_statements_bk.mp4'
 	},
 	{
-		name: 'Orient',
-		label: { en: 'Reading what is seen', ja: '読み解く' },
+		name: { en: 'Identity', ja: 'アイデンティティの策定' },
+		label: { en: 'Orient', ja: '読み解く' },
 		body: {
-			en: 'What we see is given meaning by the culture, history and philosophy we stand on. We read where a brand stands in its age and what it should hand on, and put that into words — the axis every later decision returns to. This is the heart of the loop.',
-			ja: '観たものに意味を与えるのは、わたしたちが拠って立つ文化や歴史、哲学です。ブランドが時代のどこに立ち、何を手渡すべきかを読み解き、その後のあらゆる判断が立ち返る軸として言語化します。この循環の要は、ここにあります。'
+			en: 'What we see is given meaning by the culture, history and philosophy we stand on. We read where a brand stands in its age and what it should hand on, and set it down as an identity — in words, a mark and a typeface — the axis every later decision returns to. This is the heart of the loop.',
+			ja: '観たものに意味を与えるのは、わたしたちが拠って立つ文化や歴史、哲学です。ブランドが時代のどこに立ち、何を手渡すべきかを読み解き、言葉とロゴ、書体からなるアイデンティティとして定めます。その後のあらゆる判断が立ち返る軸——この循環の要は、ここにあります。'
 		},
 		tasks: [
-			{ en: 'Brand strategy and positioning', ja: 'ブランド戦略・ポジショニング' },
 			{ en: 'Concept and statement', ja: 'コンセプト・ステートメント' },
 			{ en: 'Naming', ja: 'ネーミング' },
-			{ en: 'Creative direction', ja: 'クリエイティブディレクション' }
-		]
+			{ en: 'Visual identity and logo', ja: 'VI・ロゴ' },
+			{ en: 'Typeface design', ja: '書体開発' }
+		],
+		film: 'https://cdn.takumiisobe.com/13_miles158_brand_animation.mp4'
 	},
 	{
-		name: 'Decide',
-		label: { en: 'Choosing by letting go', ja: '選び取る' },
+		name: { en: 'Design & Production', ja: 'デザインと制作' },
+		label: { en: 'Decide', ja: '選び取る' },
 		body: {
-			en: 'To decide is also to let go. From countless possibilities we keep only the forms that feel necessary in their material, structure and presence, and fix them as identities, typefaces and objects.',
-			ja: '決めることは、捨てることでもあります。無数の可能性のなかから、素材・構造・佇まいの関係において必然と呼べるかたちだけを選び取り、アイデンティティや書体、プロダクトとして定着させます。'
+			en: 'To decide is also to let go. From countless possibilities we keep only the forms that feel necessary in their material, structure and presence, and make them — as products and packaging, and as experiences on screen.',
+			ja: '決めることは、捨てることでもあります。無数の可能性のなかから、素材・構造・佇まいの関係において必然と呼べるかたちだけを選び取り、プロダクトやパッケージ、デジタルの体験として制作します。'
 		},
 		tasks: [
-			{ en: 'Visual identity and logo', ja: 'VI・ロゴ' },
-			{ en: 'Typeface design', ja: '書体開発' },
 			{ en: 'Packaging', ja: 'パッケージ' },
 			{ en: 'Product and furniture design', ja: 'プロダクト・家具の設計' },
-			{ en: 'Art direction', ja: 'アートディレクション' }
-		]
-	},
-	{
-		name: 'Act',
-		label: { en: 'Putting out, listening back', ja: '世に出す' },
-		body: {
-			en: 'A form is answered only once it is out in the world. We build it — as sites, e-commerce, film and imagery — watch how it is used, and return to the first question. Completion is not an end but the start of the next loop.',
-			ja: 'かたちは世に出て、はじめて応答を得ます。Web、EC、映像、イメージとして実装し、使われ方を観察して、また最初の問いへ戻る。完成は終わりではなく、次の循環の始まりです。'
-		},
-		tasks: [
 			{ en: 'Brand sites and e-commerce', ja: 'ブランドサイト・EC構築' },
 			{ en: 'Reservation systems and web apps', ja: '予約・管理システム、Webアプリ' },
-			{ en: 'UI / UX', ja: 'UI/UX設計' },
+			{ en: 'UI / UX', ja: 'UI/UX設計' }
+		],
+		film: 'https://cdn.takumiisobe.com/12_one_pv_slider.mp4'
+	},
+	{
+		name: { en: 'Art Direction & Visualisation', ja: 'アートディレクションとビジュアライズ' },
+		label: { en: 'Act', ja: '世に出す' },
+		body: {
+			en: 'A form is answered only once it is out in the world. We picture it — in film, photography and CG — watch how it is received, and return to the first question. Completion is not an end but the start of the next loop.',
+			ja: 'かたちは世に出て、はじめて応答を得ます。映像や写真、CGとしてその姿を描き出し、受け取られ方を観察して、また最初の問いへ戻る。完成は終わりではなく、次の循環の始まりです。'
+		},
+		tasks: [
+			{ en: 'Art direction', ja: 'アートディレクション' },
+			{ en: 'Creative direction', ja: 'クリエイティブディレクション' },
 			{ en: 'Motion and film', ja: 'モーション・映像' },
-			{ en: 'CG imaging and photography', ja: 'CG・撮影' },
-			{ en: 'Running and improving', ja: '運用・改善' }
-		]
+			{ en: 'CG imaging and photography', ja: 'CG・撮影' }
+		],
+		film: 'https://cdn.takumiisobe.com/OTIC_Thalassic_Fluid_02.mp4'
 	}
 ];

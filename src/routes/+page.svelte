@@ -169,6 +169,7 @@
 	}
 
 	const CARD_SIZES = '(min-width: 1024px) 33vw, 50vw';
+	const FILM_SIZES = '(min-width: 1024px) 55vw, 100vw';
 </script>
 
 {#if OPENING}
@@ -247,11 +248,16 @@
 	<p class="process-lead x-en reveal" lang="en" use:reveal>{PROCESS_LEAD.en}</p>
 	<p class="process-lead x-ja reveal" lang="ja" use:reveal>{PROCESS_LEAD.ja}</p>
 	<ol class="phases">
-		{#each PROCESS as phase, i (phase.name)}
+		{#each PROCESS as phase, i (phase.name.en)}
 			<li class="phase reveal" use:reveal>
+				<div class="phase-film">
+					<Media media={{ src: phase.film, isVideo: true }} sizes={FILM_SIZES} cover />
+				</div>
 				<p class="phase-num">{String(i + 1).padStart(2, '0')}</p>
 				<div class="phase-title">
-					<h3 class="phase-name" lang="en">{phase.name}</h3>
+					<h3 class="phase-name">
+						<span class="x-en" lang="en">{phase.name.en}</span><span class="x-ja" lang="ja">{phase.name.ja}</span>
+					</h3>
 					<p class="phase-label">
 						<span class="x-en" lang="en">{phase.label.en}</span><span class="x-ja" lang="ja">{phase.label.ja}</span>
 					</p>
@@ -496,6 +502,20 @@
 		border-bottom: 0.5px solid var(--color-line, rgba(0, 0, 0, 0.25));
 	}
 
+	/* 16:9, the film cropped to fill; SP: across the row, above it. */
+	.phase-film {
+		grid-column: 1 / -1;
+		aspect-ratio: 16 / 9;
+		margin-bottom: 24px;
+		overflow: clip;
+		background: #f4f4f4;
+	}
+
+	.phase-film :global(.Media) {
+		width: 100%;
+		height: 100%;
+	}
+
 	.phase-num,
 	.phase-label,
 	.tasks {
@@ -643,12 +663,26 @@
 			padding: 32px 0 48px;
 		}
 
+		/* the film heads the text column; the number and name sit beside it */
+		.phase-film {
+			grid-column: 3;
+			grid-row: 1;
+			margin-bottom: 32px;
+		}
+
+		.phase-num {
+			grid-column: 1;
+			grid-row: 1;
+		}
+
 		.phase-title {
 			grid-column: 2;
+			grid-row: 1;
 		}
 
 		.phase-text {
 			grid-column: 3;
+			grid-row: 2;
 			margin-top: 0;
 		}
 

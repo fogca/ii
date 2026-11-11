@@ -247,19 +247,25 @@
 		grid-area: name;
 	}
 
-	/* The work's name, large (the top page's Works head on PC). */
+	/* The work's name, large, as the first design set it: about nine
+	   characters a line, the lines balanced ("MOKUSEKI / FURNITURE"). */
 	.band h1 {
 		font: inherit;
-		margin-top: 6px;
-		font-size: 24px;
-		line-height: 1.2;
+		max-width: 9.6em;
+		margin-top: 9px;
+		font-size: var(--fs-title);
+		line-height: var(--lh-title);
 		text-transform: none;
 		letter-spacing: 0;
+		text-wrap: balance;
 	}
 
+	/* PC: the band keeps its columns; the name runs wider (the column is
+	   40% of the screen) so long names stay on two lines. */
 	@media (min-width: 1024px) {
 		.band h1 {
-			font-size: 36px;
+			max-width: 14em;
+			margin-top: 6px;
 		}
 	}
 
@@ -395,10 +401,35 @@
 			padding-bottom: 80px;
 		}
 
+		/* The first design's title block: the eyebrow and the name
+		   centered, the scope under them; Back at the top right. */
 		.band {
 			order: 0;
+			position: relative;
+			grid-template-columns: 1fr;
+			grid-template-areas: 'name' 'scope';
+			justify-items: center;
 			row-gap: 0;
-			padding: 120px var(--gutter) 40px;
+			min-height: 344px;
+			padding: 147px var(--gutter) 60px;
+			text-align: center;
+		}
+
+		.b-name {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+		}
+
+		.b-number {
+			color: var(--color-text);
+			letter-spacing: var(--tracking-title);
+		}
+
+		.b-back {
+			position: absolute;
+			top: 96px;
+			right: var(--gutter);
 		}
 
 		.b-summary {
@@ -408,7 +439,8 @@
 		.b-scope {
 			display: flex;
 			flex-wrap: wrap;
-			margin-top: 12px;
+			justify-content: center;
+			margin-top: 20px;
 		}
 
 		.b-scope li:not(:last-child)::after {
