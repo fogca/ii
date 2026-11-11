@@ -22,6 +22,8 @@ export type AboutItem = {
 	film?: string;
 	/** …or stills, carried right to left one at a time (StillSlider). */
 	stills?: { src: string; width: number; height: number }[];
+	/** …or a drawn motion (StrategyMotion). */
+	motion?: 'strategy';
 };
 
 export type AboutSection = {
@@ -46,6 +48,10 @@ export const ABOUT: AboutSection[] = [
 			en: 'Four practices and a network of partner studios',
 			ja: 'わたしたちの創作領域'
 		},
+		body: {
+			en: 'Our work spans four practices — research & strategy, identity, design & engineering, and art direction & visualisation. From market and competitor research, brand strategy, concept and naming, to logo, visual identity and typefaces, packaging, product and furniture design, the design and build of brand sites, e-commerce and reservation systems, and imagery in photography, CG and film — we take on the design work a brand needs, whole, from the first idea to its arrival in the world.',
+			ja: 'わたしたちの創作は、リサーチと戦略、アイデンティティの策定、デザインと設計、アートディレクションとビジュアライズの4つの領域にわたります。市場・競合調査やブランド戦略、コンセプトとネーミングに始まり、ロゴ・VI・書体、パッケージ、プロダクトや家具の設計、ブランドサイト・EC・予約システムといったデジタルの設計と実装、そして撮影・CG・映像によるビジュアルまで。ひとつのブランドに必要なデザインワークを、構想から世に出るまで一貫して手がけます。'
+		},
 		items: [
 			{
 				name: 'Research & Strategy',
@@ -54,7 +60,7 @@ export const ABOUT: AboutSection[] = [
 					en: 'We begin by reading the age and where a brand stands in it — through research, dialogue and study — and translate what we find into a strategy and direction that every later decision can return to.',
 					ja: '時代とブランドの立ち位置を、リサーチと対話、学びを通して読み解き、その後のあらゆる判断が立ち返ることのできる戦略とディレクションへと翻訳します。'
 				},
-				film: '/videos/service_13_typography_statements_bk.mp4'
+				motion: 'strategy'
 			},
 			{
 				name: 'Identity',

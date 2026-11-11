@@ -4,6 +4,7 @@
 	import Media from '$lib/components/Media.svelte';
 	import GreetingMark from '$lib/components/GreetingMark.svelte';
 	import StillSlider from '$lib/components/StillSlider.svelte';
+	import StrategyMotion from '$lib/components/StrategyMotion.svelte';
 	import { reveal } from '$lib/actions/reveal';
 	import { ABOUT } from '$lib/content/about';
 	import { OPENING } from '$lib/js/site';
@@ -222,10 +223,16 @@
 			<span class="x-en" lang="en">{SERVICES.heading.en}</span><span class="x-ja" lang="ja">{SERVICES.heading.ja}</span>
 		</p>
 	{/if}
+	{#if SERVICES.body}
+		<p class="section-lead x-en reveal" lang="en" use:reveal>{SERVICES.body.en}</p>
+		<p class="section-lead x-ja reveal" lang="ja" use:reveal>{SERVICES.body.ja}</p>
+	{/if}
 	<ol class="items">
 		{#each SERVICES.items ?? [] as item, i (item.name)}
 			<li class="item reveal" use:reveal>
-				{#if item.stills}
+				{#if item.motion === 'strategy'}
+					<div class="item-film"><StrategyMotion /></div>
+				{:else if item.stills}
 					<div class="item-film">
 						<StillSlider stills={item.stills} />
 					</div>
@@ -254,8 +261,8 @@
 	<p class="services-heading reveal" use:reveal>
 		<span class="x-en" lang="en">{PROCESS_HEADING.en}</span><span class="x-ja" lang="ja">{PROCESS_HEADING.ja}</span>
 	</p>
-	<p class="process-lead x-en reveal" lang="en" use:reveal>{PROCESS_LEAD.en}</p>
-	<p class="process-lead x-ja reveal" lang="ja" use:reveal>{PROCESS_LEAD.ja}</p>
+	<p class="section-lead x-en reveal" lang="en" use:reveal>{PROCESS_LEAD.en}</p>
+	<p class="section-lead x-ja reveal" lang="ja" use:reveal>{PROCESS_LEAD.ja}</p>
 	<ol class="phases">
 		{#each PROCESS as phase, i (phase.name)}
 			<li class="phase reveal" use:reveal>
@@ -486,9 +493,15 @@
 		padding: 0 var(--gutter) 200px;
 	}
 
-	.process-lead {
+	/* "Process" close above its heading. */
+	.process .head {
+		margin-bottom: 12px;
+	}
+
+	/* The lead sits close under the heading (12px; PC 16px). */
+	.section-lead {
 		max-width: 760px;
-		margin-top: -32px;
+		margin-top: -44px;
 		margin-bottom: 56px;
 		font-size: 13.5px;
 		line-height: 1.7;
@@ -603,8 +616,8 @@
 			font-size: 24px;
 		}
 
-		.process-lead {
-			margin-top: -24px;
+		.section-lead {
+			margin-top: -40px;
 			margin-bottom: 80px;
 			font-size: 16px;
 		}
