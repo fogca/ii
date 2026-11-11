@@ -15,9 +15,12 @@ export type AboutItem = {
 	name: string;
 	nameJa: string;
 	body: Bilingual;
-	/** A 16:9 film shown above the item on the top page (Services). */
+	/** A 16:9 film shown above the item on the top page (Services):
+	    static/videos/, re-encoded from the CDN originals at 1280×720,
+	    already cropped to 16:9 — they show ~330px wide, and three play at
+	    once, so 4K sources only cost decoding (the page juddered). */
 	film?: string;
-	/** …or stills, crossfading one after another in the same frame. */
+	/** …or stills, carried right to left one at a time (StillSlider). */
 	stills?: { src: string; width: number; height: number }[];
 };
 
@@ -51,7 +54,7 @@ export const ABOUT: AboutSection[] = [
 					en: 'We begin by reading the age and where a brand stands in it — through research, dialogue and study — and translate what we find into a strategy and direction that every later decision can return to.',
 					ja: '時代とブランドの立ち位置を、リサーチと対話、学びを通して読み解き、その後のあらゆる判断が立ち返ることのできる戦略とディレクションへと翻訳します。'
 				},
-				film: 'https://cdn.takumiisobe.com/13_typography_statements_bk.mp4'
+				film: '/videos/service_13_typography_statements_bk.mp4'
 			},
 			{
 				name: 'Identity',
@@ -60,7 +63,7 @@ export const ABOUT: AboutSection[] = [
 					en: 'We shape identities through logo, graphic and package design, carrying the precision of our partner type foundry, Time Type Tokyo — which reinterprets history to draw new typefaces — into every brand.',
 					ja: 'ロゴ、グラフィック、パッケージを通してブランドの造形言語をつくります。歴史を紐解き新たな書体を生み出すパートナーのタイプファウンダリ、Time Type Tokyoで培ったディテールへの眼差しを、すべてのアイデンティティに通わせます。'
 				},
-				film: 'https://cdn.takumiisobe.com/TIC-JDS_VIScroll_Inverted.mp4'
+				film: '/videos/service_TIC-JDS_VIScroll_Inverted.mp4'
 			},
 			{
 				name: 'Design & Engineering',
@@ -69,7 +72,7 @@ export const ABOUT: AboutSection[] = [
 					en: 'Returning to the materiality that meets the body, we design and develop products and furniture; with our partner engineering studio, we design and build brand sites, e-commerce, reservation systems, web apps and AI / DX integration — giving a brand its form, in hand and on screen.',
 					ja: '身体に触れる物質性に立ち返り、素材・構造・佇まいの関係から導いたプロダクトと家具を企画・開発します。パートナーのエンジニアリングスタジオとともに、ブランドサイト、Eコマース、予約システム、Webアプリ、AI/DXインテグレーションまでを設計・実装し、ブランドを手に触れるかたちとデジタルの体験にします。'
 				},
-				film: 'https://cdn.takumiisobe.com/12_one_pv_slider.mp4'
+				film: '/videos/service_12_one_pv_slider.mp4'
 			},
 			{
 				name: 'Art Direction & Visualisation',

@@ -3,9 +3,10 @@
 	import TopReel from '$lib/components/TopReel.svelte';
 	import Media from '$lib/components/Media.svelte';
 	import GreetingMark from '$lib/components/GreetingMark.svelte';
+	import StillSlider from '$lib/components/StillSlider.svelte';
 	import { reveal } from '$lib/actions/reveal';
 	import { ABOUT } from '$lib/content/about';
-	import { CONTACT_URL, OPENING } from '$lib/js/site';
+	import { OPENING } from '$lib/js/site';
 	import { PROCESS, PROCESS_HEADING, PROCESS_LEAD } from '$lib/content/process';
 
 	let { data } = $props();
@@ -14,8 +15,7 @@
 	// white (the whole first screen) · the works' film (TopReel), a screen
 	// tall, moving a little slower than the page (parallax) · the
 	// statement, large · the first six works as a grid, each at its own
-	// ratio · the services · an invitation to get in touch, black, full
-	// bleed.
+	// ratio · the services · the process (the footer then invites contact).
 	// The statement and services are About's own copy (lib/content/about).
 	// The opening is off for now (OPENING in lib/js/site).
 	const [INTRO, SERVICES] = ABOUT;
@@ -170,16 +170,6 @@
 
 	const CARD_SIZES = '(min-width: 1024px) 33vw, 50vw';
 	const FILM_SIZES = '(min-width: 1024px) 25vw, 100vw';
-
-	// A service shown by stills rather than a film: they crossfade, one
-	// every STILL_MS (held on the first with reduced motion).
-	const STILL_MS = 2600;
-	let stillAt = $state(0);
-	$effect(() => {
-		if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-		const id = setInterval(() => stillAt++, STILL_MS);
-		return () => clearInterval(id);
-	});
 </script>
 
 {#if OPENING}
@@ -237,11 +227,7 @@
 			<li class="item reveal" use:reveal>
 				{#if item.stills}
 					<div class="item-film">
-						{#each item.stills as still, j (still.src)}
-							<div class="still" class:is-on={j === stillAt % item.stills.length}>
-								<Media media={{ ...still, isVideo: false }} sizes={FILM_SIZES} cover />
-							</div>
-						{/each}
+						<StillSlider stills={item.stills} />
 					</div>
 				{:else if item.film}
 					<div class="item-film">
@@ -292,21 +278,6 @@
 			</li>
 		{/each}
 	</ol>
-</section>
-
-<section class="contact" aria-labelledby="home-contact">
-	<div class="head">
-		<h2 id="home-contact">Contact</h2>
-	</div>
-	<p class="contact-lead reveal" use:reveal>
-		<span class="x-en" lang="en">For new projects, collaborations and any other enquiries.</span><span
-			class="x-ja"
-			lang="ja">新しいプロジェクトのご相談、協業、その他のお問い合わせはこちらから。</span
-		>
-	</p>
-	<a class="contact-link reveal" href={CONTACT_URL} use:reveal>
-		<span class="x-en" lang="en">Get in touch</span><span class="x-ja" lang="ja">お問い合わせ</span>
-	</a>
 </section>
 
 <style>
@@ -490,17 +461,6 @@
 		height: 100%;
 	}
 
-	.still {
-		position: absolute;
-		inset: 0;
-		opacity: 0;
-		transition: opacity 1.2s var(--ease-out);
-	}
-
-	.still.is-on {
-		opacity: 1;
-	}
-
 	.item-num {
 		color: var(--color-text-mute);
 		font-size: 12.5px;
@@ -591,45 +551,6 @@
 		margin-top: 16px;
 		font-size: 12.5px;
 		line-height: 1.7;
-	}
-
-	/* Black, the full width (the gutter keeps its text in the column). */
-	.contact {
-		padding: 120px var(--gutter) 160px;
-		background: #000;
-		color: #fff;
-		--color-text-mute: rgba(255, 255, 255, 0.5);
-	}
-
-	.contact-lead {
-		max-width: 1100px;
-		font-size: 24px;
-		line-height: 1.45;
-	}
-
-	.contact-lead :lang(ja) {
-		font-size: 20px;
-		line-height: 1.8;
-	}
-
-	.contact-link {
-		display: inline-block;
-		margin-top: 40px;
-		font-size: 24px;
-		line-height: 1.2;
-		text-decoration: underline;
-		text-decoration-thickness: 1px;
-		text-underline-offset: 0.2em;
-	}
-
-	.contact-link:hover {
-		opacity: 0.5;
-	}
-
-	:global(html.js) .contact-link.reveal {
-		transition:
-			opacity 1.2s var(--ease-out),
-			transform 1.2s var(--ease-out);
 	}
 
 	@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
@@ -726,25 +647,6 @@
 			column-gap: 24px;
 			margin-top: 24px;
 			font-size: 14px;
-		}
-
-		.contact {
-			padding: 160px var(--gutter) 240px;
-		}
-
-		.contact-lead,
-		.contact-link {
-			font-size: 40px;
-			line-height: 1.35;
-		}
-
-		.contact-lead :lang(ja) {
-			font-size: 32px;
-			line-height: 1.7;
-		}
-
-		.contact-link {
-			margin-top: 56px;
 		}
 	}
 </style>

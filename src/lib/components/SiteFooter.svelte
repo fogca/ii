@@ -15,7 +15,7 @@
 
 <!-- The footer as on the first Otic site (Dev/OTIF Footer): black, four
      columns — the wordmark, small, with a line on the institute · the
-     site links · Find us · For new projects — then the legal + © row.
+     site links · Find us · Contact — then the legal + © row.
      SP only, except where `pc` asks for it — on PC the legal line
      otherwise lives in the left panel. -->
 <footer class="SiteFooter" class:sp={!pc} {inert}>
@@ -46,13 +46,13 @@
 		</div>
 
 		<div class="col">
-			<p class="heading">For new projects</p>
+			<p class="heading">Contact</p>
 			<p class="note">
 				<span class="x-en" lang="en"
-					>We take on select collaborations across brand, typeface, product, furniture and digital.
-					Please feel free to reach out.</span
+					>For new projects, collaborations and any other enquiries — across brand, typeface, product,
+					furniture and digital. Please feel free to reach out.</span
 				><span class="x-ja" lang="ja"
-					>ブランド、書体、プロダクト、家具、デジタルにわたるご相談を承っています。お気軽にお問い合わせください。</span
+					>新しいプロジェクトのご相談、協業、その他のお問い合わせはこちらから。ブランド、書体、プロダクト、家具、デジタルまで、お気軽にご連絡ください。</span
 				>
 			</p>
 			<a class="cta" href={CONTACT_URL}>Get in touch →</a>
