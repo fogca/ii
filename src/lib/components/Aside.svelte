@@ -76,6 +76,7 @@
 		   "MOKUSEKI / FURNITURE"); CMS titles have no break of their own, so
 		   a ~9-character measure + balance reproduces that. */
 		max-width: 9.6em;
+		font-weight: 550;
 		white-space: pre-line;
 		text-wrap: balance;
 	}
