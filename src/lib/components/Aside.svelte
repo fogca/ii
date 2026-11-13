@@ -6,12 +6,9 @@
 	let {
 		eyebrow = '',
 		title = '',
+		scope = '',
 		inert = false
-	}: {
-		eyebrow?: string;
-		title?: string;
-		inert?: boolean;
-	} = $props();
+	}: { eyebrow?: string; title?: string; scope?: string; inert?: boolean } = $props();
 
 </script>
 
@@ -23,7 +20,10 @@
 	{#key title}
 		<div class="head">
 			{#if eyebrow}<p class="eyebrow t-eyebrow">{eyebrow}</p>{/if}
-			<h1 class="title t-title">{title}</h1>
+			<!-- The "PJ: " / "Scope: " labels are real text (shown only in the
+			     moved block) so a work page can split them into letters too. -->
+			<h1 class="title t-title"><span class="label">{'PJ: '}</span>{title}</h1>
+			{#if scope}<p class="scope"><span class="label">{'Scope: '}</span>{scope}</p>{/if}
 		</div>
 	{/key}
 
@@ -62,6 +62,13 @@
 	:global(html.js) .Aside:not(.is-entered) .head {
 		opacity: 0;
 		transform: translateY(8px);
+	}
+
+	/* Only in a work page's moved block (PC): the labels, and the scope
+	   line (SP shows the work page's own one above the hero). */
+	.label,
+	.scope {
+		display: none;
 	}
 
 	.title {
@@ -103,6 +110,41 @@
 
 		:global(html.js) .Aside:not(.is-entered) .head {
 			transform: translateY(calc(-50% + 8px));
+		}
+
+		/* A work page, once scrolled, resets the title block at the panel's
+		   top left: eyebrow, "PJ: title" and "Scope: …" stacked small, one
+		   line apart (works/[slug]/+page.svelte animates the change). */
+		:global(html.is-aside-swapped) .head {
+			top: 70px;
+			right: var(--gutter);
+			transform: none;
+			text-align: left;
+		}
+
+		:global(html.is-aside-swapped) .eyebrow {
+			position: static;
+			font-size: 9px;
+			line-height: var(--lh-aside-meta);
+			opacity: 0.3;
+		}
+
+		:global(html.is-aside-swapped) .title {
+			max-width: none;
+			margin-inline: 0;
+			font-size: var(--fs-aside-meta);
+			line-height: var(--lh-aside-meta);
+		}
+
+		:global(html.is-aside-swapped) .label {
+			display: inline;
+		}
+
+		/* The scope line: the block's third line. */
+		:global(html.is-aside-swapped) .scope {
+			display: block;
+			font-size: var(--fs-aside-meta);
+			line-height: var(--lh-aside-meta);
 		}
 
 		.eyebrow {
