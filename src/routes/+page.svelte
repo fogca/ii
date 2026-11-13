@@ -541,7 +541,7 @@
 		font-size: 16px;
 		font-weight: var(--fw-regular);
 		line-height: 1.4;
-		text-transform: none;
+		text-transform: uppercase;
 		letter-spacing: 0;
 	}
 
