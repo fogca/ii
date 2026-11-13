@@ -14,17 +14,21 @@
 	let {
 		label = 'II',
 		vector = false,
-		sizes = '40px'
-	}: { label?: string; vector?: boolean; sizes?: string } = $props();
+		sizes = '40px',
+		dotsOnly = false
+	}: { label?: string; vector?: boolean; sizes?: string; dotsOnly?: boolean } = $props();
 
 	const RENDER_SRCSET = [160, 480, 1166].map((w) => `/images/logo/ii-render-${w}.webp ${w}w`).join(', ');
 	const useRender = $derived(LOGO_STYLE === 'render' && !vector);
 </script>
 
 {#if LOGO_STYLE === 'ii'}
-	<svg class="Logo" viewBox="0 0 6.71 7.96" xmlns="http://www.w3.org/2000/svg" role="img" aria-label={label}>
-		<path d="M0,7.96v-.16l.73-.56v-3.41l-.73-.54v-.16c.26-.1,1.54-.5,2.47-.73v4.83l.72.56v.16H0ZM1.55,0c.53,0,.96.37.96.94,0,.52-.43.94-.96.94s-.97-.42-.97-.94c0-.56.44-.94.97-.94Z" fill="currentColor" />
-		<path d="M3.52,7.96v-.16l.73-.56v-3.41l-.73-.54v-.16c.26-.1,1.54-.5,2.47-.73v4.83l.72.56v.16h-3.19ZM5.06,0c.53,0,.96.37.96.94,0,.52-.43.94-.96.94s-.97-.42-.97-.94c0-.56.44-.94.97-.94Z" fill="currentColor" />
+	<!-- Each "i" is a stem and a dot; `dotsOnly` lets the stems go and leaves the dots. -->
+	<svg class="Logo" class:dots-only={dotsOnly} viewBox="0 0 6.71 7.96" xmlns="http://www.w3.org/2000/svg" role="img" aria-label={label}>
+		<path class="stem" d="M0,7.96v-.16l.73-.56v-3.41l-.73-.54v-.16c.26-.1,1.54-.5,2.47-.73v4.83l.72.56v.16H0Z" fill="currentColor" />
+		<path class="dot" d="M1.55,0c.53,0,.96.37.96.94,0,.52-.43.94-.96.94s-.97-.42-.97-.94c0-.56.44-.94.97-.94Z" fill="currentColor" />
+		<path class="stem" d="M3.52,7.96v-.16l.73-.56v-3.41l-.73-.54v-.16c.26-.1,1.54-.5,2.47-.73v4.83l.72.56v.16h-3.19Z" fill="currentColor" />
+		<path class="dot" d="M5.06,0c.53,0,.96.37.96.94,0,.52-.43.94-.96.94s-.97-.42-.97-.94c0-.56.44-.94.97-.94Z" fill="currentColor" />
 	</svg>
 {:else if useRender}
 	<img
@@ -63,5 +67,13 @@
 		width: 100%;
 		height: auto;
 		overflow: visible;
+	}
+
+	.stem {
+		transition: opacity 0.5s var(--ease-out);
+	}
+
+	.dots-only .stem {
+		opacity: 0;
 	}
 </style>

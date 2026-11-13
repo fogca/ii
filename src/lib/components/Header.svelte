@@ -116,7 +116,7 @@
 	{/each}
 
 	<a class="mark" href="/" aria-label="II — Design Creation" aria-current={page.url.pathname === '/' ? 'page' : undefined}>
-		<Logo />
+		<Logo dotsOnly={!atTop} />
 	</a>
 </header>
 
