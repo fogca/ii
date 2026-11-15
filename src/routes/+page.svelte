@@ -393,12 +393,24 @@
 		padding: 0 var(--gutter) 160px;
 	}
 
+	/* SP: the cards run to 5px from the edges, as the work page's images
+	   do; the heading keeps the gutter. */
+	@media (max-width: 1023.98px) {
+		.works {
+			padding-inline: 5px;
+		}
+
+		.works .head {
+			padding-inline: calc(var(--gutter) - 5px);
+		}
+	}
+
 	/* Each visual at its own ratio; a row's cards hang from its top. */
 	.grid {
 		display: grid;
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 		align-items: start;
-		gap: 32px 5px;
+		gap: 40px 5px;
 	}
 
 	.card {
