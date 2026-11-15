@@ -352,7 +352,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: 5px;
-		padding: 50px 5px 80px;
+		padding: 50px 5px 200px;
 	}
 
 	.Colophon {

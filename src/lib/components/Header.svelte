@@ -129,7 +129,7 @@
 		--btn-gap: 8px; /* distance between the two line centers */
 		--btn-x: 20px;
 		--btn-y: 23.5px;
-		--mark-w: 39.76px;
+		--mark-w: 28px;
 		--mark-y: 18.22px;
 		--angle: 15deg; /* Figma II_Menu close icon: 57.96 × 15.53 from a 60px line */
 		/* Where the X crosses, as an offset of the top line (SP: midway —
