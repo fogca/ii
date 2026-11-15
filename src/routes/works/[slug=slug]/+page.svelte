@@ -351,8 +351,8 @@
 	.rest {
 		display: flex;
 		flex-direction: column;
-		gap: 20px;
-		padding: 50px var(--gutter) 0;
+		gap: 5px;
+		padding: 50px 5px 80px;
 	}
 
 	.Colophon {
