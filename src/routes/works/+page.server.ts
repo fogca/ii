@@ -1,5 +1,5 @@
 import { getVisibleWorks } from '$lib/js/microcms';
-import { padNumber, thumbAndPriority, type Media } from '$lib/js/works';
+import { thumbAndPriority, type Media } from '$lib/js/works';
 import { titleOf } from '$lib/js/site';
 import { videoSize } from '$lib/server/videoSize';
 import type { PageServerLoad } from './$types';
@@ -8,7 +8,6 @@ export type WorkCard = {
 	key: string;
 	slug: string;
 	title: string;
-	number: string;
 	/** First two scope tags, e.g. "V.I. / Web" (same as Office's home feed). */
 	scope: string;
 	visual: Media | null;
@@ -52,7 +51,6 @@ export const load: PageServerLoad = async () => {
 		const base = {
 			slug: w.id,
 			title: w.title,
-			number: padNumber(i),
 			scope: (w.scope ?? []).slice(0, 2).join(' / ')
 		};
 		const { thumb, priority, rest } = thumbAndPriority(w);

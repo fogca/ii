@@ -203,7 +203,6 @@
 						<Media media={w.visual} sizes={CARD_SIZES} alt={w.title} />
 					</div>
 					<p class="caption">
-						<span class="num">{w.number}</span>
 						<span class="title">{w.title}</span>
 					</p>
 					{#if w.scope}<p class="scope">{w.scope}</p>{/if}
@@ -430,7 +429,6 @@
 		margin-top: 10px;
 	}
 
-	.num,
 	.scope {
 		color: var(--color-text-mute);
 	}

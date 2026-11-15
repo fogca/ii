@@ -1,6 +1,6 @@
 import { error } from '@sveltejs/kit';
 import { isMicroCMSRequestError } from 'microcms-js-sdk';
-import { getDetail, getVisibleWorks, type Work } from '$lib/js/microcms';
+import { getDetail, type Work } from '$lib/js/microcms';
 import { toWorkDetail } from '$lib/js/works';
 import { workTitleOf } from '$lib/js/site';
 import type { PageServerLoad } from './$types';
@@ -20,18 +20,7 @@ export const load: PageServerLoad = async ({ params }) => {
 	}
 	if (!work?.id || !work.title) error(404, `Work "${params.slug}" not found`);
 
-	// "Design Creation NN": the work's position in the archive's own order
-	// (same numbering rule as Office). A `hidden` work is still reachable by
-	// direct URL — as on Office, `hidden` only drops it from listings — so
-	// it simply goes unnumbered, as does every work if this lookup fails.
-	let index = -1;
-	try {
-		const list = await getVisibleWorks({ limit: 100, orders: 'order', fields: ['id', 'hidden'] });
-		index = list.contents.findIndex((w) => w.id === work.id);
-	} catch {
-		// keep -1
-	}
-	const detail = toWorkDetail(work, Math.max(index, 0));
+	const detail = toWorkDetail(work);
 
 	// JPEG, cropped to the OG box — some link-preview crawlers still skip
 	// WebP (imgOpt forces fm=webp for on-page images).
@@ -43,7 +32,7 @@ export const load: PageServerLoad = async ({ params }) => {
 	return {
 		work: detail,
 		aside: {
-			eyebrow: index >= 0 ? `Design Creation ${detail.number}` : 'Design Creation',
+			eyebrow: 'Design Creation',
 			title: work.title,
 			scope: detail.scope.join(' / ')
 		},

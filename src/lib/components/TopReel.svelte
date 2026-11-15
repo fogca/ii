@@ -4,7 +4,7 @@
 	import { ui } from '$lib/state/ui.svelte';
 	import type { Media as MediaItem } from '$lib/js/works';
 
-	type Slide = { slug: string; title: string; number: string; visual: MediaItem };
+	type Slide = { slug: string; title: string; visual: MediaItem };
 	let { slides }: { slides: Slide[] } = $props();
 
 	// The first view as one continuous film: every work's thumbnail (video
@@ -134,7 +134,6 @@
 	</a>
 
 	<p class="caption">
-		<span class="num">{shown.number}</span>
 		<span class="title">{shown.title}</span>
 	</p>
 </section>
@@ -188,10 +187,6 @@
 		font-size: 12px;
 		line-height: 1.2;
 		pointer-events: none;
-	}
-
-	.num {
-		opacity: 0.6;
 	}
 
 	@media (min-width: 1024px) {

@@ -78,7 +78,6 @@
 			>
 				<Media media={card.visual as MediaItem} cover sizes={b.full ? SIZES_SP_FULL : SIZES} widths={WIDTHS} eager={i < EAGER_COUNT} alt={card.title} />
 				<p class="meta t-meta">
-					<span class="num">{card.number}</span>
 					<span class="title">{card.title}</span>
 				</p>
 			</a>
@@ -132,10 +131,6 @@
 		overflow: hidden;
 		text-overflow: ellipsis;
 		pointer-events: none;
-	}
-
-	.num {
-		opacity: 0.6;
 	}
 
 	@media (min-width: 1024px) {

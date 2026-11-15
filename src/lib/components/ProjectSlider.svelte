@@ -3,7 +3,7 @@
 	import Media from './Media.svelte';
 	import type { Media as MediaItem } from '$lib/js/works';
 
-	type Slide = { slug: string; title: string; number: string; visual: MediaItem };
+	type Slide = { slug: string; title: string; visual: MediaItem };
 	let { slides }: { slides: Slide[] } = $props();
 
 	// Scroll-scrubbed hero slider, after vision.avatr.com's section hand-off
@@ -160,7 +160,6 @@
 					{/if}
 				</div>
 				<p class="caption">
-					<span class="num">{slide.number}</span>
 					<span class="title">{slide.title}</span>
 				</p>
 			</a>
@@ -247,10 +246,6 @@
 		mix-blend-mode: difference; /* reads on light and dark images alike */
 		font-size: 12px;
 		line-height: 1.2;
-	}
-
-	.num {
-		opacity: 0.6;
 	}
 
 	@media (hover: hover) {

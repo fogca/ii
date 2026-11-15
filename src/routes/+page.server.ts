@@ -1,10 +1,10 @@
 import { getVisibleWorks } from '$lib/js/microcms';
-import { padNumber, workMedia, type Media } from '$lib/js/works';
+import { workMedia, type Media } from '$lib/js/works';
 import { titleOf } from '$lib/js/site';
 import { videoSize } from '$lib/server/videoSize';
 import type { PageServerLoad } from './$types';
 
-export type Slide = { slug: string; title: string; number: string; visual: Media };
+export type Slide = { slug: string; title: string; visual: Media };
 export type HomeWork = Slide & { scope: string };
 
 /** How many works the top page's grid shows (the archive has the rest). */
@@ -24,13 +24,12 @@ export const load: PageServerLoad = async () => {
 		.map((w, i) => ({
 			slug: w.id,
 			title: w.title,
-			number: padNumber(i),
 			scope: (w.scope ?? []).slice(0, 2).join(' / '),
 			visual: workMedia(w)[0]
 		}))
 		.filter((s): s is HomeWork => !!s.visual);
 
-	const slides: Slide[] = works.map(({ slug, title, number, visual }) => ({ slug, title, number, visual }));
+	const slides: Slide[] = works.map(({ slug, title, visual }) => ({ slug, title, visual }));
 
 	// The grid keeps each visual's own ratio: read the videos' from the files.
 	const grid = works.slice(0, GRID_COUNT);

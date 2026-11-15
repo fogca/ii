@@ -32,7 +32,6 @@ export type Bilingual = { en: string; ja: string };
 export type WorkDetail = {
 	slug: string;
 	title: string;
-	number: string;
 	/** The CMS `scope` select values (V.I. / Web / …). */
 	scope: string[];
 	hero: Media | null;
@@ -44,11 +43,6 @@ export type WorkDetail = {
 	body: Bilingual | null;
 	colophon: ColophonRow[];
 };
-
-/** Zero-padded 1-based index: 0 → "01". Same numbering as Office (list
-    position after `orders: 'order'`, not the raw `order` value, which has
-    duplicates in the CMS). */
-export const padNumber = (n: number): string => String(n + 1).padStart(2, '0');
 
 /** A video's pixel size from its file name ("…_1620x2880_30fps.mp4") — the
     CMS stores none, and boxes sized at render time need the ratio up front. */
@@ -195,7 +189,7 @@ const parseColophon = (html: string | undefined): ColophonRow[] =>
 		})
 		.filter((row) => row.label && row.value);
 
-export const toWorkDetail = (w: Work, index: number): WorkDetail => {
+export const toWorkDetail = (w: Work): WorkDetail => {
 	const [hero = null, ...gallery] = workMedia(w);
 
 	const tag = w.description ? splitTag(w.description) : { ja: '', en: '' };
@@ -214,7 +208,6 @@ export const toWorkDetail = (w: Work, index: number): WorkDetail => {
 	return {
 		slug: w.id,
 		title: w.title,
-		number: padNumber(index),
 		scope: w.scope ?? [],
 		hero,
 		rest: gallery,
