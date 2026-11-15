@@ -403,6 +403,15 @@
 		.works .head {
 			padding-inline: calc(var(--gutter) - 5px);
 		}
+
+		/* No scope line under the cards; titles at 12px. */
+		.works .scope {
+			display: none;
+		}
+
+		.works .caption {
+			font-size: 12px;
+		}
 	}
 
 	/* Each visual at its own ratio; a row's cards hang from its top. */
