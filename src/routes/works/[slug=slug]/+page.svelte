@@ -328,6 +328,10 @@
 		white-space: pre-line;
 	}
 
+	.body:lang(ja) {
+		font-weight: 450;
+	}
+
 	/* The Japanese lead keeps its Latin words as written (no uppercase). */
 	.lead:lang(ja) {
 		line-height: 1.4;
