@@ -266,12 +266,12 @@
 	   cropped (Figma's fixed 393 × 376 / 197 × 264 + 194 × 159 boxes were
 	   placeholders). */
 
-	/* SP: the title block sits 120px down with 60px under it. */
+	/* SP: the title block sits 120px down with 40px under it. */
 	@media (max-width: 1023.98px) {
 		:global(html.is-work .Aside) {
 			min-height: auto;
 			padding-top: 120px;
-			padding-bottom: 60px;
+			padding-bottom: 40px;
 		}
 	}
 
