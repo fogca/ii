@@ -410,7 +410,15 @@
 		}
 
 		.works .caption {
-			font-size: 12px;
+			margin-top: 5px;
+			font-size: 11px;
+			font-weight: 450;
+		}
+
+		/* Rows of 1 · 2 · 1 · 2 …: every third card runs full width, the
+		   ones between pair up. */
+		.works .grid > li:nth-child(3n + 1) {
+			grid-column: 1 / -1;
 		}
 	}
 
