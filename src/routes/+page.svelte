@@ -409,10 +409,16 @@
 			display: none;
 		}
 
+		/* Titles off for now (kept in the markup), rows as tight as the columns. */
 		.works .caption {
+			display: none;
 			margin-top: 5px;
 			font-size: 11px;
 			font-weight: 450;
+		}
+
+		.works .grid {
+			gap: 5px;
 		}
 
 		/* Rows of 1 · 2 · 1 · 2 …: every third card runs full width, the
