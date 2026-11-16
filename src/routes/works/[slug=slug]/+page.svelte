@@ -110,7 +110,7 @@
 		if (busy || html.classList.contains('is-aside-swapped') === on) return;
 		const head = document.querySelector<HTMLElement>('.Aside .head');
 		const animate =
-			!!head && matchMedia(PC_QUERY).matches && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+			!!head && getComputedStyle(head).display !== 'none' && matchMedia(PC_QUERY).matches && !matchMedia('(prefers-reduced-motion: reduce)').matches;
 		if (!animate) {
 			html.classList.toggle('is-aside-swapped', on);
 			html.classList.toggle('is-aside-text', on);
@@ -440,6 +440,11 @@
 			display: none;
 		}
 
+		/* PC: the left panel carries no title block on a work page. */
+		:global(html.is-work .Aside .head) {
+			display: none;
+		}
+
 		.rest {
 			gap: var(--tile-gap);
 			margin-top: var(--tile-gap);
@@ -456,7 +461,7 @@
 			bottom: 48px; /* clear of the legal line */
 			z-index: var(--z-content);
 			width: var(--aside-w);
-			padding: 160px var(--gutter) 24px; /* under the moved title block */
+			padding: 80px var(--gutter) 24px; /* the title block is hidden on PC */
 			/* Not a scroll container: the wheel over the panel scrolls the
 			   page, like anywhere else. */
 			overflow: clip;
