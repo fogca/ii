@@ -484,6 +484,11 @@
 				visibility 0s;
 		}
 
+		.lead:lang(en),
+		.lead:lang(ja) {
+			font-size: 28px;
+		}
+
 		.body {
 			margin-top: 10px;
 			max-width: none;
