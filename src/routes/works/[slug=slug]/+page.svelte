@@ -110,7 +110,7 @@
 		if (busy || html.classList.contains('is-aside-swapped') === on) return;
 		const head = document.querySelector<HTMLElement>('.Aside .head');
 		const animate =
-			!!head && getComputedStyle(head).display !== 'none' && matchMedia(PC_QUERY).matches && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+			!!head && matchMedia(PC_QUERY).matches && !matchMedia('(prefers-reduced-motion: reduce)').matches;
 		if (!animate) {
 			html.classList.toggle('is-aside-swapped', on);
 			html.classList.toggle('is-aside-text', on);
@@ -123,27 +123,34 @@
 			await new Promise((r) => setTimeout(r, TEXT_OUT_MS));
 		}
 		head.style.transition = 'none';
-		const out = overlayOf(head);
-		head.style.visibility = 'hidden';
-		await cascade(
-			out.letters,
-			[{ transform: 'none', opacity: 1 }, { transform: `translateY(${DROP})`, opacity: 0 }],
-			OUT_MS,
-			'linear'
-		);
-		out.layer.remove();
+		// The moved title block is hidden on PC: scrolling in only drops the
+		// centered title out, scrolling back only brings it in.
+		if (on) {
+			const out = overlayOf(head);
+			head.style.visibility = 'hidden';
+			await cascade(
+				out.letters,
+				[{ transform: 'none', opacity: 1 }, { transform: `translateY(${DROP})`, opacity: 0 }],
+				OUT_MS,
+				'linear'
+			);
+			out.layer.remove();
+		}
 		html.classList.toggle('is-aside-swapped', on);
-		// Going in: the text fades in under the new block (its CSS delay).
+		// Going in: the text fades in (its CSS delay).
 		if (on) html.classList.add('is-aside-text');
-		const inn = overlayOf(head);
-		await cascade(
-			inn.letters,
-			[{ transform: `translateY(-${DROP})`, opacity: 0 }, { transform: 'none', opacity: 1 }],
-			IN_MS,
-			'linear'
-		);
+		if (!on) {
+			head.style.visibility = 'hidden';
+			const inn = overlayOf(head);
+			await cascade(
+				inn.letters,
+				[{ transform: `translateY(-${DROP})`, opacity: 0 }, { transform: 'none', opacity: 1 }],
+				IN_MS,
+				'linear'
+			);
+			inn.layer.remove();
+		}
 		head.style.visibility = '';
-		inn.layer.remove();
 		requestAnimationFrame(() => (head.style.transition = ''));
 		busy = false;
 		// The scroll may have crossed back while this played.
@@ -440,8 +447,8 @@
 			display: none;
 		}
 
-		/* PC: the left panel carries no title block on a work page. */
-		:global(html.is-work .Aside .head) {
+		/* PC: once scrolled, the left panel carries no title block. */
+		:global(html.is-aside-swapped .Aside .head) {
 			display: none;
 		}
 
