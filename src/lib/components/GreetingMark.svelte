@@ -37,7 +37,15 @@
 	const CARET_MIN_PX = 2;
 	const CARET_EM = 0.16;
 
-	let { onDone }: { /** Called a beat after the last key. */ onDone?: () => void } = $props();
+	let {
+		onHello,
+		onDone
+	}: {
+		/** Called as "ii! Hello :)" has just been typed (before it is edited back). */
+		onHello?: () => void;
+		/** Called a beat after the last key. */
+		onDone?: () => void;
+	} = $props();
 
 	let svg = $state<SVGSVGElement>();
 	let group = $state<SVGGElement>();
@@ -144,6 +152,7 @@
 		// 1. ii! Hello :)
 		type([...glyphs([word[0], word[5], bang]), SPACE, ...glyphs(helloWord), SPACE, ...glyphs(smile)], START);
 		// 2. back to "ii"
+		const helloIdx = steps.length - 1;
 		backspace(10, PAUSE);
 		// 3. one step left, between the i's: "sobe "
 		steps.push({ wait: BEAT, act: () => at-- });
@@ -156,6 +165,7 @@
 			steps.forEach((s) => s.act());
 			draw();
 			phase = 'rest';
+			onHello?.();
 			onDone?.();
 			return;
 		}
@@ -172,6 +182,7 @@
 					phase = 'typing';
 				}, t)
 			);
+			if (i === helloIdx) timers.push(window.setTimeout(() => onHello?.(), t));
 			const next = steps[i + 1]?.wait ?? Infinity;
 			if (next > REST_AFTER) timers.push(window.setTimeout(() => (phase = 'rest'), t + REST_AFTER));
 		});

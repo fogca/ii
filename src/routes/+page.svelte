@@ -25,8 +25,8 @@
 	// The greeting, in the logo's type: "ii! Hello :)", then the "ii"
 	// spelt out (GreetingMark).
 	const GREETING = 'isobe institute';
-	// Once it has been typed, the first screen (PC) eases up to half a
-	// screen, bringing the film's top half into view.
+	// As "Hello :)" has been typed (not the whole line), the first screen
+	// eases up to half a screen, bringing the film's top half into view.
 	let greeted = $state(false);
 	let film = $state<HTMLElement>();
 
@@ -178,7 +178,7 @@
 {/if}
 
 <h1 class="hero" class:is-greeted={greeted} aria-label={GREETING}>
-	<GreetingMark onDone={() => (greeted = true)} />
+	<GreetingMark onHello={() => (greeted = true)} />
 </h1>
 
 <section class="film" aria-label="Works film" bind:this={film} use:parallax>
@@ -327,13 +327,25 @@
 		width: 100%;
 	}
 
+	/* Once greeted, the first screen eases up to half a screen (SP too). */
+	.hero.is-greeted {
+		min-height: 50vh;
+		min-height: 50dvh;
+	}
+
+	@media (prefers-reduced-motion: no-preference) {
+		.hero {
+			transition: min-height 1.6s var(--ease-out);
+		}
+	}
+
 	/* The film, a screen tall; its picture is taller than the frame by the
 	   parallax travel on each side and moves within it. */
 	.film {
 		--py: 0px;
 		position: relative;
-		height: 100vh;
-		height: 100dvh;
+		height: 75vh;
+		height: 75dvh;
 		overflow: clip;
 	}
 
@@ -599,16 +611,10 @@
 		line-height: 1.7;
 	}
 
-	@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
-		.hero {
-			transition: min-height 1.6s var(--ease-out);
-		}
-	}
-
 	@media (min-width: 1024px) {
-		.hero.is-greeted {
-			min-height: 50vh;
-			min-height: 50dvh;
+		.film {
+			height: 100vh;
+			height: 100dvh;
 		}
 
 		.statement {
