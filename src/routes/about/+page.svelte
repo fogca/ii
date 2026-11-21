@@ -8,12 +8,33 @@
 	const SHOW_PHOTO = false;
 
 	// The first screen is a film: the wordmark typing itself in white on
-	// black, the full screen. Below it the page is white and the text comes
-	// in, section by section, as it scrolls into view. <html> is flagged
-	// so the SP header can read over the black.
+	// black, the full screen. The page background is one shared surface:
+	// black first, and once the text section comes up (its top passes this
+	// fraction of the screen) it turns white in place, rather than a white
+	// block scrolling over the black. The text then comes in, section by
+	// section. <html> is flagged for the background and the SP header.
+	const LIGHT_AT = 0.6;
+	let textEl = $state<HTMLElement>();
+
 	$effect(() => {
-		document.documentElement.classList.add('is-about');
-		return () => document.documentElement.classList.remove('is-about');
+		const html = document.documentElement;
+		html.classList.add('is-about');
+		return () => html.classList.remove('is-about', 'is-about-light');
+	});
+
+	$effect(() => {
+		if (!textEl) return;
+		const html = document.documentElement;
+		const el = textEl;
+		const update = () =>
+			html.classList.toggle('is-about-light', el.getBoundingClientRect().top < innerHeight * LIGHT_AT);
+		update();
+		addEventListener('scroll', update, { passive: true });
+		addEventListener('resize', update);
+		return () => {
+			removeEventListener('scroll', update);
+			removeEventListener('resize', update);
+		};
 	});
 </script>
 
@@ -26,7 +47,7 @@
 		</figure>
 	{/if}
 
-	<div class="text t-body">
+	<div class="text t-body" bind:this={textEl}>
 		<!-- Both languages are in the page; html[data-lang] picks one. The
 		     numbered section titles stay English. -->
 		{#each ABOUT as section (section.title)}
@@ -65,8 +86,23 @@
 		min-height: 100vh;
 		min-height: 100dvh;
 		padding: 0 var(--gutter);
+	}
+
+	/* The shared background: black over the film, white from the text on
+	   (the wordmark and the text follow the page's color). */
+	:global(html.is-about),
+	:global(html.is-about body) {
 		background: #000;
 		color: #fff;
+		transition:
+			background-color 0.6s var(--ease-out),
+			color 0.6s var(--ease-out);
+	}
+
+	:global(html.is-about.is-about-light),
+	:global(html.is-about.is-about-light body) {
+		background: #fff;
+		color: #000;
 	}
 
 	.text {
