@@ -115,7 +115,10 @@ export const COMPANY_FACTS: { label: Bilingual; value: Bilingual }[] = [
 	},
 	{
 		label: { en: 'Address', ja: '所在地' },
-		value: { en: '1-16 Hinokuchi-cho', ja: '樋の口町1-16' }
+		value: {
+			en: '1-16 Hinokuchi-cho, Nishi-ku, Nagoya, Aichi 451-0034, Japan',
+			ja: '〒451-0034 愛知県名古屋市西区樋の口町1番16号'
+		}
 	},
 	{
 		label: { en: 'Business', ja: '事業内容' },
