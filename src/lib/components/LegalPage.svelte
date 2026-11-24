@@ -17,7 +17,15 @@
 			{#each COMPANY_FACTS as f (f.label.en)}
 				<div class="row">
 					<dt><span class="x-en" lang="en">{f.label.en}</span><span class="x-ja" lang="ja">{f.label.ja}</span></dt>
-					<dd><span class="x-en" lang="en">{f.value.en}</span><span class="x-ja" lang="ja">{f.value.ja}</span></dd>
+					<dd>
+						{#if f.href}
+							<a class="link" href={f.href}
+								><span class="x-en" lang="en">{f.value.en}</span><span class="x-ja" lang="ja">{f.value.ja}</span> →</a
+							>
+						{:else}
+							<span class="x-en" lang="en">{f.value.en}</span><span class="x-ja" lang="ja">{f.value.ja}</span>
+						{/if}
+					</dd>
 				</div>
 			{/each}
 		</dl>
@@ -83,6 +91,11 @@
 
 	dt {
 		font-weight: var(--fw-medium);
+	}
+
+	.link {
+		text-decoration: underline;
+		text-underline-offset: 0.2em;
 	}
 
 	:global(html[data-lang='ja']) .x-en,

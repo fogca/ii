@@ -103,7 +103,7 @@ export const LEGAL: LegalDoc = {
 
 /** The operator's details — fill in `registeredName` / `address` once
     confirmed; rows without a value are not shown. */
-export const COMPANY_FACTS: { label: Bilingual; value: Bilingual }[] = [
+export const COMPANY_FACTS: { label: Bilingual; value: Bilingual; href?: string }[] = [
 	{ label: { en: 'Name', ja: '名称' }, value: { en: 'Isobe Institute (II)', ja: 'Isobe Institute（II）' } },
 	{
 		label: { en: 'Operator', ja: '運営会社' },
@@ -134,7 +134,8 @@ export const COMPANY_FACTS: { label: Bilingual; value: Bilingual }[] = [
 	},
 	{
 		label: { en: 'Contact', ja: 'お問い合わせ' },
-		value: { en: 'Via the contact form (/contact)', ja: 'お問い合わせフォーム（/contact）より' }
+		value: { en: 'Via the contact form', ja: 'お問い合わせフォームより' },
+		href: '/contact'
 	},
 	{
 		label: { en: 'Instagram', ja: 'Instagram' },
