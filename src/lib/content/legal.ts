@@ -3,7 +3,7 @@
 // Only facts the site itself establishes are stated (what the contact form
 // sends, which services load, what is stored). The operator's legal-entity
 // details (registered name, address) are NOT here — add them to COMPANY
-// below once confirmed.
+// below once confirmed. (Operator details added 2026-11-24.)
 
 import { INSTAGRAM } from '$lib/js/site';
 
@@ -27,8 +27,8 @@ export const LEGAL: LegalDoc = {
 			title: { en: 'Privacy Policy', ja: 'プライバシーポリシー' },
 			paragraphs: [
 				{
-					en: 'Isobe Institute ("II") respects your privacy and handles personal information in accordance with the Act on the Protection of Personal Information of Japan.',
-					ja: 'Isobe Institute（以下「II」）は、個人情報の保護に関する法律（個人情報保護法）に従い、お預かりする個人情報を適切に取り扱います。'
+					en: 'Mirai Service Co., Ltd. ("we"), which operates Isobe Institute ("II"), respects your privacy and handles personal information in accordance with the Act on the Protection of Personal Information of Japan.',
+					ja: '株式会社みらいサービス（以下「当社」）は、Isobe Institute（以下「II」）の運営にあたり、個人情報の保護に関する法律（個人情報保護法）に従い、お預かりする個人情報を適切に取り扱います。'
 				}
 			]
 		},
@@ -67,8 +67,8 @@ export const LEGAL: LegalDoc = {
 			title: { en: 'Retention and your rights', ja: '保管期間・開示等のご請求' },
 			paragraphs: [
 				{
-					en: 'Inquiries are kept for as long as needed to respond and to follow up on the work, then deleted. You may ask us to disclose, correct or delete your information at any time through the contact form.',
-					ja: 'お問い合わせ内容は、ご返信および業務の対応に必要な期間保管し、その後削除します。保有する情報の開示・訂正・削除は、お問い合わせフォームからいつでもご請求いただけます。'
+					en: 'Inquiries are kept for as long as needed to respond and to follow up on the work, then deleted. You may ask us to disclose, correct or delete your information at any time through the contact form (the contact point for this site is Mirai Service Co., Ltd.).',
+					ja: 'お問い合わせ内容は、ご返信および業務の対応に必要な期間保管し、その後削除します。保有する情報の開示・訂正・削除は、お問い合わせフォームからいつでもご請求いただけます（本サイトの窓口は株式会社みらいサービスです）。'
 				}
 			]
 		},
@@ -80,8 +80,8 @@ export const LEGAL: LegalDoc = {
 					ja: '本サイトに掲載されている作品、画像、テキスト、書体その他のコンテンツの権利は、IIまたはそれぞれの権利者に帰属します。法令で認められる場合を除き、事前の許可なく複製・転載・利用することはできません。'
 				},
 				{
-					en: 'We take care to keep the content accurate, but do not guarantee it, and may change or remove it without notice. II is not liable for any loss arising from use of this site. Links to external sites are provided for convenience; their content is the responsibility of their operators.',
-					ja: '掲載内容の正確性には注意を払っていますが、保証するものではなく、予告なく変更・削除する場合があります。本サイトのご利用により生じた損害について、IIは責任を負いません。外部サイトへのリンク先の内容は、各運営者の責任となります。'
+					en: 'We take care to keep the content accurate, but do not guarantee it, and may change or remove it without notice. Mirai Service Co., Ltd. and II are not liable for any loss arising from use of this site. Links to external sites are provided for convenience; their content is the responsibility of their operators.',
+					ja: '掲載内容の正確性には注意を払っていますが、保証するものではなく、予告なく変更・削除する場合があります。本サイトのご利用により生じた損害について、当社およびIIは責任を負いません。外部サイトへのリンク先の内容は、各運営者の責任となります。'
 				},
 				{
 					en: 'These terms are governed by the laws of Japan.',
@@ -106,13 +106,25 @@ export const LEGAL: LegalDoc = {
 export const COMPANY_FACTS: { label: Bilingual; value: Bilingual }[] = [
 	{ label: { en: 'Name', ja: '名称' }, value: { en: 'Isobe Institute (II)', ja: 'Isobe Institute（II）' } },
 	{
+		label: { en: 'Operator', ja: '運営会社' },
+		value: { en: 'Mirai Service Co., Ltd.', ja: '株式会社みらいサービス' }
+	},
+	{
+		label: { en: 'Representative', ja: '代表者' },
+		value: { en: 'Satoru Isobe', ja: '磯部悟' }
+	},
+	{
+		label: { en: 'Address', ja: '所在地' },
+		value: { en: '1-16 Hinokuchi-cho', ja: '樋の口町1-16' }
+	},
+	{
 		label: { en: 'Business', ja: '事業内容' },
 		value: {
 			en: 'Creative direction and design — brand and visual identity, web and digital, typefaces, product and furniture.',
 			ja: 'クリエイティブディレクション・デザイン — ブランド／ビジュアルアイデンティティ、ウェブ・デジタル、書体、プロダクト・家具。'
 		}
 	},
-	{ label: { en: 'Location', ja: '所在地' }, value: { en: 'Tokyo, Japan', ja: '東京' } },
+	{ label: { en: 'Studio', ja: '拠点' }, value: { en: 'Tokyo, Japan', ja: '東京' } },
 	{
 		label: { en: 'Contact', ja: 'お問い合わせ' },
 		value: { en: 'Via the contact form (/contact)', ja: 'お問い合わせフォーム（/contact）より' }
