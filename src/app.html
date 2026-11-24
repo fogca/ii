@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-lang="ja">
+<html lang="ja" data-lang="ja">
 	<head>
 		<meta charset="utf-8" />
 		<!-- viewport-fit=cover: the page's own white extends behind the iOS
@@ -30,6 +30,7 @@
 					var savedLang = sessionStorage.getItem('ii-lang');
 					var displayLang = savedLang === 'en' ? 'en' : 'ja';
 					root.dataset.lang = displayLang;
+					root.lang = displayLang;
 				} catch (e) {}
 				var OPENING = false;
 				var play = false;

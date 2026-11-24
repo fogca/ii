@@ -1,5 +1,8 @@
 // Site-wide constants (client-safe).
 
+/** The canonical origin (previews and *.pages.dev point their canonical here). */
+export const SITE_URL = 'https://ii-ii.co';
+
 export const SITE_NAME = 'II';
 export const SITE_FULL_NAME = 'Isobe Institute';
 export const SITE_DESCRIPTION =
@@ -29,12 +32,10 @@ export const NAV_LINKS: { label: string; href: string; external: boolean }[] = [
 	{ label: 'Contact', href: CONTACT_URL, external: false }
 ];
 
-// TODO(launch): Legal / Company / Cookies pages aren't designed yet, so
-// these render as plain text. Give each an `href` once its page exists.
 export const LEGAL_LINKS: { label: string; href?: string }[] = [
-	{ label: 'Legal' },
-	{ label: 'Company' },
-	{ label: 'Cookies' }
+	{ label: 'Legal', href: '/legal' },
+	{ label: 'Company', href: '/company' },
+	{ label: 'Cookies', href: '/cookies' }
 ];
 
 // Double space before the year, as set in Figma (render with white-space: pre).

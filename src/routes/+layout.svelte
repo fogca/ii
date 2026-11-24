@@ -9,7 +9,7 @@
 	import { ui } from '$lib/state/ui.svelte';
 	import { lang } from '$lib/state/lang.svelte';
 	import { browser } from '$app/environment';
-	import { OPENING, SITE_DESCRIPTION, titleOf } from '$lib/js/site';
+	import { OPENING, SITE_DESCRIPTION, SITE_URL, titleOf } from '$lib/js/site';
 
 	let { children, data } = $props();
 
@@ -19,6 +19,7 @@
 	if (browser) lang.restore();
 	$effect(() => {
 		document.documentElement.dataset.lang = lang.current;
+		document.documentElement.lang = lang.current;
 	});
 
 	// Only the top page has an opening, when it is on (Opening.svelte flips
@@ -114,12 +115,15 @@
 	const aside = $derived(page.data.aside);
 	// One place for <title> — the error page included, so leaving it always
 	// changes the value and the head updates.
+	const canonical = $derived(SITE_URL + (page.url.pathname === '/' ? '/' : page.url.pathname.replace(/\/$/, '')));
 	const pageTitle = $derived(page.error ? `${page.status} — II` : (seo?.title ?? titleOf()));
 </script>
 
 <svelte:head>
 	<title>{pageTitle}</title>
 	<meta name="description" content={seo?.description ?? SITE_DESCRIPTION} />
+	<link rel="canonical" href={canonical} />
+	<meta property="og:url" content={canonical} />
 	<meta property="og:type" content="website" />
 	<meta property="og:site_name" content="II — Isobe Institute" />
 	<meta property="og:title" content={pageTitle} />

@@ -60,7 +60,9 @@ export const ABOUT: AboutSection[] = [
 					en: 'We begin by reading the age and where a brand stands in it — through research, dialogue and study — and translate what we find into a strategy and direction that every later decision can return to.',
 					ja: '時代とブランドの立ち位置を、リサーチと対話、学びを通して読み解き、その後のあらゆる判断が立ち返ることのできる戦略とディレクションへと翻訳します。'
 				},
-				motion: 'strategy'
+				// The film made from StrategyMotion (Dev/OTIF/CMS/MOVIE/ii/_src,
+				// v2, 2026-11-22); `motion: 'strategy'` brings the drawn one back.
+				film: '/videos/service_ii_research-strategy-v2.mp4'
 			},
 			{
 				name: 'Identity',
