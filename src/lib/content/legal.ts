@@ -129,6 +129,10 @@ export const COMPANY_FACTS: { label: Bilingual; value: Bilingual }[] = [
 	},
 	{ label: { en: 'Studio', ja: '拠点' }, value: { en: 'Tokyo, Japan', ja: '東京' } },
 	{
+		label: { en: 'Capital', ja: '資本金' },
+		value: { en: 'JPY 10,000,000', ja: '1,000万円' }
+	},
+	{
 		label: { en: 'Contact', ja: 'お問い合わせ' },
 		value: { en: 'Via the contact form (/contact)', ja: 'お問い合わせフォーム（/contact）より' }
 	},
