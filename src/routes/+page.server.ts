@@ -9,10 +9,13 @@ export type HomeWork = Slide & { scope: string };
 
 /** How many works the top page's grid shows (the archive has the rest). */
 const GRID_COUNT = 6;
+/** These lead the top grid, in this order (the archive's own order is
+    unchanged); the remaining places follow the archive. */
+const GRID_LEAD = ['mksk', 'humorist', 'etc', 'one'];
 
-// Top — every work's thumbnail as one continuous film (TopReel), and the
-// first works of the archive as a grid, both in the archive's order. Works
-// without any visual are skipped.
+// Top — every work's thumbnail as one continuous film (TopReel), in the
+// archive's order, and a grid of six: GRID_LEAD first, then the archive.
+// Works without any visual are skipped.
 export const load: PageServerLoad = async () => {
 	const data = await getVisibleWorks({
 		limit: 100,
@@ -32,7 +35,10 @@ export const load: PageServerLoad = async () => {
 	const slides: Slide[] = works.map(({ slug, title, visual }) => ({ slug, title, visual }));
 
 	// The grid keeps each visual's own ratio: read the videos' from the files.
-	const grid = works.slice(0, GRID_COUNT);
+	const lead = GRID_LEAD.map((slug) => works.find((w) => w.slug === slug)).filter(
+		(w): w is HomeWork => !!w
+	);
+	const grid = [...lead, ...works.filter((w) => !lead.includes(w))].slice(0, GRID_COUNT);
 	await Promise.all(
 		grid
 			.flatMap((w) => [w.visual, w.visual.sp])
