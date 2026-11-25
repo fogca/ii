@@ -1,6 +1,5 @@
 <script lang="ts">
 	import Media from '$lib/components/Media.svelte';
-	import { spRatio } from '$lib/js/works';
 
 	let { data } = $props();
 	const work = $derived(data.work);
@@ -189,10 +188,6 @@
 	// The work page is where the photographs are looked at closely: a higher
 	// encode than the site default (72) — about +30% bytes.
 	const QUALITY = 85;
-
-	/** w/h of the hero's box (videos: 16:9 until known). */
-	const arOf = (m: { width?: number; height?: number }) =>
-		m.width && m.height ? m.width / m.height : 16 / 9;
 </script>
 
 {#key work.slug}
@@ -204,8 +199,8 @@
 		{/if}
 
 		{#if work.hero}
-			<div class="hero" style="--ar: {arOf(work.hero)}; --ar-sp: {spRatio(work.hero)}">
-				<Media media={work.hero} cover eager sizes={HERO_SIZES} widths={HERO_WIDTHS} quality={QUALITY} alt={work.title} />
+			<div class="hero">
+				<Media media={work.hero} eager sizes={HERO_SIZES} widths={HERO_WIDTHS} quality={QUALITY} alt={work.title} />
 			</div>
 		{/if}
 
@@ -290,16 +285,6 @@
 		letter-spacing: 0;
 		text-transform: none;
 		text-align: center;
-	}
-
-	/* The hero's box takes the image's own ratio (so `cover` crops nothing);
-	   on PC it's also at least a screen tall. */
-	.hero {
-		/* width:100% explicit — with aspect-ratio + the PC min-height, an
-		   auto width would be derived from the min-height through the ratio
-		   and overflow the panel (e.g. a 16:9 video hero). */
-		width: 100%;
-		aspect-ratio: var(--ar-sp); /* the mobile thumbnail's, if any */
 	}
 
 	.text {
@@ -424,12 +409,6 @@
 	   then every other image full width, one under the other, 2px apart;
 	   the text moves into the left panel. */
 	@media (min-width: 1024px) {
-		.hero {
-			aspect-ratio: var(--ar);
-			min-height: 100vh;
-			min-height: 100dvh;
-		}
-
 		.scope {
 			position: fixed;
 			left: var(--gutter);
