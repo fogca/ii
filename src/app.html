@@ -44,8 +44,12 @@
 		<!-- Japanese webfonts — same accounts as the Office site. Both
 		     services only serve registered domains: add II's domain (and the
 		     *.pages.dev preview host) in each dashboard before launch. -->
-		<!-- FONTPLUS — Tazugane Gothic (defer: non render-blocking) -->
-		<script defer src="https://webfont.fontplus.jp/accessor/script/fontplus.js?kqbwQX--jVA%3D&box=-1MT0mUgg4A%3D&aa=1&ab=2"></script>
+		<!-- FONTPLUS — Tazugane Gothic: disabled. ii-ii.co is not registered in the
+		     FontPlus dashboard (font requests fail CORS + a 404), and Japanese is
+		     served by TypeSquare (Ishii Gothic M) ahead of it in --font-ja. To
+		     re-enable: register ii-ii.co (and www / *.pages.dev) in FontPlus, then
+		     restore:
+		     <script defer src="https://webfont.fontplus.jp/accessor/script/fontplus.js?kqbwQX--jVA%3D&box=-1MT0mUgg4A%3D&aa=1&ab=2"></script> -->
 		<!-- TypeSquare — 石井ゴシック M (sync: defer/async isn't documented as supported) -->
 		<script
 			type="text/javascript"

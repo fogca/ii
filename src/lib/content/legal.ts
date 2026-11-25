@@ -168,8 +168,8 @@ export const COOKIES: LegalDoc = {
 			title: { en: 'Third-party services', ja: '外部サービス' },
 			paragraphs: [
 				{
-					en: 'Japanese web fonts are delivered by FontPlus and TypeSquare, and the site is delivered through Cloudflare. These services may use cookies or similar technologies of their own, for font delivery and security, under their own policies.',
-					ja: '日本語ウェブフォントはFontPlusおよびTypeSquareから、サイトはCloudflareを通じて配信されています。これらのサービスは、フォント配信やセキュリティのために、各社のポリシーに基づきCookieまたは類似の技術を使用する場合があります。'
+					en: 'Japanese web fonts are delivered by TypeSquare, and the site is delivered through Cloudflare. These services may use cookies or similar technologies of their own, for font delivery and security, under their own policies.',
+					ja: '日本語ウェブフォントはTypeSquareから、サイトはCloudflareを通じて配信されています。これらのサービスは、フォント配信やセキュリティのために、各社のポリシーに基づきCookieまたは類似の技術を使用する場合があります。'
 				}
 			]
 		},
