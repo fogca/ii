@@ -15,7 +15,7 @@
 	// Top, from the top down: the greeting typing itself, large, black on
 	// white (the whole first screen) · the works' film (TopReel), a screen
 	// tall, moving a little slower than the page (parallax) · the
-	// statement, large · the first six works as a grid, each at its own
+	// statement, large · nine works as a grid, each at its own
 	// ratio · the services · the process (the footer then invites contact).
 	// The statement and services are About's own copy (lib/content/about).
 	// The opening is off for now (OPENING in lib/js/site).
