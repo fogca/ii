@@ -169,7 +169,10 @@
 		};
 	}
 
-	const CARD_SIZES = '(min-width: 1024px) 33vw, 50vw';
+	// SP crops every card to a square, so a landscape visual needs a source
+	// wider than its tile (the big tiles are every third one).
+	const CARD_SIZES = '(min-width: 1024px) 33vw, 75vw';
+	const BIG_CARD_SIZES = '(min-width: 1024px) 33vw, 160vw';
 	const FILM_SIZES = '(min-width: 1024px) 25vw, 100vw';
 </script>
 
@@ -196,11 +199,11 @@
 		<a href="/works">View all</a>
 	</div>
 	<ul class="grid">
-		{#each data.works as w (w.slug)}
+		{#each data.works as w, i (w.slug)}
 			<li class="reveal" use:reveal>
 				<a class="card" href="/works/{w.slug}">
 					<div class="thumb">
-						<Media media={w.visual} sizes={CARD_SIZES} alt={w.title} />
+						<Media media={w.visual} sizes={i % 3 === 0 ? BIG_CARD_SIZES : CARD_SIZES} alt={w.title} />
 					</div>
 					<p class="caption">
 						<span class="title">{w.title}</span>
@@ -437,6 +440,12 @@
 		   ones between pair up. */
 		.works .grid > li:nth-child(3n + 1) {
 			grid-column: 1 / -1;
+		}
+
+		/* Big and small alike, every card is a square (the visual is cropped
+		   to fill it). */
+		.works .thumb :global(.Media) {
+			aspect-ratio: 1;
 		}
 	}
 
