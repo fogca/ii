@@ -216,10 +216,12 @@
 					<div class="thumb">
 						<Media media={w.visual} sizes={i % 3 === 0 ? BIG_CARD_SIZES : CARD_SIZES} alt={w.title} />
 					</div>
-					<p class="caption">
-						<span class="title">{w.title}</span>
-					</p>
-					{#if w.scope}<p class="scope">{w.scope}</p>{/if}
+					<div class="meta">
+						<p class="caption">
+							<span class="title">{w.title}</span>
+						</p>
+						{#if w.scope}<p class="scope">{w.scope}</p>{/if}
+					</div>
 				</a>
 			</li>
 		{/each}
@@ -450,17 +452,31 @@
 			white-space: nowrap;
 		}
 
-		/* No scope line under the cards; titles at 12px. */
-		.works .scope {
-			display: none;
+		/* Title and scope sit on the visual, bottom left, in difference
+		   against it. */
+		.works .card {
+			position: relative;
 		}
 
-		/* Titles off for now (kept in the markup), rows as tight as the columns. */
+		.works .meta {
+			position: absolute;
+			left: 8px;
+			bottom: 8px;
+			right: 8px;
+			color: #fff;
+			mix-blend-mode: difference;
+			pointer-events: none;
+		}
+
+		.works .meta p,
+		.works .meta span {
+			color: inherit;
+			font-size: 9px;
+			line-height: 12px;
+		}
+
 		.works .caption {
-			display: none;
-			margin-top: 5px;
-			font-size: 11px;
-			font-weight: 450;
+			margin: 0;
 		}
 
 		.works .grid {
