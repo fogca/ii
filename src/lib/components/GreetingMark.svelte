@@ -36,11 +36,21 @@
 	const CARET_GAP = 0.28;
 	const CARET_MIN_PX = 2;
 	const CARET_EM = 0.16;
+	const SHORT_KEY = 28; // per keystroke, shortening to "ii" and back
+	const VB_TOP = -0.15; // the viewBox's top edge
 
 	let {
+		short = false,
 		onHello,
-		onDone
+		onDone,
+		onMarkBox
 	}: {
+		/** Edits the greeting down to "ii" (as the header logo); false types
+		    it back out. */
+		short?: boolean;
+		/** Where the "ii" sits in the shortened greeting, in the svg's own
+		    layout px (it is centred across). */
+		onMarkBox?: (box: { top: number; width: number; height: number }) => void;
 		/** Called as "ii! Hello :)" has just been typed (before it is edited back). */
 		onHello?: () => void;
 		/** Called a beat after the last key. */
@@ -51,6 +61,12 @@
 	let group = $state<SVGGElement>();
 	let cursor = $state<SVGRectElement>();
 	let phase = $state<'idle' | 'typing' | 'rest'>('idle');
+	// Set once mounted: shortens (or restores) the greeting.
+	let setShort = $state<(on: boolean) => void>();
+
+	$effect(() => {
+		setShort?.(short);
+	});
 
 	onMount(() => {
 		if (!svg || !group || !cursor) return;
@@ -161,16 +177,84 @@
 		steps.push({ wait: BEAT, act: () => (at = line.length) });
 		type(glyphs(word.slice(6)), BEAT);
 
-		if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
-			steps.forEach((s) => s.act());
+		// Shortening: the finished greeting loses a key at a time until "ii"
+		// is left — "nstitute" from the end, then "sobe " before the second i
+		// (the typing, run backwards).
+		const full: Token[] = [...glyphs(word.slice(0, 5)), SPACE, ...glyphs(word.slice(5))];
+		const TAIL = full.length - 7; // "nstitute"
+		const CUTS = full.length - 2; // all but the two i's
+		const showCut = (cut: number) => {
+			const keep = cut <= TAIL ? full.length - cut : 6 - (cut - TAIL);
+			const next = cut <= TAIL ? full.slice(0, keep) : [...full.slice(0, keep), full[6]];
+			line.splice(0, line.length, ...next);
+			at = keep;
 			draw();
+		};
+
+		const reportMark = () => {
+			const unit = root.clientWidth / VB_W || root.getBoundingClientRect().width / VB_W;
+			const pair = [word[0], word[5]].map((g) => g.el.getBBox());
+			const top = Math.min(...pair.map((b) => b.y));
+			const bottom = Math.max(...pair.map((b) => b.y + b.height));
+			onMarkBox?.({
+				top: (top - VB_TOP) * unit,
+				width: (pair[0].width + II_GAP + pair[1].width) * unit,
+				height: (bottom - top) * unit
+			});
+		};
+		reportMark();
+
+		const timers: number[] = [];
+		const stop = () => timers.splice(0).forEach((id) => clearTimeout(id));
+		const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+		let done = false; // the greeting has been typed out
+		let cut = 0;
+
+		/** Skips whatever is left of the greeting. */
+		const finish = () => {
+			if (done) return;
+			stop();
+			done = true;
+			showCut(0);
 			phase = 'rest';
 			onHello?.();
 			onDone?.();
-			return;
+		};
+
+		const shorten = (on: boolean) => {
+			if (!on && !done) return; // still typing: nothing to restore
+			finish();
+			stop();
+			const goal = on ? CUTS : 0;
+			if (reduced) {
+				cut = goal;
+				showCut(cut);
+				return;
+			}
+			const key = () => {
+				if (cut === goal) {
+					phase = 'rest';
+					return;
+				}
+				cut += Math.sign(goal - cut);
+				showCut(cut);
+				phase = 'typing';
+				timers.push(window.setTimeout(key, SHORT_KEY));
+			};
+			key();
+		};
+
+		if (reduced) {
+			steps.forEach((s) => s.act());
+			draw();
+			done = true;
+			phase = 'rest';
+			onHello?.();
+			onDone?.();
+			setShort = shorten;
+			return stop;
 		}
 
-		const timers: number[] = [];
 		draw();
 		let t = 0;
 		steps.forEach((s, i) => {
@@ -186,8 +270,14 @@
 			const next = steps[i + 1]?.wait ?? Infinity;
 			if (next > REST_AFTER) timers.push(window.setTimeout(() => (phase = 'rest'), t + REST_AFTER));
 		});
-		timers.push(window.setTimeout(() => onDone?.(), t + DONE_AFTER));
-		return () => timers.forEach((id) => clearTimeout(id));
+		timers.push(
+			window.setTimeout(() => {
+				done = true;
+				onDone?.();
+			}, t + DONE_AFTER)
+		);
+		setShort = shorten;
+		return stop;
 	});
 </script>
 

@@ -22,6 +22,11 @@
 	let hidden = $state(false);
 	let atTop = $state(true);
 
+	// SP top page: the greeting is the logo at first (see the top page), so
+	// the header follows ui.homeMark instead of the scroll position.
+	const isHome = $derived(page.url.pathname === '/');
+	const dotsOnly = $derived(isHome ? ui.homeMark === 'dots' : !atTop);
+
 	onMount(() => {
 		let lastY = window.scrollY;
 
@@ -78,6 +83,8 @@
 	class:is-entered={ui.entered}
 	class:is-hidden={hidden && !ui.menuOpen}
 	class:is-menu-open={ui.menuOpen}
+	class:is-home={isHome}
+	class:is-away={isHome && ui.homeMark === 'hidden' && !ui.menuOpen}
 >
 	<button
 		class="menu-btn"
@@ -116,7 +123,7 @@
 	{/each}
 
 	<a class="mark" href="/" aria-label="II — Design Creation" aria-current={page.url.pathname === '/' ? 'page' : undefined}>
-		<Logo dotsOnly={!atTop} />
+		<Logo {dotsOnly} />
 	</a>
 </header>
 
@@ -169,6 +176,25 @@
 
 	.is-hidden .menu-btn {
 		transform: translateY(calc(-100% - var(--btn-y)));
+	}
+
+	@media (max-width: 1023.98px) {
+		/* Top page: nothing until the greeting has become the mark, which
+		   then stays (it does not tuck away) and swaps in without a fade. */
+		.is-home .mark {
+			transition:
+				opacity 0.15s linear,
+				transform 0.6s var(--ease-out);
+		}
+
+		.is-home.is-hidden:not(.is-menu-open) .mark {
+			transform: translateX(-50%);
+		}
+
+		:global(html.js) .Header.is-away :is(.menu-btn, .mark) {
+			opacity: 0;
+			visibility: hidden;
+		}
 	}
 
 	/* Hit area is 44px+; the drawn lines keep their Figma position. */

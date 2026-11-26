@@ -8,6 +8,7 @@
 	import { reveal } from '$lib/actions/reveal';
 	import { ABOUT } from '$lib/content/about';
 	import { OPENING } from '$lib/js/site';
+	import { ui } from '$lib/state/ui.svelte';
 	import { PROCESS, PROCESS_HEADING, PROCESS_LEAD } from '$lib/content/process';
 
 	let { data } = $props();
@@ -143,6 +144,54 @@
 		};
 	});
 
+	// SP: the greeting is the logotype. There is no header at first; on the
+	// first scroll the greeting is edited down to "ii" as it rises, and where
+	// it reaches the header's place the header's own mark takes over. Past
+	// the middle of the page only the dots stay.
+	const SP = '(max-width: 1023.98px)';
+	const SHORTEN_AT = 8; // px of scroll
+	const MARK_W = 28; // the SP header mark (Header --mark-w, --mark-y)
+	const MARK_Y = 18.22;
+	let hero = $state<HTMLElement>();
+	let markBox = $state<{ top: number; width: number; height: number }>();
+	let isShort = $state(false);
+
+	$effect(() => {
+		if (!hero || !markBox) return;
+		const el = hero;
+		const box = markBox;
+		const mq = matchMedia(SP);
+		let raf = 0;
+		const update = () => {
+			raf = 0;
+			if (!mq.matches) {
+				isShort = false;
+				ui.homeMark = 'hidden';
+				return;
+			}
+			const safeTop = parseFloat(getComputedStyle(el).getPropertyValue('--safe-top')) || 0;
+			const stick = MARK_Y + safeTop - box.top;
+			const travel = parseFloat(getComputedStyle(el).marginTop) - stick;
+			el.style.setProperty('--stick', `${stick}px`);
+			el.style.setProperty('--mark-top', `${box.top}px`);
+			el.style.setProperty('--mark-scale', `${MARK_W / box.width}`);
+			const y = scrollY;
+			const middle = (document.documentElement.scrollHeight - innerHeight) / 2;
+			isShort = y > SHORTEN_AT;
+			ui.homeMark = y < travel ? 'hidden' : y < middle ? 'ii' : 'dots';
+		};
+		const onScroll = () => (raf ||= requestAnimationFrame(update));
+		update();
+		window.addEventListener('scroll', onScroll, { passive: true });
+		window.addEventListener('resize', onScroll);
+		return () => {
+			cancelAnimationFrame(raf);
+			window.removeEventListener('scroll', onScroll);
+			window.removeEventListener('resize', onScroll);
+			ui.homeMark = 'hidden';
+		};
+	});
+
 	// <html> flag: the SP header reads in difference over white and film.
 	$effect(() => {
 		document.documentElement.classList.add('is-top');
@@ -191,8 +240,15 @@
 	<Opening slides={data.slides} />
 {/if}
 
-<h1 class="hero" class:is-greeted={greeted} aria-label={GREETING}>
-	<GreetingMark onHello={() => (greeted = true)} />
+<h1
+	class="hero"
+	class:is-greeted={greeted}
+	class:is-short={isShort}
+	class:is-handed={ui.homeMark !== 'hidden'}
+	aria-label={GREETING}
+	bind:this={hero}
+>
+	<GreetingMark short={isShort} onHello={() => (greeted = true)} onMarkBox={(box) => (markBox = box)} />
 </h1>
 
 <section class="film" aria-label="Works film" bind:this={film} use:parallax>
@@ -428,6 +484,51 @@
 	@media (max-width: 1023.98px) {
 		.film {
 			display: none;
+		}
+
+		/* The first screen: the logotype, the statement right under it, and
+		   the first work from half the screen down. The logotype sticks
+		   where the header's mark sits, shrinking to its size on the way. */
+		.hero,
+		.hero.is-greeted {
+			--safe-top: env(safe-area-inset-top, 0px);
+			--intro-top: 12vh;
+			--intro-top: 12svh;
+			position: sticky;
+			top: var(--stick, 0px);
+			z-index: 2;
+			display: block;
+			min-height: 0;
+			margin-top: var(--intro-top);
+			pointer-events: none;
+		}
+
+		.hero :global(.GreetingMark) {
+			transform-origin: 50% var(--mark-top, 0px);
+			transition: transform 0.4s var(--ease-out);
+		}
+
+		.hero.is-short :global(.GreetingMark) {
+			transform: scale(var(--mark-scale, 1));
+		}
+
+		/* The header's mark is showing in its place. */
+		.hero.is-handed {
+			visibility: hidden;
+		}
+
+		/* Fills what is left of the first half (12svh above, then the
+		   logotype, as tall as 9.15 / 73.66 of its width). */
+		.statement {
+			min-height: calc(38vh - (100vw - 2 * var(--gutter)) * 0.1242);
+			min-height: calc(38svh - (100vw - 2 * var(--gutter)) * 0.1242);
+			padding-block: 28px 24px;
+		}
+
+		/* English at the Japanese's size here, so it fits the first half. */
+		.statement p:lang(en) {
+			font-size: 15px;
+			line-height: 1.55;
 		}
 
 		.works {
