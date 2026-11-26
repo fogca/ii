@@ -35,6 +35,17 @@
 	// the screen, a scroll up glides back to the greeting. Past the film's
 	// top, the page scrolls as usual.
 	const PC = '(min-width: 1024px)';
+
+	// The film is off on SP for now: hidden by CSS, and not mounted there so
+	// none of its videos load.
+	let filmOn = $state(false);
+	$effect(() => {
+		const mq = matchMedia(PC);
+		const read = () => (filmOn = mq.matches);
+		read();
+		mq.addEventListener('change', read);
+		return () => mq.removeEventListener('change', read);
+	});
 	const SNAP_MS = 700;
 	// After a glide, the trackpad's coasting wheel (deltas dying away) is
 	// swallowed, but never for longer than this — and a fresh swipe (a delta
@@ -185,7 +196,7 @@
 </h1>
 
 <section class="film" aria-label="Works film" bind:this={film} use:parallax>
-	<TopReel slides={data.slides} />
+	{#if filmOn}<TopReel slides={data.slides} />{/if}
 </section>
 
 <section class="statement" aria-label="Introduction">
@@ -408,15 +419,35 @@
 		padding: 0 var(--gutter) 160px;
 	}
 
-	/* SP: the cards run to 5px from the edges, as the work page's images
-	   do; the heading keeps the gutter. */
+	/* SP: no film for now, so the statement follows the greeting. The
+	   cards run to 5px from the edges, as the work page's images do. The
+	   "Works" name is off (still read aloud) and "View all" comes after
+	   the cards, keeping the gutter. */
 	@media (max-width: 1023.98px) {
+		.film {
+			display: none;
+		}
+
 		.works {
+			display: flex;
+			flex-direction: column;
 			padding-inline: 5px;
 		}
 
 		.works .head {
+			order: 1;
+			justify-content: flex-end;
+			margin: 24px 0 0;
 			padding-inline: calc(var(--gutter) - 5px);
+		}
+
+		.works .head h2 {
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			overflow: hidden;
+			clip-path: inset(50%);
+			white-space: nowrap;
 		}
 
 		/* No scope line under the cards; titles at 12px. */
