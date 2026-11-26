@@ -9,17 +9,14 @@ export type HomeWork = Slide & { scope: string };
 
 /** How many works the top page's grid shows (the archive has the rest). */
 const GRID_COUNT = 9;
-/** The top grid's order (the archive's own order is unchanged); any place
-    left over follows the archive. */
-const GRID_ORDER = ['rc1', 'ysove', 'ttt', 'jds', 'mksk', 'humorist', 'etc', 'one', 'quaint'];
 
-// Top — every work's thumbnail as one continuous film (TopReel), in the
-// archive's order, and a grid of nine: GRID_ORDER first, then the archive.
+// Top — every work's thumbnail as one continuous film (TopReel), and a
+// grid of the first nine. Both follow the order of the microCMS admin list
+// (no `orders` query), so reordering there reorders the page.
 // Works without any visual are skipped.
 export const load: PageServerLoad = async () => {
 	const data = await getVisibleWorks({
 		limit: 100,
-		orders: 'order',
 		fields: ['id', 'title', 'scope', 'main_visual', 'thumbnail', 'sp_thumbnail', 'sp_thumbnail_video', 'repeat', 'hidden']
 	});
 
@@ -35,10 +32,7 @@ export const load: PageServerLoad = async () => {
 	const slides: Slide[] = works.map(({ slug, title, visual }) => ({ slug, title, visual }));
 
 	// The grid keeps each visual's own ratio: read the videos' from the files.
-	const lead = GRID_ORDER.map((slug) => works.find((w) => w.slug === slug)).filter(
-		(w): w is HomeWork => !!w
-	);
-	const grid = [...lead, ...works.filter((w) => !lead.includes(w))].slice(0, GRID_COUNT);
+	const grid = works.slice(0, GRID_COUNT);
 	await Promise.all(
 		grid
 			.flatMap((w) => [w.visual, w.visual.sp])
