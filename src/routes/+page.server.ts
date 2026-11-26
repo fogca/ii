@@ -11,7 +11,7 @@ export type HomeWork = Slide & { scope: string };
 const GRID_COUNT = 9;
 /** The top grid's order (the archive's own order is unchanged); any place
     left over follows the archive. */
-const GRID_ORDER = ['rc1', 'ysove', 'ttt', 'jds', 'mksk', 'humorist', 'etc', 'one'];
+const GRID_ORDER = ['rc1', 'ysove', 'ttt', 'jds', 'mksk', 'humorist', 'etc', 'one', 'quaint'];
 
 // Top — every work's thumbnail as one continuous film (TopReel), in the
 // archive's order, and a grid of nine: GRID_ORDER first, then the archive.
