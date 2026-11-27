@@ -23,7 +23,9 @@
 	const START = 700;
 	const KEY = 80; // fastest keystroke…
 	const KEY_SPREAD = 110; // …plus up to this much, at random
-	const PAUSE = 1000; // reading "ii! Hello :)" before editing it
+	// Reading "ii! Hello :)" before editing it; on the top page it is held,
+	// then rises, in this time (HELLO_BEAT_MS + the 1.6s rise).
+	const PAUSE = 2500;
 	const BACKSPACE = 70; // …plus up to this much, at random
 	const BACKSPACE_SPREAD = 50;
 	const BEAT = 380; // small decisions: a caret move, the next edit

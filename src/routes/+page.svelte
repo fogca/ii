@@ -145,6 +145,9 @@
 	// takes over. Past the middle of the page only the dots stay.
 	const SHORTEN_AT = 8; // px of scroll
 	const SETTLE_MS = 420; // the shortening and shrinking, seen through before the swap
+	// "Hello :)" is held a moment before it rises (GreetingMark's PAUSE
+	// covers this and the rise, so the editing starts once it has landed).
+	const HELLO_BEAT_MS = 700;
 	// The header mark's width and top (Header --mark-w, --mark-y).
 	const MARK_SP = { w: 28, y: 18.22 };
 	const MARK_PC = { w: 31.76, y: 21.22 };
@@ -153,6 +156,18 @@
 	let markBox = $state<{ top: number; width: number; height: number }>();
 	let isShort = $state(false);
 	let settled = $state(false);
+	let lifted = $state(false); // risen from the middle
+
+	$effect(() => {
+		if (!greeted) return;
+		// Scrolling already, or no motion: no beat.
+		if (isShort || matchMedia('(prefers-reduced-motion: reduce)').matches) {
+			lifted = true;
+			return;
+		}
+		const timer = setTimeout(() => (lifted = true), HELLO_BEAT_MS);
+		return () => clearTimeout(timer);
+	});
 
 	$effect(() => {
 		if (!isShort) {
@@ -249,7 +264,7 @@
 
 <h1
 	class="hero"
-	class:is-lifted={greeted}
+	class:is-lifted={lifted}
 	class:is-short={isShort}
 	class:is-handed={ui.homeMark !== 'hidden'}
 	aria-label={GREETING}
@@ -442,15 +457,21 @@
 		pointer-events: none;
 	}
 
+	/* The rise gathers speed and settles softly; once the logotype has
+	   passed, the statement follows it up, then the works. */
 	@media (prefers-reduced-motion: no-preference) {
 		.hero {
-			transition: transform 1.2s var(--ease-out);
+			transition: transform 1.6s var(--ease-silk);
 		}
 
 		.hero ~ section {
 			transition:
-				opacity 1.2s var(--ease-out) 0.15s,
-				transform 1.2s var(--ease-out) 0.15s;
+				opacity 1.4s var(--ease-out) 1.05s,
+				transform 1.6s var(--ease-out) 1.05s;
+		}
+
+		.hero ~ .statement {
+			transition-delay: 0.9s;
 		}
 	}
 
