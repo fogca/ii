@@ -486,7 +486,7 @@
 
 	.statement p {
 		max-width: 1100px;
-		font-size: 12.5px;
+		font-size: 14.5px;
 		line-height: 1.6;
 		letter-spacing: 0;
 	}
