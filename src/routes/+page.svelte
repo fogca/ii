@@ -406,8 +406,8 @@
 	   sticks where the header's mark sits, shrinking to its size on the way. */
 	.hero {
 		--safe-top: env(safe-area-inset-top, 0px);
-		--intro-top: 12vh;
-		--intro-top: 12svh;
+		--intro-top: 8vh;
+		--intro-top: 8svh;
 		position: sticky;
 		top: var(--stick, 0px);
 		z-index: 2;
@@ -479,8 +479,8 @@
 	/* Fills what is left of the first half (above it, --intro-top and the
 	   logotype, as tall as 9.15 / 73.66 of its width). */
 	.statement {
-		min-height: calc(38vh - (100vw - 2 * var(--gutter)) * 0.1242);
-		min-height: calc(38svh - (100vw - 2 * var(--gutter)) * 0.1242);
+		min-height: calc(42vh - (100vw - 2 * var(--gutter)) * 0.1242);
+		min-height: calc(42svh - (100vw - 2 * var(--gutter)) * 0.1242);
 		padding: 28px var(--gutter) 24px;
 	}
 
