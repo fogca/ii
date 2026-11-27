@@ -14,7 +14,8 @@
 	let { data } = $props();
 
 	// Top, from the top down: the greeting, typed in the middle of the
-	// screen, then risen to be the logotype · the statement right under it ·
+	// screen, risen at "Hello :)" to the header's place to be the logotype ·
+	// the statement right under it ·
 	// nine works as a grid from half the screen down (SP squares; PC each at
 	// its own ratio) · the services · the process (the footer then invites
 	// contact). The works' film (TopReel) is off for now (FILM_ON).
@@ -137,11 +138,11 @@
 	});
 
 	// The greeting is the logotype. It types at the middle of the screen with
-	// nothing else showing; once typed it rises and the page comes up under
-	// it. There is no header at first; on the first scroll the greeting is
-	// edited down to "ii" as it rises, and where it reaches the header's place
-	// the header's own mark takes over. Past the middle of the page only the
-	// dots stay.
+	// nothing else showing; as "Hello :)" is typed it rises to where the
+	// header's mark sits and the page comes up under it, the typing going on
+	// up there. There is no header at first; on the first scroll the greeting
+	// is edited down to "ii" and shrinks in place, and the header's own mark
+	// takes over. Past the middle of the page only the dots stay.
 	const SHORTEN_AT = 8; // px of scroll
 	const SETTLE_MS = 420; // the shortening and shrinking, seen through before the swap
 	// The header mark's width and top (Header --mark-w, --mark-y).
@@ -150,7 +151,6 @@
 	let hero = $state<HTMLElement>();
 	/** The "ii" in the greeting, as shares of its width (GreetingMark). */
 	let markBox = $state<{ top: number; width: number; height: number }>();
-	let lifted = $state(false); // typed: risen from the middle
 	let isShort = $state(false);
 	let settled = $state(false);
 
@@ -177,15 +177,13 @@
 			const width = el.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
 			const safeTop = parseFloat(style.getPropertyValue('--safe-top')) || 0;
 			const markTop = box.top * width;
-			const stick = mark.y + safeTop - markTop;
-			const travel = parseFloat(style.marginTop) - stick;
-			el.style.setProperty('--stick', `${stick}px`);
+			el.style.setProperty('--stick', `${mark.y + safeTop - markTop}px`);
 			el.style.setProperty('--mark-top', `${markTop}px`);
 			el.style.setProperty('--mark-scale', `${mark.w / (box.width * width)}`);
 			const y = scrollY;
 			const middle = (document.documentElement.scrollHeight - innerHeight) / 2;
 			isShort = y > SHORTEN_AT;
-			ui.homeMark = !done || y < travel ? 'hidden' : y < middle ? 'ii' : 'dots';
+			ui.homeMark = !done || !isShort ? 'hidden' : y < middle ? 'ii' : 'dots';
 		};
 		const onScroll = () => (raf ||= requestAnimationFrame(update));
 		update();
@@ -251,7 +249,7 @@
 
 <h1
 	class="hero"
-	class:is-lifted={lifted}
+	class:is-lifted={greeted}
 	class:is-short={isShort}
 	class:is-handed={ui.homeMark !== 'hidden'}
 	aria-label={GREETING}
@@ -260,7 +258,6 @@
 	<GreetingMark
 		short={isShort}
 		onHello={() => (greeted = true)}
-		onDone={() => (lifted = true)}
 		onMarkBox={(box) => (markBox = box)}
 	/>
 </h1>
@@ -403,13 +400,14 @@
 
 	/* The first screen: the logotype (gutter to gutter), the statement right
 	   under it, and the first work from half the screen down. The logotype
-	   sticks where the header's mark sits, shrinking to its size on the way. */
+	   sits and sticks where the header's mark does, shrinking to its size in
+	   place: --stick, measured, puts the greeting's "ii" on the mark (its
+	   top is 0.0121 of the width below the svg's; the fallback says so). */
 	.hero {
 		--safe-top: env(safe-area-inset-top, 0px);
-		--intro-top: 8vh;
-		--intro-top: 8svh;
+		--intro-top: var(--stick, calc(18px + var(--safe-top) - (100vw - 2 * var(--gutter)) * 0.0121));
 		position: sticky;
-		top: var(--stick, 0px);
+		top: var(--intro-top);
 		z-index: 2;
 		margin-top: var(--intro-top);
 		padding: 0 var(--gutter);
@@ -431,7 +429,7 @@
 		visibility: hidden;
 	}
 
-	/* While it types it sits in the middle of the screen, alone; typed, it
+	/* Up to "Hello :)" it sits in the middle of the screen, alone; then it
 	   rises, and everything else comes up a little as it appears. */
 	:global(html.js) .hero:not(.is-lifted) {
 		transform: translateY(calc(50vh - var(--intro-top) - 50%));
@@ -476,11 +474,12 @@
 		will-change: transform;
 	}
 
-	/* Fills what is left of the first half (above it, --intro-top and the
-	   logotype, as tall as 9.15 / 73.66 of its width). */
+	/* Fills what is left of the first half. Above it: --intro-top and the
+	   logotype (9.15 / 73.66 = 0.1242 of its width), together the mark's
+	   top plus 0.1242 - 0.0121 = 0.1121 of the width. */
 	.statement {
-		min-height: calc(42vh - (100vw - 2 * var(--gutter)) * 0.1242);
-		min-height: calc(42svh - (100vw - 2 * var(--gutter)) * 0.1242);
+		min-height: calc(50vh - 18px - (100vw - 2 * var(--gutter)) * 0.1121);
+		min-height: calc(50svh - 18px - (100vw - 2 * var(--gutter)) * 0.1121);
 		padding: 28px var(--gutter) 24px;
 	}
 
@@ -749,13 +748,12 @@
 		}
 
 		.hero {
-			--intro-top: 7vh;
-			--intro-top: 7svh;
+			--intro-top: var(--stick, calc(21px + var(--safe-top) - (100vw - 2 * var(--gutter)) * 0.0121));
 		}
 
 		.statement {
-			min-height: calc(43vh - (100vw - 2 * var(--gutter)) * 0.1242);
-			min-height: calc(43svh - (100vw - 2 * var(--gutter)) * 0.1242);
+			min-height: calc(50vh - 21px - (100vw - 2 * var(--gutter)) * 0.1121);
+			min-height: calc(50svh - 21px - (100vw - 2 * var(--gutter)) * 0.1121);
 			padding-block: 32px;
 		}
 

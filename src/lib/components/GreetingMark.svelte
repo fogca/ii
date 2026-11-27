@@ -28,7 +28,7 @@
 	const BACKSPACE_SPREAD = 50;
 	const BEAT = 380; // small decisions: a caret move, the next edit
 	const REST_AFTER = 300; // no key for this long: the caret blinks
-	const DONE_AFTER = 600; // after the last key, the greeting counts as read
+	const DONE_AFTER = 600; // after the last key, the greeting counts as typed out
 
 	// Caret, in viewBox units (the glyphs run 0 → 8.71 baseline).
 	const CARET_TOP = -0.9;
@@ -42,7 +42,6 @@
 	let {
 		short = false,
 		onHello,
-		onDone,
 		onMarkBox
 	}: {
 		/** Edits the greeting down to "ii" (as the header logo); false types
@@ -53,8 +52,6 @@
 		onMarkBox?: (box: { top: number; width: number; height: number }) => void;
 		/** Called as "ii! Hello :)" has just been typed (before it is edited back). */
 		onHello?: () => void;
-		/** Called a beat after the last key. */
-		onDone?: () => void;
 	} = $props();
 
 	let svg = $state<SVGSVGElement>();
@@ -217,7 +214,6 @@
 			showCut(0);
 			phase = 'rest';
 			onHello?.();
-			onDone?.();
 		};
 
 		const shorten = (on: boolean) => {
@@ -249,7 +245,6 @@
 			done = true;
 			phase = 'rest';
 			onHello?.();
-			onDone?.();
 			setShort = shorten;
 			return stop;
 		}
@@ -269,12 +264,7 @@
 			const next = steps[i + 1]?.wait ?? Infinity;
 			if (next > REST_AFTER) timers.push(window.setTimeout(() => (phase = 'rest'), t + REST_AFTER));
 		});
-		timers.push(
-			window.setTimeout(() => {
-				done = true;
-				onDone?.();
-			}, t + DONE_AFTER)
-		);
+		timers.push(window.setTimeout(() => (done = true), t + DONE_AFTER));
 		setShort = shorten;
 		return stop;
 	});
