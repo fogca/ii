@@ -13,11 +13,11 @@
 
 	let { data } = $props();
 
-	// Top, from the top down: the greeting typing itself, large, black on
-	// white (the whole first screen) · the works' film (TopReel), a screen
-	// tall, moving a little slower than the page (parallax) · the
-	// statement, large · nine works as a grid, each at its own
-	// ratio · the services · the process (the footer then invites contact).
+	// Top, from the top down: the greeting, typed in the middle of the
+	// screen, then risen to be the logotype · the statement right under it ·
+	// nine works as a grid from half the screen down (SP squares; PC each at
+	// its own ratio) · the services · the process (the footer then invites
+	// contact). The works' film (TopReel) is off for now (FILM_ON).
 	// The statement and services are About's own copy (lib/content/about).
 	// The opening is off for now (OPENING in lib/js/site).
 	const [INTRO, SERVICES] = ABOUT;
@@ -37,16 +37,8 @@
 	// top, the page scrolls as usual.
 	const PC = '(min-width: 1024px)';
 
-	// The film is off on SP for now: hidden by CSS, and not mounted there so
-	// none of its videos load.
-	let filmOn = $state(false);
-	$effect(() => {
-		const mq = matchMedia(PC);
-		const read = () => (filmOn = mq.matches);
-		read();
-		mq.addEventListener('change', read);
-		return () => mq.removeEventListener('change', read);
-	});
+	// The film (and PC's one-step glide onto it) is off for now.
+	const FILM_ON = false;
 	const SNAP_MS = 700;
 	// After a glide, the trackpad's coasting wheel (deltas dying away) is
 	// swallowed, but never for longer than this — and a fresh swipe (a delta
@@ -144,41 +136,56 @@
 		};
 	});
 
-	// SP: the greeting is the logotype. There is no header at first; on the
-	// first scroll the greeting is edited down to "ii" as it rises, and where
-	// it reaches the header's place the header's own mark takes over. Past
-	// the middle of the page only the dots stay.
-	const SP = '(max-width: 1023.98px)';
+	// The greeting is the logotype. It types at the middle of the screen with
+	// nothing else showing; once typed it rises and the page comes up under
+	// it. There is no header at first; on the first scroll the greeting is
+	// edited down to "ii" as it rises, and where it reaches the header's place
+	// the header's own mark takes over. Past the middle of the page only the
+	// dots stay.
 	const SHORTEN_AT = 8; // px of scroll
-	const MARK_W = 28; // the SP header mark (Header --mark-w, --mark-y)
-	const MARK_Y = 18.22;
+	const SETTLE_MS = 420; // the shortening and shrinking, seen through before the swap
+	// The header mark's width and top (Header --mark-w, --mark-y).
+	const MARK_SP = { w: 28, y: 18.22 };
+	const MARK_PC = { w: 31.76, y: 21.22 };
 	let hero = $state<HTMLElement>();
+	/** The "ii" in the greeting, as shares of its width (GreetingMark). */
 	let markBox = $state<{ top: number; width: number; height: number }>();
+	let lifted = $state(false); // typed: risen from the middle
 	let isShort = $state(false);
+	let settled = $state(false);
+
+	$effect(() => {
+		if (!isShort) {
+			settled = false;
+			return;
+		}
+		const timer = setTimeout(() => (settled = true), SETTLE_MS);
+		return () => clearTimeout(timer);
+	});
 
 	$effect(() => {
 		if (!hero || !markBox) return;
 		const el = hero;
 		const box = markBox;
-		const mq = matchMedia(SP);
+		const done = settled;
+		const mq = matchMedia(PC);
 		let raf = 0;
 		const update = () => {
 			raf = 0;
-			if (!mq.matches) {
-				isShort = false;
-				ui.homeMark = 'hidden';
-				return;
-			}
-			const safeTop = parseFloat(getComputedStyle(el).getPropertyValue('--safe-top')) || 0;
-			const stick = MARK_Y + safeTop - box.top;
-			const travel = parseFloat(getComputedStyle(el).marginTop) - stick;
+			const mark = mq.matches ? MARK_PC : MARK_SP;
+			const style = getComputedStyle(el);
+			const width = el.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+			const safeTop = parseFloat(style.getPropertyValue('--safe-top')) || 0;
+			const markTop = box.top * width;
+			const stick = mark.y + safeTop - markTop;
+			const travel = parseFloat(style.marginTop) - stick;
 			el.style.setProperty('--stick', `${stick}px`);
-			el.style.setProperty('--mark-top', `${box.top}px`);
-			el.style.setProperty('--mark-scale', `${MARK_W / box.width}`);
+			el.style.setProperty('--mark-top', `${markTop}px`);
+			el.style.setProperty('--mark-scale', `${mark.w / (box.width * width)}`);
 			const y = scrollY;
 			const middle = (document.documentElement.scrollHeight - innerHeight) / 2;
 			isShort = y > SHORTEN_AT;
-			ui.homeMark = y < travel ? 'hidden' : y < middle ? 'ii' : 'dots';
+			ui.homeMark = !done || y < travel ? 'hidden' : y < middle ? 'ii' : 'dots';
 		};
 		const onScroll = () => (raf ||= requestAnimationFrame(update));
 		update();
@@ -188,9 +195,11 @@
 			cancelAnimationFrame(raf);
 			window.removeEventListener('scroll', onScroll);
 			window.removeEventListener('resize', onScroll);
-			ui.homeMark = 'hidden';
 		};
 	});
+
+	// Leaving the page, the header goes back to its own ways.
+	$effect(() => () => (ui.homeMark = 'hidden'));
 
 	// <html> flag: the SP header reads in difference over white and film.
 	$effect(() => {
@@ -242,18 +251,25 @@
 
 <h1
 	class="hero"
-	class:is-greeted={greeted}
+	class:is-lifted={lifted}
 	class:is-short={isShort}
 	class:is-handed={ui.homeMark !== 'hidden'}
 	aria-label={GREETING}
 	bind:this={hero}
 >
-	<GreetingMark short={isShort} onHello={() => (greeted = true)} onMarkBox={(box) => (markBox = box)} />
+	<GreetingMark
+		short={isShort}
+		onHello={() => (greeted = true)}
+		onDone={() => (lifted = true)}
+		onMarkBox={(box) => (markBox = box)}
+	/>
 </h1>
 
-<section class="film" aria-label="Works film" bind:this={film} use:parallax>
-	{#if filmOn}<TopReel slides={data.slides} />{/if}
-</section>
+{#if FILM_ON}
+	<section class="film" aria-label="Works film" bind:this={film} use:parallax>
+		<TopReel slides={data.slides} />
+	</section>
+{/if}
 
 <section class="statement" aria-label="Introduction">
 	<p class="x-en reveal" lang="en" use:reveal>{INTRO.body?.en}</p>
@@ -385,29 +401,58 @@
 		}
 	}
 
-	/* The first screen: the greeting across the page (gutter to gutter),
-	   black on white. */
+	/* The first screen: the logotype (gutter to gutter), the statement right
+	   under it, and the first work from half the screen down. The logotype
+	   sticks where the header's mark sits, shrinking to its size on the way. */
 	.hero {
-		display: grid;
-		place-items: center;
-		min-height: 100vh;
-		min-height: 100dvh;
+		--safe-top: env(safe-area-inset-top, 0px);
+		--intro-top: 12vh;
+		--intro-top: 12svh;
+		position: sticky;
+		top: var(--stick, 0px);
+		z-index: 2;
+		margin-top: var(--intro-top);
 		padding: 0 var(--gutter);
+		pointer-events: none;
 	}
 
 	.hero :global(.GreetingMark) {
 		width: 100%;
+		transform-origin: 50% var(--mark-top, 0px);
+		transition: transform 0.4s var(--ease-out);
 	}
 
-	/* Once greeted, the first screen eases up to half a screen (SP too). */
-	.hero.is-greeted {
-		min-height: 50vh;
-		min-height: 50dvh;
+	.hero.is-short :global(.GreetingMark) {
+		transform: scale(var(--mark-scale, 1));
+	}
+
+	/* The header's mark is showing in its place. */
+	.hero.is-handed {
+		visibility: hidden;
+	}
+
+	/* While it types it sits in the middle of the screen, alone; typed, it
+	   rises, and everything else comes up a little as it appears. */
+	:global(html.js) .hero:not(.is-lifted) {
+		transform: translateY(calc(50vh - var(--intro-top) - 50%));
+		transform: translateY(calc(50svh - var(--intro-top) - 50%));
+	}
+
+	:global(html.js) .hero:not(.is-lifted) ~ section {
+		opacity: 0;
+		transform: translateY(40px);
+		pointer-events: none;
 	}
 
 	@media (prefers-reduced-motion: no-preference) {
 		.hero {
-			transition: min-height 1.6s var(--ease-out);
+			transition: transform 1.2s var(--ease-out);
+		}
+
+		.hero ~ section {
+			transition:
+				opacity 1.2s var(--ease-out) 0.15s,
+				transform 1.2s var(--ease-out) 0.15s;
 		}
 	}
 
@@ -431,19 +476,22 @@
 		will-change: transform;
 	}
 
+	/* Fills what is left of the first half (above it, --intro-top and the
+	   logotype, as tall as 9.15 / 73.66 of its width). */
 	.statement {
-		padding: 40px var(--gutter) 160px;
+		min-height: calc(38vh - (100vw - 2 * var(--gutter)) * 0.1242);
+		min-height: calc(38svh - (100vw - 2 * var(--gutter)) * 0.1242);
+		padding: 28px var(--gutter) 24px;
 	}
 
 	.statement p {
 		max-width: 1100px;
-		font-size: 24px;
-		line-height: 1.45;
+		font-size: 12.5px;
+		line-height: 1.6;
 		letter-spacing: 0;
 	}
 
 	.statement p:lang(ja) {
-		font-size: 16.5px;
 		line-height: 1.8;
 	}
 
@@ -473,115 +521,45 @@
 		opacity: 0.5;
 	}
 
+	/* The cards come first; the "Works" name is off (still read aloud) and
+	   "View all" follows them. */
 	.works {
+		display: flex;
+		flex-direction: column;
 		padding: 0 var(--gutter) 160px;
 	}
 
-	/* SP: no film for now, so the statement follows the greeting. The
-	   cards run to 5px from the edges, as the work page's images do. The
-	   "Works" name is off (still read aloud) and "View all" comes after
-	   the cards, keeping the gutter. */
+	.works .head {
+		order: 1;
+		justify-content: flex-end;
+		margin: 24px 0 0;
+	}
+
+	.works .head h2 {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+		clip-path: inset(50%);
+		white-space: nowrap;
+	}
+
+	/* Each visual at its own ratio; a row's cards hang from its top. */
+	.grid {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		align-items: start;
+		gap: 5px;
+	}
+
+	/* SP: the cards run to 5px from the edges, as the work page's images do. */
 	@media (max-width: 1023.98px) {
-		.film {
-			display: none;
-		}
-
-		/* The first screen: the logotype, the statement right under it, and
-		   the first work from half the screen down. The logotype sticks
-		   where the header's mark sits, shrinking to its size on the way. */
-		.hero,
-		.hero.is-greeted {
-			--safe-top: env(safe-area-inset-top, 0px);
-			--intro-top: 12vh;
-			--intro-top: 12svh;
-			position: sticky;
-			top: var(--stick, 0px);
-			z-index: 2;
-			display: block;
-			min-height: 0;
-			margin-top: var(--intro-top);
-			pointer-events: none;
-		}
-
-		.hero :global(.GreetingMark) {
-			transform-origin: 50% var(--mark-top, 0px);
-			transition: transform 0.4s var(--ease-out);
-		}
-
-		.hero.is-short :global(.GreetingMark) {
-			transform: scale(var(--mark-scale, 1));
-		}
-
-		/* The header's mark is showing in its place. */
-		.hero.is-handed {
-			visibility: hidden;
-		}
-
-		/* Fills what is left of the first half (12svh above, then the
-		   logotype, as tall as 9.15 / 73.66 of its width). */
-		.statement {
-			min-height: calc(38vh - (100vw - 2 * var(--gutter)) * 0.1242);
-			min-height: calc(38svh - (100vw - 2 * var(--gutter)) * 0.1242);
-			padding-block: 28px 24px;
-		}
-
-		/* English at the Japanese's size here, so it fits the first half. */
-		.statement p:lang(en) {
-			font-size: 15px;
-			line-height: 1.55;
-		}
-
 		.works {
-			display: flex;
-			flex-direction: column;
 			padding-inline: 5px;
 		}
 
 		.works .head {
-			order: 1;
-			justify-content: flex-end;
-			margin: 24px 0 0;
 			padding-inline: calc(var(--gutter) - 5px);
-		}
-
-		.works .head h2 {
-			position: absolute;
-			width: 1px;
-			height: 1px;
-			overflow: hidden;
-			clip-path: inset(50%);
-			white-space: nowrap;
-		}
-
-		/* Title and scope sit on the visual, bottom left, in difference
-		   against it. */
-		.works .card {
-			position: relative;
-		}
-
-		.works .meta {
-			position: absolute;
-			left: 8px;
-			bottom: 8px;
-			right: 8px;
-			color: #fff;
-			mix-blend-mode: difference;
-			pointer-events: none;
-		}
-
-		.works .meta p,
-		.works .meta span {
-			color: inherit;
-			font-size: 9px;
-			line-height: 12px;
-		}
-
-		.works .caption {
-			margin: 0;
-		}
-
-		.works .grid {
-			gap: 5px;
 		}
 
 		/* Rows of 1 · 2 · 1 · 2 …: every third card runs full width, the
@@ -597,15 +575,8 @@
 		}
 	}
 
-	/* Each visual at its own ratio; a row's cards hang from its top. */
-	.grid {
-		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		align-items: start;
-		gap: 40px 5px;
-	}
-
 	.card {
+		position: relative;
 		display: block;
 	}
 
@@ -621,20 +592,23 @@
 		transform: scale(1.03);
 	}
 
-	.caption,
-	.scope {
-		font-size: 12.5px;
-		line-height: 15px;
+	/* Title and scope sit on the visual, bottom left, in difference
+	   against it. */
+	.meta {
+		position: absolute;
+		right: 8px;
+		bottom: 8px;
+		left: 8px;
+		color: #fff;
+		mix-blend-mode: difference;
+		pointer-events: none;
 	}
 
-	.caption {
-		display: flex;
-		gap: 0.8em;
-		margin-top: 10px;
-	}
-
-	.scope {
-		color: var(--color-text-mute);
+	.meta p,
+	.meta span {
+		color: inherit;
+		font-size: 9px;
+		line-height: 12px;
 	}
 
 	.services {
@@ -774,13 +748,20 @@
 			height: 100dvh;
 		}
 
+		.hero {
+			--intro-top: 7vh;
+			--intro-top: 7svh;
+		}
+
 		.statement {
-			padding: 80px var(--gutter) 240px;
+			min-height: calc(43vh - (100vw - 2 * var(--gutter)) * 0.1242);
+			min-height: calc(43svh - (100vw - 2 * var(--gutter)) * 0.1242);
+			padding-block: 32px;
 		}
 
 		.statement p {
-			font-size: 40px;
-			line-height: 1.35;
+			font-size: 28px;
+			line-height: 1.4;
 		}
 
 		.statement p:lang(ja) {
@@ -789,13 +770,13 @@
 		}
 
 		.works .head {
-			font-size: 36px;
+			font-size: 16px;
 			line-height: 1.2;
 		}
 
 		.grid {
 			grid-template-columns: repeat(3, minmax(0, 1fr));
-			gap: 48px 10px;
+			gap: 10px;
 		}
 
 		.services-heading {

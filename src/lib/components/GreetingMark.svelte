@@ -48,8 +48,8 @@
 		/** Edits the greeting down to "ii" (as the header logo); false types
 		    it back out. */
 		short?: boolean;
-		/** Where the "ii" sits in the shortened greeting, in the svg's own
-		    layout px (it is centred across). */
+		/** Where the "ii" sits in the shortened greeting (it is centred
+		    across), each as a share of the svg's width. */
 		onMarkBox?: (box: { top: number; width: number; height: number }) => void;
 		/** Called as "ii! Hello :)" has just been typed (before it is edited back). */
 		onHello?: () => void;
@@ -192,14 +192,13 @@
 		};
 
 		const reportMark = () => {
-			const unit = root.clientWidth / VB_W || root.getBoundingClientRect().width / VB_W;
 			const pair = [word[0], word[5]].map((g) => g.el.getBBox());
 			const top = Math.min(...pair.map((b) => b.y));
 			const bottom = Math.max(...pair.map((b) => b.y + b.height));
 			onMarkBox?.({
-				top: (top - VB_TOP) * unit,
-				width: (pair[0].width + II_GAP + pair[1].width) * unit,
-				height: (bottom - top) * unit
+				top: (top - VB_TOP) / VB_W,
+				width: (pair[0].width + II_GAP + pair[1].width) / VB_W,
+				height: (bottom - top) / VB_W
 			});
 		};
 		reportMark();

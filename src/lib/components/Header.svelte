@@ -22,7 +22,7 @@
 	let hidden = $state(false);
 	let atTop = $state(true);
 
-	// SP top page: the greeting is the logo at first (see the top page), so
+	// Top page: the greeting is the logo at first (see the top page), so
 	// the header follows ui.homeMark instead of the scroll position.
 	const isHome = $derived(page.url.pathname === '/');
 	const dotsOnly = $derived(isHome ? ui.homeMark === 'dots' : !atTop);
@@ -178,23 +178,21 @@
 		transform: translateY(calc(-100% - var(--btn-y)));
 	}
 
-	@media (max-width: 1023.98px) {
-		/* Top page: nothing until the greeting has become the mark, which
-		   then stays (it does not tuck away) and swaps in without a fade. */
-		.is-home .mark {
-			transition:
-				opacity 0.15s linear,
-				transform 0.6s var(--ease-out);
-		}
+	/* Top page: nothing until the greeting has become the mark, which then
+	   stays (it does not tuck away) and swaps in without a fade. */
+	.is-home .mark {
+		transition:
+			opacity 0.15s linear,
+			transform 0.6s var(--ease-out);
+	}
 
-		.is-home.is-hidden:not(.is-menu-open) .mark {
-			transform: translateX(-50%);
-		}
+	.is-home.is-hidden:not(.is-menu-open) .mark {
+		transform: translateX(-50%);
+	}
 
-		:global(html.js) .Header.is-away :is(.menu-btn, .mark) {
-			opacity: 0;
-			visibility: hidden;
-		}
+	:global(html.js) .Header.is-away :is(.menu-btn, .mark, .links) {
+		opacity: 0;
+		visibility: hidden;
 	}
 
 	/* Hit area is 44px+; the drawn lines keep their Figma position. */
@@ -286,9 +284,14 @@
 			transition: visibility 0s linear 0.5s;
 		}
 
-		/* PC: no ii mark — ii-ii.co at the left names the site. */
+		/* PC: no ii mark — ii-ii.co at the left names the site — except on
+		   the top page, where the greeting shortens into it. */
 		.mark {
 			display: none;
+		}
+
+		.is-home .mark {
+			display: block;
 		}
 
 		/* PC: the links straight in the header (ii-ii.co and Works left;
