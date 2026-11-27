@@ -19,8 +19,9 @@
 
 /* ---------------------------------------------------------------------
    Font faces
-   Ango (II's Latin face; formerly Elio — renamed 2026-10-03, files were
-   Elio-VF##.woff2 up to VF21) ships 175 characters as of VF31 (2026-10-28):
+   Humorist (II's Latin face; renamed from Ango, here 2026-11-28, and from
+   Elio before that, 2026-10-03: files were Elio-VF##.woff2 up to VF21 and
+   Ango-VF##.woff2 up to VF55 — the notes below keep the numbers) ships 175 characters as of VF31 (2026-10-28):
    A–Z, a–z, 0–9, accents, ¥ (VF17), – (VF19) and, new in VF27, 24
    punctuation/symbols (! " # & * + / ; < = > ? [ \ ] _ | © « ® ° » ’ “ ” ™).
    VF21 widened every advance by 5 units (≈ letter-spacing: 0.005em baked
@@ -32,12 +33,12 @@
    (FONTPLUS), both loaded from app.html.
    VF42 (2026-11-08) is Humorist's latest, as shipped on the foundry
    site (Dev/august): 234 characters, wght 50–950. Maxica (adopted
-   2026-11-04) was taken back out the same week — Ango leads again.
+   2026-11-04) was taken back out the same week — Humorist leads again.
    Bump ?v= here AND in app.html's preload when a font file changes.
    --------------------------------------------------------------------- */
 @font-face {
-	font-family: 'Ango';
-	src: url('/fonts/Ango-VF55.woff2?v=55') format('woff2-variations');
+	font-family: 'Humorist';
+	src: url('/fonts/Humorist-VF55.woff2?v=55') format('woff2-variations');
 	font-weight: 50 950;
 	font-style: normal;
 	font-display: swap;
@@ -47,6 +48,17 @@
 	font-family: 'Norma by AUGUST.tf VF09';
 	src: url('/fonts/Norma-VF09.woff2?v=09') format('woff2');
 	font-weight: 1 950;
+	font-style: normal;
+	font-display: swap;
+}
+
+/* Gigi Sans, the static Bold (VF06): the work pages' titles only, set in
+   capitals (Aside.svelte). Declared over every weight, so any weight asked
+   for gets it (no faux bold). */
+@font-face {
+	font-family: 'Gigi Sans Bold';
+	src: url('/fonts/GigiSans-Bold-VF06.woff2') format('woff2');
+	font-weight: 1 1000;
 	font-style: normal;
 	font-display: swap;
 }
@@ -66,8 +78,8 @@
 	--color-accent: #43439d; /* About page background (PC) */
 
 	/* Type stacks */
-	--font-en: 'Ango', 'Norma by AUGUST.tf VF09', 'Helvetica Neue', Arial, sans-serif;
-	--font-ja: 'Ango', 'Norma by AUGUST.tf VF09', 'Ishii Gothic M', TazuganeGothicStdN-Book,
+	--font-en: 'Humorist', 'Norma by AUGUST.tf VF09', 'Helvetica Neue', Arial, sans-serif;
+	--font-ja: 'Humorist', 'Norma by AUGUST.tf VF09', 'Ishii Gothic M', TazuganeGothicStdN-Book,
 		'TazuganeGothicStdN-Book', 'Tazugane Gothic StdN', 'Tazugane Gothic', 'Hiragino Sans',
 		'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Meiryo', sans-serif;
 
@@ -76,7 +88,7 @@
 	   Single source of truth: components never hardcode a wght. */
 	--fw-regular: 400;
 	--fw-medium: 400;
-	--fw-eyebrow: var(--fw-regular); /* Figma SP: Ango Regular 10px */
+	--fw-eyebrow: var(--fw-regular); /* Figma SP: Humorist Regular 10px */
 
 	/* Tracking */
 	--tracking-title: 0.05em; /* all uppercase display text */
@@ -122,7 +134,7 @@
 	:root {
 		--fs-title: 42px;
 		--fs-eyebrow: 9px;
-		--fw-eyebrow: var(--fw-medium); /* Figma PC: Ango Medium 9px */
+		--fw-eyebrow: var(--fw-medium); /* Figma PC: Humorist Medium 9px */
 		--fs-subtitle: 32px;
 		--fs-menu: 32px;
 		--fs-body: 16px;

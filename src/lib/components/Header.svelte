@@ -49,7 +49,7 @@
 		return () => window.removeEventListener('scroll', onScroll);
 	});
 
-	// PC: ii-ii.co, set in the site's face (Ango), types itself out at the
+	// PC: ii-ii.co, set in the site's face (Humorist), types itself out at the
 	// left once the page has entered (after the opening on the top page).
 	const DOMAIN = 'ii-ii.co';
 	const DOMAIN_KEY_MS = 55;

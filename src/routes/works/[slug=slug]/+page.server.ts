@@ -34,7 +34,8 @@ export const load: PageServerLoad = async ({ params }) => {
 		aside: {
 			eyebrow: 'Design Creation',
 			title: work.title,
-			scope: detail.scope.join(' / ')
+			scope: detail.scope.join(' / '),
+			displayTitle: true
 		},
 		seo: {
 			title: workTitleOf(work.title),

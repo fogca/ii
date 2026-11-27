@@ -7,7 +7,8 @@ declare global {
 		interface PageData {
 			/** Title block shown in the left panel (PC) / page head (SP). */
 			/** `scope`: a work's scope line, shown under the moved title (PC). */
-			aside?: { eyebrow: string; title: string; scope?: string };
+			/** `displayTitle`: a work's name, set in the display face. */
+			aside?: { eyebrow: string; title: string; scope?: string; displayTitle?: boolean };
 			seo?: { title: string; description?: string; image?: string };
 		}
 		// interface PageState {}

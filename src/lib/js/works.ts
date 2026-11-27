@@ -195,7 +195,7 @@ export const toWorkDetail = (w: Work): WorkDetail => {
 	const tag = w.description ? splitTag(w.description) : { ja: '', en: '' };
 	const bilingual = (en: string, ja: string): Bilingual | null =>
 		en || ja ? { en, ja } : null;
-	// `headline` may use the same "ja!en" format as `description` (e.g. ANGO);
+	// `headline` may use the same "ja!en" format as `description` (e.g. HUMORIST);
 	// without a "!" it's a plain English line, as before.
 	const headline = w.headline?.trim() ?? '';
 	const head = headline.includes('!') ? splitTag(headline) : { ja: '', en: headline };

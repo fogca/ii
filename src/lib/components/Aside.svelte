@@ -7,8 +7,16 @@
 		eyebrow = '',
 		title = '',
 		scope = '',
+		displayTitle = false,
 		inert = false
-	}: { eyebrow?: string; title?: string; scope?: string; inert?: boolean } = $props();
+	}: {
+		eyebrow?: string;
+		title?: string;
+		scope?: string;
+		/** A work's name: set in the display face, in capitals. */
+		displayTitle?: boolean;
+		inert?: boolean;
+	} = $props();
 
 </script>
 
@@ -22,7 +30,7 @@
 			{#if eyebrow}<p class="eyebrow t-eyebrow">{eyebrow}</p>{/if}
 			<!-- The "PJ: " / "Scope: " labels are real text (shown only in the
 			     moved block) so a work page can split them into letters too. -->
-			<h1 class="title t-title"><span class="label">{'PJ: '}</span>{title}</h1>
+			<h1 class="title t-title" class:is-display={displayTitle}><span class="label">{'PJ: '}</span>{title}</h1>
 			{#if scope}<p class="scope"><span class="label">{'Scope: '}</span>{scope}</p>{/if}
 		</div>
 	{/key}
@@ -79,6 +87,11 @@
 		font-weight: 550;
 		white-space: pre-line;
 		text-wrap: balance;
+	}
+
+	.title.is-display {
+		font-family: 'Gigi Sans Bold', var(--font-ja);
+		text-transform: uppercase;
 	}
 
 	/* PC (Figma 79:154): fixed 455/1440-wide panel; title vertically

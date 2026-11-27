@@ -138,7 +138,13 @@
 <!-- While the menu is open everything but the menu and its toggle is inert,
      which is what makes the sheet modal (see Menu.svelte). -->
 {#if aside}
-	<Aside eyebrow={aside.eyebrow} title={aside.title} scope={aside.scope} inert={ui.menuOpen} />
+	<Aside
+		eyebrow={aside.eyebrow}
+		title={aside.title}
+		scope={aside.scope}
+		displayTitle={aside.displayTitle}
+		inert={ui.menuOpen}
+	/>
 {/if}
 
 <main class="Main" class:has-aside={!!aside} inert={ui.menuOpen}>

@@ -18,8 +18,8 @@
 	// Copy from the foundry's own site (timetokyo.pages.dev) — only what it states.
 	const FONTS: Font[] = [
 		{
-			name: 'Ango',
-			family: "'Ango', sans-serif",
+			name: 'Humorist',
+			family: "'Humorist', sans-serif",
 			weight: { min: 150, max: 950, value: 450 },
 			note: ['Reticent and Ravenous.', 'In development · 9 weights.', 'By Time Type Tokyo.'],
 			buy: TYPE_URL
@@ -129,7 +129,7 @@
 	});
 
 	/** Spacing reads as a signed em value, e.g. -0.025 / 0.000 (a hyphen:
-	    Ango has no true minus). */
+	    Humorist has no true minus). */
 	const fmtSpacing = (v: number) => (Math.abs(v) < 0.0005 ? 0 : v).toFixed(3);
 
 </script>
