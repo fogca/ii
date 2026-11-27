@@ -51,6 +51,22 @@
 	font-display: swap;
 }
 
+/* TRIAL (2026-11-27): Gigi Sans Bold, all caps, ahead of Ango for Latin.
+   The static Bold is declared over every weight, so any weight asked for
+   gets it (no faux bold). The range leaves out the em dash, so the
+   Japanese "——" stays as it was; letters it lacks (accents, ( ) @ ?)
+   fall back to Ango. To undo the trial, revert its commit (this face, its
+   name in the two stacks, the caps rules after :lang(ja) and the preload
+   in app.html). */
+@font-face {
+	font-family: 'Gigi Sans Bold';
+	src: url('/fonts/GigiSans-Bold-VF06.woff2') format('woff2');
+	font-weight: 1 1000;
+	font-style: normal;
+	font-display: swap;
+	unicode-range: U+0020-007E, U+2013, U+2018-2019, U+201C-201D, U+2122;
+}
+
 /* ---------------------------------------------------------------------
    Tokens — SP first (Figma SP frames are 393px wide), PC from 1024px
    (Figma PC frames are 1440 × 900).
@@ -66,8 +82,8 @@
 	--color-accent: #43439d; /* About page background (PC) */
 
 	/* Type stacks */
-	--font-en: 'Ango', 'Norma by AUGUST.tf VF09', 'Helvetica Neue', Arial, sans-serif;
-	--font-ja: 'Ango', 'Norma by AUGUST.tf VF09', 'Ishii Gothic M', TazuganeGothicStdN-Book,
+	--font-en: 'Gigi Sans Bold', 'Ango', 'Norma by AUGUST.tf VF09', 'Helvetica Neue', Arial, sans-serif;
+	--font-ja: 'Gigi Sans Bold', 'Ango', 'Norma by AUGUST.tf VF09', 'Ishii Gothic M', TazuganeGothicStdN-Book,
 		'TazuganeGothicStdN-Book', 'Tazugane Gothic StdN', 'Tazugane Gothic', 'Hiragino Sans',
 		'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Meiryo', sans-serif;
 
@@ -313,6 +329,22 @@ h6 {
 	line-height: var(--lh-ja);
 	letter-spacing: 0.02em;
 	font-feature-settings: 'palt' 1;
+}
+
+/* TRIAL: all caps everywhere (over the components' own settings), except
+   what is typed: form fields and the type page's tester. Typed text keeps
+   Ango. */
+body,
+body *:not(input, textarea, select, .tester) {
+	text-transform: uppercase !important;
+}
+
+body :is(input, textarea, select, .tester) {
+	text-transform: none !important; /* not inherited from the caps around it */
+}
+
+body :is(input, textarea, select) {
+	font-family: 'Ango', 'Norma by AUGUST.tf VF09', 'Ishii Gothic M', 'Hiragino Sans', sans-serif !important; /* over :lang(ja) */
 }
 
 /* ---------------------------------------------------------------------
