@@ -85,6 +85,7 @@
 		   a ~9-character measure + balance reproduces that. */
 		max-width: 9.6em;
 		font-weight: 550;
+		line-height: 1.15; /* over :lang(ja)'s 1.8, which the page's language sets */
 		white-space: pre-line;
 		text-wrap: balance;
 	}
