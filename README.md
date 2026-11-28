@@ -33,4 +33,4 @@ npm run dev            # http://localhost:3300
 | `src/lib/components` | Header, Menu, Aside (left panel / page head), SiteFooter (SP), Opening, Masonry, Media, Logo |
 | `src/lib/js/works.ts` | microCMS `works` → page data |
 | `static/css/base.css` | tokens, reset, type primitives |
-| `static/fonts` | Humorist VF55 (Latin; formerly Ango, Elio), Norma VF09 (fallback for glyphs Humorist doesn't ship), Gigi Sans Bold VF06 (work page titles) |
+| `static/fonts` | Humorist VF55 (Latin; formerly Ango, Elio), Norma VF09 (fallback for glyphs Humorist doesn't ship), Gigi Sans Regular VF06 (work page titles) |

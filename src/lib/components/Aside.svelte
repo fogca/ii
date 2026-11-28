@@ -91,7 +91,7 @@
 	}
 
 	.title.is-display {
-		font-family: 'Gigi Sans Bold', var(--font-ja);
+		font-family: 'Gigi Sans Regular', var(--font-ja);
 		text-transform: uppercase;
 	}
 

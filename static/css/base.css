@@ -52,12 +52,12 @@
 	font-display: swap;
 }
 
-/* Gigi Sans, the static Bold (VF06): the work pages' titles only, set in
+/* Gigi Sans, the static Regular (VF06): the work pages' titles only, set in
    capitals (Aside.svelte). Declared over every weight, so any weight asked
    for gets it (no faux bold). */
 @font-face {
-	font-family: 'Gigi Sans Bold';
-	src: url('/fonts/GigiSans-Bold-VF06.woff2') format('woff2');
+	font-family: 'Gigi Sans Regular';
+	src: url('/fonts/GigiSans-Regular-VF06.woff2') format('woff2');
 	font-weight: 1 1000;
 	font-style: normal;
 	font-display: swap;
